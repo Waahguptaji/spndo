@@ -1,0 +1,18 @@
+# Conventional Commit Message Template
+
+<type>(<scope>): <short summary>
+
+# Types: feat, fix, chore, docs, style, refactor, test, ci, perf
+# Scope (optional): e.g. auth, expense, db, ui, config
+# Summary: use imperative, present tense (e.g. add, fix, update)
+
+# Example:
+# feat(auth): add user login route and validation
+# chore(db): setup database schema for expenses
+# fix(auth): resolve issue with JWT expiration handling
+
+# ----------------------
+# DO NOT WRITE BELOW THIS LINE (ignored in actual commit)
+# ----------------------
+# Explain why this change was made (optional)
+# Related issue number (e.g. Closes #12)
