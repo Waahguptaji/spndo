@@ -47,7 +47,7 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
     };
 
     const currentState = getCurrentState();
-    const hasContent = value && value.toString().length > 0;
+    // const hasContent = value && value.toString().length > 0;
 
     const stateStyles = {
       default: {
