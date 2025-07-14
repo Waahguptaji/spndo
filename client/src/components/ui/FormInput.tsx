@@ -51,28 +51,28 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
 
     const stateStyles = {
       default: {
-        border: "border-gray-300",
-        background: "bg-white",
-        text: "text-gray-900",
-        placeholder: "placeholder-gray-500",
+        border: "border-neutral-grey1",
+        background: "bg-neutral-dark2",
+        text: "text-white",
+        placeholder: "placeholder-neutral-grey3",
       },
       focus: {
-        border: "border-blue-500 ring-1 ring-blue-500",
-        background: "bg-white",
-        text: "text-gray-900",
-        placeholder: "placeholder-gray-400",
+        border: "border-primary-brand ring-1 ring-primary-brand",
+        background: "bg-neutral-dark2",
+        text: "text-white",
+        placeholder: "placeholder-neutral-grey3",
       },
       error: {
         border: "border-red-500 ring-1 ring-red-500",
-        background: "bg-white",
-        text: "text-gray-900",
-        placeholder: "placeholder-gray-500",
+        background: "bg-neutral-dark2",
+        text: "text-white",
+        placeholder: "placeholder-neutral-grey3",
       },
       disabled: {
-        border: "border-gray-200",
-        background: "bg-gray-50",
-        text: "text-gray-400",
-        placeholder: "placeholder-gray-300",
+        border: "border-neutral-grey1",
+        background: "bg-neutral-dark2",
+        text: "text-neutral-grey2",
+        placeholder: "placeholder-neutral-grey3",
       },
     };
 
@@ -109,7 +109,7 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white mb-2">
             {label}
           </label>
         )}

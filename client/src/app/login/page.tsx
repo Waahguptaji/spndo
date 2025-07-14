@@ -1,73 +1,95 @@
-// src/app/login/page.tsx
-
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import FormInput from "@/components/FormInput";
-import Button from "@/components/Button";
+import FormInput from "@/components/ui/FormInput";
+import { Mail, Lock } from "lucide-react";
+import Link from "next/link";
+import Button from "@/components/ui/Button";
 
-export default function LoginPage() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const router = useRouter();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
-  };
+const LoginPage = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // 🔐 Placeholder login logic
-    if (formData.email === "test@spndo.com" && formData.password === "123456") {
-      alert("Login successful!");
-      router.push("/dashboard"); // replace with actual route later
-    } else {
-      alert("Invalid credentials");
-    }
+    // TODO: Implement login logic
+    console.log({ username, password });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-softGrey3 dark:bg-dark-bg px-4">
-      <div className="w-full max-w-md p-6 rounded-lg shadow-lg bg-neutral-white dark:bg-neutral-dark2">
-        <h2 className="text-2xl font-heading text-primary-brand dark:text-dark-text mb-2">
-          Welcome Back 👋
-        </h2>
-        <p className="text-sm text-neutral-grey1 dark:text-dark-muted mb-6">
-          Please login to your account
-        </p>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <FormInput
-            id="email"
-            type="email"
-            label="Email"
-            placeholder="you@example.com"
-            value={formData.email}
-            onChange={handleChange}
-          />
-          <FormInput
-            id="password"
-            type="password"
-            label="Password"
-            placeholder="••••••••"
-            value={formData.password}
-            onChange={handleChange}
-          />
-<Button type="submit" className="mt-2">Login</Button>
-
-        </form>
-
-        <p className="mt-4 text-sm text-center text-neutral-grey2 dark:text-dark-muted">
-          Don’t have an account?{" "}
-          <a
-            href="/register"
-            className="text-primary-brand hover:underline dark:text-primary-brand"
-          >
-            Register
-          </a>
-        </p>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
+      {/* Logo */}
+      <div className="mb-8 flex flex-col items-center">
+        <img src="/logo.svg" alt="Monex Logo" className="w-12 h-12" />
+        <h1 className="text-2xl font-heading font-bold mt-2 text-gray-900">
+          monex
+        </h1>
       </div>
+
+      {/* Login Form */}
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
+        <FormInput
+          label="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          icon={<Mail size={18} />}
+          placeholder="Username"
+        />
+
+        <FormInput
+          label="Password"
+          variant="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          icon={<Lock size={18} />}
+          placeholder="Password"
+        />
+
+        <Button type="submit" className="w-full mt-4">
+          Login
+        </Button>
+      </form>
+
+      {/* Forgot Password */}
+      <p className="text-sm font-medium text-gray-500 mt-4 uppercase">
+        Forgot Password
+      </p>
+
+      {/* OR Divider */}
+      <div className="my-6 flex items-center w-full max-w-sm">
+        <div className="flex-grow border-t border-gray-200" />
+        <span className="mx-4 text-gray-400">Or</span>
+        <div className="flex-grow border-t border-gray-200" />
+      </div>
+
+      {/* Social Buttons */}
+      <div className="w-full max-w-sm space-y-3">
+        <button
+          type="button"
+          className="flex items-center justify-center gap-2 w-full py-3 border border-gray-300 rounded-xl hover:bg-gray-50"
+        >
+          <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
+          CONTINUE WITH GOOGLE
+        </button>
+
+        <button
+          type="button"
+          className="flex items-center justify-center gap-2 w-full py-3 border border-gray-300 rounded-xl hover:bg-gray-50"
+        >
+          <img src="/apple-icon.svg" alt="Apple" className="w-5 h-5" />
+          CONTINUE WITH APPLE
+        </button>
+      </div>
+
+      {/* Register */}
+      <p className="text-sm text-gray-600 mt-6">
+        Don’t have an account?{" "}
+        <Link href="/register" className="text-blue-600 font-medium underline">
+          Register here
+        </Link>
+      </p>
     </div>
   );
-}
+};
+
+export default LoginPage;
