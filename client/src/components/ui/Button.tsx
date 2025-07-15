@@ -4,7 +4,7 @@ import { ButtonHTMLAttributes } from "react";
 import clsx from "clsx";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "ghost" | "outline";
+  variant?: "primary" | "ghost" | "outline" | "social";
   fullWidth?: boolean;
 }
 
@@ -19,10 +19,11 @@ export default function Button({
   const fullWidthStyle = fullWidth ? "w-full" : "";
 
   const variants: Record<string, string> = {
-    primary: "bg-primary-brand text-white hover:bg-primary.dark dark:bg-primary-brand dark:hover:bg-primary.dark",
-    ghost: "bg-transparent text-primary-brand hover:bg-neutral-softGrey1 dark:text-primary-brand dark:hover:bg-neutral-dark2",
+    primary: "bg-primary-green text-white hover:bg-primary.dark dark:bg-primary-green dark:hover:bg-primary.dark",
+    ghost: "bg-transparent text-primary-green hover:bg-neutral-softGrey1 dark:text-primary-green dark:hover:bg-neutral-dark2",
     outline:
-      "border border-primary-brand text-primary-brand hover:bg-neutral-softGrey1 dark:hover:bg-neutral-dark2",
+      "border border-primary-green text-primary-green hover:bg-neutral-softGrey1 dark:hover:bg-neutral-dark2",
+    social: " flex items-center justify-center rounded-md bg-secondary-blueLight",
   };
 
   return (

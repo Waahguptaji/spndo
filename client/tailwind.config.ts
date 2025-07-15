@@ -11,20 +11,13 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          light: "#2880ED",
-          dark: "#0B69A3",
-          brand: "#F9503B",
+          light: "#FFFFFF",
+          dark: "#283232",
+          green: "#ADFF00",
         },
         secondary: {
-          greenDark: "#014D40",
-          greenLight: "#9BFD03",
-          blueLight: "#D1F4FF",
-          yellowLight: "#FCE588",
-          redLight: "#AB091E",
-          softOrange: "#FDE1CE",
-          darkBrand: "#E85737",
-          redDark: "#AB091E",
-          brown: "#B16F05",
+          blueLight: "#394646",
+          darkBrand: "#1F2828",
         },
         neutral: {
           dark1: "#1F2933",
