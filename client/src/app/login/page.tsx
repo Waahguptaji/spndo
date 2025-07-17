@@ -12,7 +12,13 @@ import { IoBag } from "react-icons/io5";
 import { MdOutlineEmail } from "react-icons/md";
 import { TbLockPassword } from "react-icons/tb";
 import { FaApple } from "react-icons/fa";
-import loginImage from "../../../public/loginimage.png"; // Adjust the path as necessary
+import loginImage from "../../../public/assets/tree.png";
+import appleIcon from "../../../public/assets/apple-icon-light.svg"; 
+import facebookIcon from "../../../public/assets/facebook-icon.svg"; 
+import twitterIcon from "../../../public/assets/x-icon-light.svg"; 
+import googleIcon from "../../../public/assets/google-icon.svg"; 
+import xicondark from "../../../public/assets/x-icon-dark.svg"; 
+import appleIcondark from "../../../public/assets/apple-icon-dark.svg"; 
 import Image from "next/image";
 import Link from "next/link";
 
@@ -35,49 +41,48 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center  md:px-4">
-      <div className="w-full max-w-4xl grid md:grid-cols-2 grid-cols-1   rounded-lg  overflow-hidden ">
-        {/* Left Image/Illustration Section */}
-        
+    <div className="flex items-center justify-center">
 
-        {/* Right Login Section */}
-        
-        <div className="p-8 row-span-4" >
-          <div className="flex justify-center">
-            <div className="bg-primary-green rounded-full p-2"><IoBag className="text-secondary-darkBrand" /></div>
+      <div className="flex w-screen h-screen justify-center">
+
+   
+        <div className="p-8 md:w-5/12 flex flex-col justify-center"> 
+          <div className="flex justify-center relative">
+            <div className="bg-primary-brand rounded-full p-2"><IoBag className="text-secondary-darkBrand" /></div>
           </div>
-          <h2 className="text-2xl font-heading text-primary-light dark:text-dark-text mb-2 text-center">
-            Welcome Back 
+          <h2 className="text-xl font-heading dark:text-primary-light text-primary-dark mb-2 text-center">
+            Welcome Back
           </h2>
-          <p className="text-sm text-neutral-grey1 dark:text-dark-muted mb-6 text-center">
+          <p className="text-sm text-neutral-grey3 dark:text-dark-muted mb-6 text-center">
             Please login to your account
           </p>
-          
 
           {/* Social Media Login */}
           <div className="flex justify-center gap-4">
-            <Button type="button" variant="social" aria-label="Login with Google">
-              <FcGoogle size={20}  />
+            <Button type="button" variant="social" aria-label="Login with Google" >
+              <Image src={googleIcon} alt="Google Icon" className="w-7 h-7" />
             </Button>
             <Button type="button" variant="social" aria-label="Login with Apple">
-              <FaApple size={20} />
+              <Image src={appleIcon} alt="Apple Icon" className="w-7 h-7 dark:hidden" />
+              <Image src={appleIcondark} alt="Apple Icon" className="w-7 h-7 hidden dark:block" />
             </Button>
             <Button type="button" variant="social" aria-label="Login with Facebook">
-              <FaFacebookF size={20} className="text-blue-600" />
+              <Image src={facebookIcon} alt="Facebook Icon" className="w-7 h-7" />
             </Button>
             <Button type="button" variant="social" aria-label="Login with Twitter">
-              <FaXTwitter size={20} />
+              <Image src={twitterIcon} alt="Twitter Icon" className="w-7 h-7 dark:hidden" />
+              <Image src={xicondark} alt="Twitter Icon" className="w-7 h-7 hidden dark:block" />
             </Button>
           </div>
           {/* Divider */}
-          <div className="flex items-center my-6">
+          <div className="flex items-center my-6 md:mx-10">
             <div className="flex-grow h-px bg-neutral-softGrey1"></div>
             <span className="mx-4 text-sm text-neutral-grey2 dark:text-dark-muted">
               OR
             </span>
             <div className="flex-grow h-px bg-neutral-softGrey1"></div>
           </div>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4 md:mx-10">
             <FormInput
               id="email"
               type="email"
@@ -86,7 +91,6 @@ export default function LoginPage() {
               placeholder="you@example.com"
               value={formData.email}
               onChange={handleChange}
-
             />
             <FormInput
               id="password"
@@ -96,17 +100,13 @@ export default function LoginPage() {
               value={formData.password}
               onChange={handleChange}
               icon={<TbLockPassword />}
-            
-              
             />
-            <Button type="submit" fullWidth >
+            <Button type="submit" fullWidth>
               Login
             </Button>
           </form>
 
-          
-
-          <p className="mt-6 text-sm text-center text-neutral-grey2 dark:text-dark-muted">
+          <p className="mt-6 text-sm text-center text-neutral-grey3 dark:text-dark-muted">
             Don’t have an account?{' '}
             <Link
               href="/register"
@@ -117,12 +117,13 @@ export default function LoginPage() {
           </p>
         </div>
 
-
-        <div className="hidden md:flex  bg-primary-light dark:bg-primary-dark row-span-8 ">
+        {/* Image container - added centering and padding */}
+        <div className="hidden md:flex items-center justify-center bg-primary-light dark:bg-primary-dark w-7/12">
           <Image
             src={loginImage}
             alt="Login illustration"
-            className="h-fit w-fit"
+            // Use object-contain to fit the image within the container
+            className=" w-full h-full border-none md:p-1"
           />
         </div>
       </div>
