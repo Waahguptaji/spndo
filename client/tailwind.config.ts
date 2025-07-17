@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: "media",
+  darkMode: "class",
   content: [
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
@@ -12,9 +12,8 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          light: "#FFFFFF",
-          dark: "#283232",
-         
+          light: "#D7FF4F", // optional for lighter hover
+          dark: "#A6DB00", // hover or shade
           brand: "#C2FF00", // exact button green
         },
         

@@ -17,10 +17,8 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col md:flex-row relative overflow-hidden"
-      style={{ backgroundColor: "#242d2d" }}
-    >
+    // The corrected code
+    <div className="min-h-screen flex flex-col md:flex-row relative overflow-hidden bg-neutral-white dark:bg-[#242d2d]">
       {/* spotlight layers */}
       <div
         className="absolute inset-0 opacity-40"
@@ -39,13 +37,13 @@ const RegisterPage: React.FC = () => {
       />
 
       {/* left: form */}
-      <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  min-h-screen justify-center px-6 space-y-8">
+      <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  min-h-screen px-6 justify-center space-y-8">
         {/* logo */}
         <div>
           <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md">
             <Image
               src="/assets/bag-icon.svg"
-              alt="Google"
+              alt="Bag"
               width={26}
               height={26}
             />
@@ -54,17 +52,17 @@ const RegisterPage: React.FC = () => {
 
         {/* title */}
         <div className="text-center space-y-2">
-          <h1 className="text-2xl md:text-3xl font-bold text-white">
+          <h1 className="text-2xl md:text-3xl font-bold dark:text-neutral-white text-neutral-dark1">
             Create an account
           </h1>
-          <p className="text-neutral-grey3 text-sm">
+          <p className="dark:text-neutral-grey3 text-sm">
             Sign up now and unlock exclusive access!
           </p>
         </div>
 
         {/* social buttons */}
         <div className="flex justify-center gap-4">
-          <button className="w-20 h-12 bg-neutral-grey1 rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
+          <button className="w-20 h-12 dark:bg-neutral-grey1 bg-neutral-white rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
             <Image
               src="/assets/google-icon.svg"
               alt="Google"
@@ -72,7 +70,7 @@ const RegisterPage: React.FC = () => {
               height={26}
             />
           </button>
-          <button className="w-20 h-12 bg-neutral-grey1 rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
+          <button className="w-20 h-12 dark:bg-neutral-grey1 bg-neutral-white rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
             <Image
               src="/assets/facebook-icon.svg"
               alt="Facebook"
@@ -80,20 +78,36 @@ const RegisterPage: React.FC = () => {
               height={26}
             />
           </button>
-          <button className="w-20 h-12 bg-neutral-grey1 rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
+          <button className="w-20 h-12 dark:bg-neutral-grey1 bg-neutral-white rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
             <Image
-              src="/assets/apple-icon.svg"
+              src="/assets/apple-icon-light.svg"
               alt="Apple"
               width={26}
               height={26}
+              className="block dark:hidden"
+            />
+            <Image
+              src="/assets/apple-icon-dark.svg"
+              alt="Apple"
+              width={26}
+              height={26}
+              className="hidden dark:block"
             />
           </button>
-          <button className="w-20 h-12 bg-neutral-grey1 rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
+          <button className="w-20 h-12 dark:bg-neutral-grey1 bg-neutral-white rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
             <Image
-              src="/assets/x-icon.svg"
+              src="/assets/x-icon-light.svg"
               alt="Apple"
               width={26}
               height={26}
+              className="block dark:hidden"
+            />
+            <Image
+              src="/assets/x-icon-dark.svg"
+              alt="Apple"
+              width={26}
+              height={26}
+              className="hidden dark:block"
             />
           </button>
         </div>
@@ -101,7 +115,9 @@ const RegisterPage: React.FC = () => {
         {/* divider */}
         <div className="flex items-center w-full max-w-sm">
           <hr className="flex-grow border-neutral-grey1" />
-          <span className="px-3 text-xs text-neutral-grey3">OR</span>
+          <span className="px-3 text-xs dark:text-neutral-white text-neutral-grey3">
+            OR
+          </span>
           <hr className="flex-grow border-neutral-grey1" />
         </div>
 
@@ -133,9 +149,15 @@ const RegisterPage: React.FC = () => {
               type="checkbox"
               className="w-4 h-4 text-primary-brand rounded border-neutral-grey1 focus:ring-primary-brand"
             />
-            <label htmlFor="terms" className="ml-2 text-white">
+            <label
+              htmlFor="terms"
+              className="ml-2 text-neutral-dark2 dark:text-neutral-white"
+            >
               I agree to the{" "}
-              <a href="#" className="text-primary-brand underline">
+              <a
+                href="#"
+                className="text-neutral-dark1 dark:text-primary-brand underline"
+              >
                 terms of service
               </a>
             </label>
@@ -152,9 +174,12 @@ const RegisterPage: React.FC = () => {
         </form>
 
         {/* footer link */}
-        <p className="text-sm text-center text-neutral-grey3">
+        <p className="text-sm text-center text-neutral-dark2 dark:text-neutral-grey3">
           Already have an account?{" "}
-          <Link href="/login" className="text-primary-brand underline">
+          <Link
+            href="/login"
+            className="text-neutral-dark2 dark:text-primary-brand underline"
+          >
             Login
           </Link>
         </p>

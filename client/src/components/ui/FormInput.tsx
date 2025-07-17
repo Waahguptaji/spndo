@@ -52,27 +52,31 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
     const stateStyles = {
       default: {
         border: "border-neutral-grey1",
-        background: "bg-neutral-dark2",
-        text: "text-white",
-        placeholder: "placeholder-neutral-grey3",
+        background: "bg-neutral-white dark:bg-neutral-dark2",
+        text: "text-neutral-dark2 dark:text-neutral-white",
+        placeholder:
+          "placeholder-neutral-grey1 dark:placeholder-neutral-softgrey3",
       },
       focus: {
         border: "border-primary-brand ring-1 ring-primary-brand",
-        background: "bg-neutral-dark2",
-        text: "text-white",
-        placeholder: "placeholder-neutral-grey3",
+        background: "bg-neutral-white dark:bg-neutral-dark2",
+        text: "text-neutral-grey1 dark:text-neutral-white",
+        placeholder:
+          "placeholder-neutral-softgrey3 dark:placeholder-neutral-softgrey3",
       },
       error: {
         border: "border-red-500 ring-1 ring-red-500",
-        background: "bg-neutral-dark2",
-        text: "text-white",
-        placeholder: "placeholder-neutral-grey3",
+        background: "bg-neutral-white dark:bg-neutral-dark2",
+        text: "text-neutral-grey1 dark:text-neutral-white",
+        placeholder:
+          "placeholder-neutral-softgrey3 dark:placeholder-neutral-softgrey3",
       },
       disabled: {
         border: "border-neutral-grey1",
-        background: "bg-neutral-dark2",
+        background: "bg-neutral-white dark:bg-neutral-dark2",
         text: "text-neutral-grey2",
-        placeholder: "placeholder-neutral-grey3",
+        placeholder:
+          "placeholder-neutral-grey1 dark:placeholder-neutral-softgrey3",
       },
     };
 
@@ -109,7 +113,7 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
     return (
       <div className="">
         {label && (
-          <label className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-neutral-dark1 dark:text-neutral-white mb-2">
             {label}
           </label>
         )}
