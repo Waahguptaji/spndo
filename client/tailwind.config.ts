@@ -16,14 +16,15 @@ const config: Config = {
           dark: "#A6DB00", // hover or shade
           brand: "#C2FF00", // exact button green
         },
+        
         secondary: {
           greenDark: "#014D40",
           greenLight: "#9BFD03",
-          blueLight: "#D1F4FF",
+          blueLight: "#394646",
           yellowLight: "#FCE588",
           redLight: "#FF3B3B", // exact from screenshot
           softOrange: "#FDE1CE",
-          darkBrand: "#E85737",
+          darkBrand: "#1F2828",
           redDark: "#AB091E",
           brown: "#B16F05",
         },

@@ -2,7 +2,7 @@ import { ButtonHTMLAttributes } from "react";
 import clsx from "clsx";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "ghost" | "outline";
+  variant?: "primary" | "ghost" | "outline" | "social";
   fullWidth?: boolean;
 }
 
@@ -23,7 +23,9 @@ export default function Button({
     ghost:
       "bg-transparent text-primary-brand hover:bg-neutral-softGrey1 dark:text-primary-brand dark:hover:bg-neutral-dark2 focus:ring-primary-brand",
     outline:
-      "border border-primary-brand text-primary-brand hover:bg-neutral-softGrey1 dark:hover:bg-neutral-dark2 focus:ring-primary-brand",
+      "border border-primary-green text-primary-green hover:bg-neutral-softGrey1 dark:hover:bg-neutral-dark2 focus:ring-primary-brand focus:ring-primary-brand",
+    social:
+      " flex w-20 h-12 dark:bg-neutral-grey1 bg-neutral-white rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition",
   };
 
   return (

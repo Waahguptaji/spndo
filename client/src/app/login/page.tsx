@@ -1,95 +1,172 @@
+// src/app/login/page.tsx
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import FormInput from "@/components/ui/FormInput";
-import { Mail, Lock } from "lucide-react";
-import Link from "next/link";
 import Button from "@/components/ui/Button";
 
-const LoginPage = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+import { MdOutlineEmail } from "react-icons/md";
+import { TbLockPassword } from "react-icons/tb";
+import loginImage from "../../../public/assets/tree.png";
+import appleIcon from "../../../public/assets/apple-icon-light.svg";
+import facebookIcon from "../../../public/assets/facebook-icon.svg";
+import twitterIcon from "../../../public/assets/x-icon-light.svg";
+import googleIcon from "../../../public/assets/google-icon.svg";
+import xicondark from "../../../public/assets/x-icon-dark.svg";
+import appleIcondark from "../../../public/assets/apple-icon-dark.svg";
+import Image from "next/image";
+import Link from "next/link";
+
+export default function LoginPage() {
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const router = useRouter();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: Implement login logic
-    console.log({ username, password });
+    if (formData.email === "test@spndo.com" && formData.password === "123456") {
+      alert("Login successful!");
+      router.push("/dashboard");
+    } else {
+      alert("Invalid credentials");
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white">
-      {/* Logo */}
-      <div className="mb-8 flex flex-col items-center">
-        <img src="/logo.svg" alt="Monex Logo" className="w-12 h-12" />
-        <h1 className="text-2xl font-heading font-bold mt-2 text-gray-900">
-          monex
-        </h1>
+    <div className="flex min-h-screen  md:flex-col justify-center ">
+      <div className="flex overflow-hidden">
+        <div className="md:px-24 md:w-5/12 flex flex-col justify-center relative">
+          <div className="flex justify-center relative">
+            <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md">
+              <Image
+                src="/assets/bag-icon.svg"
+                alt="Bag"
+                width={26}
+                height={26}
+              />
+            </div>
+          </div>
+          <div className="text-center space-y-2 mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold dark:text-neutral-white text-neutral-dark1">
+              Welcome Back
+            </h2>
+            <p className="dark:text-neutral-grey3 text-sm">
+              Please login to your account
+            </p>
+          </div>
+          {/* Social Media Login */}
+          <div className="flex justify-center gap-4">
+            <Button
+              type="button"
+              variant="social"
+              aria-label="Login with Google"
+            >
+              <Image src={googleIcon} alt="Google Icon" className="w-7 h-7" />
+            </Button>
+            <Button
+              type="button"
+              variant="social"
+              aria-label="Login with Apple"
+            >
+              <Image
+                src={appleIcon}
+                alt="Apple Icon"
+                className="w-7 h-7 dark:hidden"
+              />
+              <Image
+                src={appleIcondark}
+                alt="Apple Icon"
+                className="w-7 h-7 hidden dark:block"
+              />
+            </Button>
+            <Button
+              type="button"
+              variant="social"
+              aria-label="Login with Facebook"
+            >
+              <Image
+                src={facebookIcon}
+                alt="Facebook Icon"
+                className="w-7 h-7"
+              />
+            </Button>
+            <Button
+              type="button"
+              variant="social"
+              aria-label="Login with Twitter"
+            >
+              <Image
+                src={twitterIcon}
+                alt="Twitter Icon"
+                className="w-7 h-7 dark:hidden"
+              />
+              <Image
+                src={xicondark}
+                alt="Twitter Icon"
+                className="w-7 h-7 hidden dark:block"
+              />
+            </Button>
+          </div>
+          {/* Divider */}
+          <div className="flex items-center my-6 ">
+            <div className="flex-grow h-px bg-neutral-softGrey1"></div>
+            <span className="mx-4 text-sm text-neutral-grey2 dark:text-dark-muted">
+              OR
+            </span>
+            <div className="flex-grow h-px bg-neutral-softGrey1"></div>
+          </div>
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4 "
+          >
+            <FormInput
+              id="email"
+              type="email"
+              label="Email"
+              icon={<MdOutlineEmail />}
+              placeholder="you@example.com"
+              value={formData.email}
+              onChange={handleChange}
+            />
+            <FormInput
+              id="password"
+              type="password"
+              label="Password"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+              icon={<TbLockPassword />}
+            />
+            <Button type="submit" fullWidth className="mt-4">
+              Login
+            </Button>
+          </form>
+
+          <p className="mt-6 text-sm text-center text-neutral-dark2dark:text-dark-muted">
+            Don’t have an account?{" "}
+            <Link
+              href="/register"
+              className="text-neutral-dark2 dark:text-primary-brand underline"
+            >
+              Register
+            </Link>
+          </p>
+        </div>
+
+        {/* Image container - added centering and padding */}
+        <div className="hidden md:block w-7/12 h-screen relative ">
+          <Image
+            src={loginImage}
+            alt="Login illustration"
+            className="object-cover p-3 rounded-3xl"
+            fill
+          />
+        </div>
       </div>
-
-      {/* Login Form */}
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-        <FormInput
-          label="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          icon={<Mail size={18} />}
-          placeholder="Username"
-        />
-
-        <FormInput
-          label="Password"
-          variant="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          icon={<Lock size={18} />}
-          placeholder="Password"
-        />
-
-        <Button type="submit" className="w-full mt-4">
-          Login
-        </Button>
-      </form>
-
-      {/* Forgot Password */}
-      <p className="text-sm font-medium text-gray-500 mt-4 uppercase">
-        Forgot Password
-      </p>
-
-      {/* OR Divider */}
-      <div className="my-6 flex items-center w-full max-w-sm">
-        <div className="flex-grow border-t border-gray-200" />
-        <span className="mx-4 text-gray-400">Or</span>
-        <div className="flex-grow border-t border-gray-200" />
-      </div>
-
-      {/* Social Buttons */}
-      <div className="w-full max-w-sm space-y-3">
-        <button
-          type="button"
-          className="flex items-center justify-center gap-2 w-full py-3 border border-gray-300 rounded-xl hover:bg-gray-50"
-        >
-          <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
-          CONTINUE WITH GOOGLE
-        </button>
-
-        <button
-          type="button"
-          className="flex items-center justify-center gap-2 w-full py-3 border border-gray-300 rounded-xl hover:bg-gray-50"
-        >
-          <img src="/apple-icon.svg" alt="Apple" className="w-5 h-5" />
-          CONTINUE WITH APPLE
-        </button>
-      </div>
-
-      {/* Register */}
-      <p className="text-sm text-gray-600 mt-6">
-        Don’t have an account?{" "}
-        <Link href="/register" className="text-blue-600 font-medium underline">
-          Register here
-        </Link>
-      </p>
     </div>
   );
-};
-
-export default LoginPage;
+}

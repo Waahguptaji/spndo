@@ -18,26 +18,9 @@ const RegisterPage: React.FC = () => {
 
   return (
     // The corrected code
-    <div className="min-h-screen flex flex-col md:flex-row relative overflow-hidden bg-neutral-white dark:bg-[#242d2d]">
-      {/* spotlight layers */}
-      <div
-        className="absolute inset-0 opacity-40"
-        style={{
-          background:
-            "radial-gradient(circle at 30% 40%, rgba(140,152,110,0.3) 0%, transparent 50%)",
-        }}
-      />
-      <div
-        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20"
-        style={{ backgroundColor: "rgba(140,152,110,0.4)" }}
-      />
-      <div
-        className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl opacity-15"
-        style={{ backgroundColor: "rgba(140,152,110,0.3)" }}
-      />
-
+    <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full justify-center">
       {/* left: form */}
-      <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  min-h-screen px-6 justify-center space-y-8">
+      <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  h-full px-6 justify-center space-y-4">
         {/* logo */}
         <div>
           <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md">
@@ -51,7 +34,7 @@ const RegisterPage: React.FC = () => {
         </div>
 
         {/* title */}
-        <div className="text-center space-y-2">
+        <div className="text-center">
           <h1 className="text-2xl md:text-3xl font-bold dark:text-neutral-white text-neutral-dark1">
             Create an account
           </h1>
@@ -61,7 +44,7 @@ const RegisterPage: React.FC = () => {
         </div>
 
         {/* social buttons */}
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-4 flex-wrap">
           <button className="w-20 h-12 dark:bg-neutral-grey1 bg-neutral-white rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
             <Image
               src="/assets/google-icon.svg"
@@ -167,7 +150,7 @@ const RegisterPage: React.FC = () => {
             type="submit"
             variant="primary"
             fullWidth
-            className="h-12 mt-4 mb-2 text-lg font-semibold rounded-lg"
+            className="w-full max-w-sm h-12 text-lg font-semibold rounded-lg"
           >
             Sign up
           </Button>
@@ -186,7 +169,7 @@ const RegisterPage: React.FC = () => {
       </div>
 
       {/* right: image */}
-      <div className="hidden md:block md:w-7/12 h-screen relative">
+      <div className="hidden md:block md:w-7/12 h-full relative">
         <Image
           src="/assets/tree.png"
           alt="Serene tree"

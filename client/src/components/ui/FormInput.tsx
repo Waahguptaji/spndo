@@ -111,7 +111,7 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
       variant === "password" && !showPassword ? "password" : type;
 
     return (
-      <div className="w-full">
+      <div className="">
         {label && (
           <label className="block text-sm font-medium text-neutral-dark1 dark:text-neutral-white mb-2">
             {label}
@@ -219,3 +219,4 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
 FormInput.displayName = "FormInput";
 
 export default FormInput;
+
