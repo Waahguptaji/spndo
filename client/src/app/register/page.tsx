@@ -18,9 +18,9 @@ const RegisterPage: React.FC = () => {
 
   return (
     // The corrected code
-    <div className="min-h-screen flex flex-col md:flex-row ">
+    <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full justify-center">
       {/* left: form */}
-      <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  min-h-screen px-6 justify-center space-y-8">
+      <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  h-full px-6 justify-center space-y-8">
         {/* logo */}
         <div>
           <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md">
@@ -44,7 +44,7 @@ const RegisterPage: React.FC = () => {
         </div>
 
         {/* social buttons */}
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-4 flex-wrap">
           <button className="w-20 h-12 dark:bg-neutral-grey1 bg-neutral-white rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
             <Image
               src="/assets/google-icon.svg"
@@ -150,7 +150,7 @@ const RegisterPage: React.FC = () => {
             type="submit"
             variant="primary"
             fullWidth
-            className="h-12 mt-4 mb-2 text-lg font-semibold rounded-lg"
+            className="w-full max-w-sm h-12 mt-4 mb-2 text-lg font-semibold rounded-lg"
           >
             Sign up
           </Button>
@@ -169,7 +169,7 @@ const RegisterPage: React.FC = () => {
       </div>
 
       {/* right: image */}
-      <div className="hidden md:block md:w-7/12 h-screen relative">
+      <div className="hidden md:block md:w-7/12 h-full relative">
         <Image
           src="/assets/tree.png"
           alt="Serene tree"

@@ -35,18 +35,18 @@ export default function RootLayout({
         >
           {/* spotlight layers */}
           <div
-            className="absolute inset-0 opacity-40"
+            className="fixed -z-10 inset-0 opacity-40"
             style={{
               background:
                 "radial-gradient(circle at 30% 40%, rgba(140,152,110,0.3) 0%, transparent 50%)",
             }}
           />
           <div
-            className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20"
+            className="fixed -z-10 top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20"
             style={{ backgroundColor: "rgba(140,152,110,0.4)" }}
           />
           <div
-            className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl opacity-15"
+            className="fixed -z-10 bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl opacity-15"
             style={{ backgroundColor: "rgba(140,152,110,0.3)" }}
           />
           {children}
