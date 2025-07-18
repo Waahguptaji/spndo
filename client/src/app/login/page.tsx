@@ -38,8 +38,8 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen  md:flex-col justify-center ">
-      <div className="flex ">
-        <div className="p-8 md:w-5/12 flex flex-col justify-center relative">
+      <div className="flex overflow-hidden">
+        <div className="md:px-24 md:w-5/12 flex flex-col justify-center relative">
           <div className="flex justify-center relative">
             <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md">
               <Image
@@ -112,7 +112,7 @@ export default function LoginPage() {
             </Button>
           </div>
           {/* Divider */}
-          <div className="flex items-center my-6 md:mx-10">
+          <div className="flex items-center my-6 ">
             <div className="flex-grow h-px bg-neutral-softGrey1"></div>
             <span className="mx-4 text-sm text-neutral-grey2 dark:text-dark-muted">
               OR
@@ -121,7 +121,7 @@ export default function LoginPage() {
           </div>
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-4 md:mx-10"
+            className="flex flex-col gap-4 "
           >
             <FormInput
               id="email"
@@ -141,16 +141,16 @@ export default function LoginPage() {
               onChange={handleChange}
               icon={<TbLockPassword />}
             />
-            <Button type="submit" fullWidth>
+            <Button type="submit" fullWidth className="mt-4">
               Login
             </Button>
           </form>
 
-          <p className="mt-6 text-sm text-center text-neutral-grey3 dark:text-dark-muted">
+          <p className="mt-6 text-sm text-center text-neutral-dark2dark:text-dark-muted">
             Don’t have an account?{" "}
             <Link
               href="/register"
-              className="text-primary-brand hover:underline dark:text-primary-brand"
+              className="text-neutral-dark2 dark:text-primary-brand underline"
             >
               Register
             </Link>
@@ -158,11 +158,12 @@ export default function LoginPage() {
         </div>
 
         {/* Image container - added centering and padding */}
-        <div className="hidden md:block w-7/12 h-screen relative">
+        <div className="hidden md:block w-7/12 h-screen relative ">
           <Image
             src={loginImage}
             alt="Login illustration"
-            className="object-contain "
+            className="object-cover p-3 rounded-3xl"
+            fill
           />
         </div>
       </div>

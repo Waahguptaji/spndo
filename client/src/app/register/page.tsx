@@ -20,7 +20,7 @@ const RegisterPage: React.FC = () => {
     // The corrected code
     <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full justify-center">
       {/* left: form */}
-      <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  h-full px-6 justify-center space-y-8">
+      <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  h-full px-6 justify-center space-y-4">
         {/* logo */}
         <div>
           <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md">
@@ -34,7 +34,7 @@ const RegisterPage: React.FC = () => {
         </div>
 
         {/* title */}
-        <div className="text-center space-y-2">
+        <div className="text-center">
           <h1 className="text-2xl md:text-3xl font-bold dark:text-neutral-white text-neutral-dark1">
             Create an account
           </h1>
@@ -150,7 +150,7 @@ const RegisterPage: React.FC = () => {
             type="submit"
             variant="primary"
             fullWidth
-            className="w-full max-w-sm h-12 mt-4 mb-2 text-lg font-semibold rounded-lg"
+            className="w-full max-w-sm h-12 text-lg font-semibold rounded-lg"
           >
             Sign up
           </Button>
