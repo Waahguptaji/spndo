@@ -18,24 +18,7 @@ const RegisterPage: React.FC = () => {
 
   return (
     // The corrected code
-    <div className="min-h-screen flex flex-col md:flex-row relative overflow-hidden bg-neutral-white dark:bg-[#242d2d]">
-      {/* spotlight layers */}
-      <div
-        className="absolute inset-0 opacity-40"
-        style={{
-          background:
-            "radial-gradient(circle at 30% 40%, rgba(140,152,110,0.3) 0%, transparent 50%)",
-        }}
-      />
-      <div
-        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20"
-        style={{ backgroundColor: "rgba(140,152,110,0.4)" }}
-      />
-      <div
-        className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl opacity-15"
-        style={{ backgroundColor: "rgba(140,152,110,0.3)" }}
-      />
-
+    <div className="min-h-screen flex flex-col md:flex-row ">
       {/* left: form */}
       <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  min-h-screen px-6 justify-center space-y-8">
         {/* logo */}

@@ -5,20 +5,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
-import { FcGoogle } from "react-icons/fc";
-import { FaFacebookF } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
-import { IoBag } from "react-icons/io5";
+
 import { MdOutlineEmail } from "react-icons/md";
 import { TbLockPassword } from "react-icons/tb";
-import { FaApple } from "react-icons/fa";
 import loginImage from "../../../public/assets/tree.png";
-import appleIcon from "../../../public/assets/apple-icon-light.svg"; 
-import facebookIcon from "../../../public/assets/facebook-icon.svg"; 
-import twitterIcon from "../../../public/assets/x-icon-light.svg"; 
-import googleIcon from "../../../public/assets/google-icon.svg"; 
-import xicondark from "../../../public/assets/x-icon-dark.svg"; 
-import appleIcondark from "../../../public/assets/apple-icon-dark.svg"; 
+import appleIcon from "../../../public/assets/apple-icon-light.svg";
+import facebookIcon from "../../../public/assets/facebook-icon.svg";
+import twitterIcon from "../../../public/assets/x-icon-light.svg";
+import googleIcon from "../../../public/assets/google-icon.svg";
+import xicondark from "../../../public/assets/x-icon-dark.svg";
+import appleIcondark from "../../../public/assets/apple-icon-dark.svg";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -41,37 +37,78 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center">
-
-      <div className="flex w-screen h-screen justify-center">
-
-   
-        <div className="p-8 md:w-5/12 flex flex-col justify-center"> 
+    <div className="flex min-h-screen  md:flex-col justify-center ">
+      <div className="flex ">
+        <div className="p-8 md:w-5/12 flex flex-col justify-center relative">
           <div className="flex justify-center relative">
-            <div className="bg-primary-brand rounded-full p-2"><IoBag className="text-secondary-darkBrand" /></div>
+            <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md">
+              <Image
+                src="/assets/bag-icon.svg"
+                alt="Bag"
+                width={26}
+                height={26}
+              />
+            </div>
           </div>
-          <h2 className="text-xl font-heading dark:text-primary-light text-primary-dark mb-2 text-center">
-            Welcome Back
-          </h2>
-          <p className="text-sm text-neutral-grey3 dark:text-dark-muted mb-6 text-center">
-            Please login to your account
-          </p>
-
+          <div className="text-center space-y-2 mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold dark:text-neutral-white text-neutral-dark1">
+              Welcome Back
+            </h2>
+            <p className="dark:text-neutral-grey3 text-sm">
+              Please login to your account
+            </p>
+          </div>
           {/* Social Media Login */}
           <div className="flex justify-center gap-4">
-            <Button type="button" variant="social" aria-label="Login with Google" >
+            <Button
+              type="button"
+              variant="social"
+              aria-label="Login with Google"
+            >
               <Image src={googleIcon} alt="Google Icon" className="w-7 h-7" />
             </Button>
-            <Button type="button" variant="social" aria-label="Login with Apple">
-              <Image src={appleIcon} alt="Apple Icon" className="w-7 h-7 dark:hidden" />
-              <Image src={appleIcondark} alt="Apple Icon" className="w-7 h-7 hidden dark:block" />
+            <Button
+              type="button"
+              variant="social"
+              aria-label="Login with Apple"
+            >
+              <Image
+                src={appleIcon}
+                alt="Apple Icon"
+                className="w-7 h-7 dark:hidden"
+              />
+              <Image
+                src={appleIcondark}
+                alt="Apple Icon"
+                className="w-7 h-7 hidden dark:block"
+              />
             </Button>
-            <Button type="button" variant="social" aria-label="Login with Facebook">
-              <Image src={facebookIcon} alt="Facebook Icon" className="w-7 h-7" />
+            <Button
+              type="button"
+              variant="social"
+              aria-label="Login with Facebook"
+            >
+              <Image
+                src={facebookIcon}
+                alt="Facebook Icon"
+                className="w-7 h-7"
+              />
             </Button>
-            <Button type="button" variant="social" aria-label="Login with Twitter">
-              <Image src={twitterIcon} alt="Twitter Icon" className="w-7 h-7 dark:hidden" />
-              <Image src={xicondark} alt="Twitter Icon" className="w-7 h-7 hidden dark:block" />
+            <Button
+              type="button"
+              variant="social"
+              aria-label="Login with Twitter"
+            >
+              <Image
+                src={twitterIcon}
+                alt="Twitter Icon"
+                className="w-7 h-7 dark:hidden"
+              />
+              <Image
+                src={xicondark}
+                alt="Twitter Icon"
+                className="w-7 h-7 hidden dark:block"
+              />
             </Button>
           </div>
           {/* Divider */}
@@ -82,7 +119,10 @@ export default function LoginPage() {
             </span>
             <div className="flex-grow h-px bg-neutral-softGrey1"></div>
           </div>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4 md:mx-10">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4 md:mx-10"
+          >
             <FormInput
               id="email"
               type="email"
@@ -107,7 +147,7 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-6 text-sm text-center text-neutral-grey3 dark:text-dark-muted">
-            Don’t have an account?{' '}
+            Don’t have an account?{" "}
             <Link
               href="/register"
               className="text-primary-brand hover:underline dark:text-primary-brand"
@@ -118,12 +158,11 @@ export default function LoginPage() {
         </div>
 
         {/* Image container - added centering and padding */}
-        <div className="hidden md:flex items-center justify-center bg-primary-light dark:bg-primary-dark w-7/12">
+        <div className="hidden md:block w-7/12 h-screen relative">
           <Image
             src={loginImage}
             alt="Login illustration"
-            // Use object-contain to fit the image within the container
-            className=" w-full h-full border-none md:p-1"
+            className="object-contain "
           />
         </div>
       </div>

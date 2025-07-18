@@ -24,7 +24,8 @@ export default function Button({
       "bg-transparent text-primary-brand hover:bg-neutral-softGrey1 dark:text-primary-brand dark:hover:bg-neutral-dark2 focus:ring-primary-brand",
     outline:
       "border border-primary-green text-primary-green hover:bg-neutral-softGrey1 dark:hover:bg-neutral-dark2 focus:ring-primary-brand focus:ring-primary-brand",
-    social: " flex items-center justify-center rounded-md bg-primary-light dark:bg-secondary-blueLight hover:bg-secondary-blueLight",
+    social:
+      " flex w-20 h-12 dark:bg-neutral-grey1 bg-neutral-white rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition",
   };
 
   return (
