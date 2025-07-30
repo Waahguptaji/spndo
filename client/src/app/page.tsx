@@ -2,7 +2,7 @@
 import LeftNavBar from "@/components/nav/LeftNavBar";
 import BottomNavBar from "@/components/nav/BottomNavBar";
 import { TopAppBar } from "@/components/nav/Topbar";
-
+import SummaryWidget from "@/components/dashboard/SummaryWidget";
 import { SetStateAction, useState,useEffect } from "react";
 
 export default function Home() {
@@ -38,7 +38,7 @@ const isSidebarOpen = isPinned || isHoverOpen;
   const renderActivePage = () => {
       switch (currentPageTitle) {
           case 'Overview':
-              return "Overview";
+              return <SummaryWidget />;
           case 'Calendar':
               return "Calendar";
           case 'Cards':
@@ -74,7 +74,7 @@ const isSidebarOpen = isPinned || isHoverOpen;
           onToggleSidebar={togglePin} 
           isSidebarOpen={isSidebarOpen} 
         />
-        <main className="p-6 md:p-8 pb-24 md:pb-8">
+        <main className="pt-16">
          {renderActivePage()}
         </main>
       </div>
