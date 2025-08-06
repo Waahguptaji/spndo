@@ -1,56 +1,34 @@
-import {ArrowUp, ArrowDown} from 'lucide-react';
+type SummaryCardProps = {
+    icon: React.ElementType;
+    title: string;
+    amount: number;
+    iconBgColor: string;
+    iconColor: string;
+};
 
-
-const SummaryWidget = () => {
-    const balance = 12500.75;
-    const creditCardDebt = -2750.50;
-    const netTotal = balance + creditCardDebt;
-
-    // Helper to format numbers as currency
-    const formatCurrency = (amount: number) => {
+const SummaryCard = ({ icon: Icon, title, amount, iconBgColor, iconColor }: SummaryCardProps) => {
+    const formatCurrency = (num: number) => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
-        }).format(amount);
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(num);
     };
 
     return (
-        <div className="bg-neutral-white dark:bg-neutral-dark2 p-4 rounded-lg shadow-md w-full max-w-md mx-auto">
-            <div className="space-y-4">
-                {/* Balance Section */}
-                <div>
-                    <div className="flex items-center justify-between text-gray-500 dark:text-gray-400">
-                        <span>Balance</span>
-                        <ArrowUp className="w-5 h-5 text-primary-darkBrand" />
-                    </div>
-                    <p className="text-lg font-semibold text-gray-800 dark:text-white ">
-                        {formatCurrency(balance)}
-                    </p>
-                </div>
-
-                {/* Credit Cards Section */}
-                <div>
-                    <div className="flex items-center justify-between text-gray-500 dark:text-gray-400">
-                        <span>Credit cards</span>
-                        <ArrowDown className="w-5 h-5 text-red-500" />
-                    </div>
-                    <p className="text-lg font-semibold text-gray-800 dark:text-white">
-                        {formatCurrency(creditCardDebt)}
-                    </p>
-                </div>
+        <div className="bg-white dark:bg-neutral-dark2 p-4 rounded-lg shadow-xl flex items-center space-x-4 flex-shrink-0 w-64 md:w-auto">
+            <div className={`p-3 rounded-full ${iconBgColor}`}>
+                <Icon className={`w-6 h-6 ${iconColor}`} />
             </div>
-
-            {/* Divider */}
-            <hr className="my-4 border-gray-200 dark:border-gray-700" />
-
-            {/* Total Section */}
             <div>
-                <p className="text-gray-500 dark:text-gray-400">Total</p>
-                <p className="text-xl font-bold text-primary-darkBrand mt-1">
-                    {formatCurrency(netTotal)}
+                <p className="text-sm text-gray-500 dark:text-gray-400">{title}</p>
+                <p className="text-xl font-semibold text-gray-800 dark:text-white">
+                    {formatCurrency(amount)}
                 </p>
             </div>
         </div>
     );
 };
-export default SummaryWidget;
+
+export default SummaryCard
