@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Pie, PieChart, ResponsiveContainer, Sector, Cell } from "recharts";
+import WidgetCard from "./WidgetCard";
 
 const COLORS = ["#C2FF00", "#A6DB00", "#374151", "#9CA3AF"];
 
@@ -75,10 +76,7 @@ export default function MonthlyOverviewBudget() {
   };
 
   return (
-    <div className="bg-neutral-white dark:bg-neutral-dark2 p-4 rounded-xl shadow-md w-full max-w-md mx-auto">
-      <h3 className="font-bold text-lg text-neutral-dark1 dark:text-neutral-white mb-4">
-        This Month
-      </h3>
+    <WidgetCard title="Monthly Overview Budget">
       <div className="w-full h-64">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -118,6 +116,6 @@ export default function MonthlyOverviewBudget() {
           </div>
         ))}
       </div>
-    </div>
+    </WidgetCard>
   );
 }
