@@ -1,7 +1,7 @@
 import { ArrowLeft, Bell, Menu, MoreVertical, Search, X } from "lucide-react";
 import { useState } from "react";
 import Login from "@/app/login/page";
-
+ 
 type TopAppBarProps = {
   variant?: 'default' | 'back' | 'search';
   title: string;
