@@ -2,8 +2,9 @@
 import LeftNavBar from "@/components/nav/LeftNavBar";
 import BottomNavBar from "@/components/nav/BottomNavBar";
 import { TopAppBar } from "@/components/nav/Topbar";
-import SummaryWidget from "@/components/dashboard/SummaryWidget";
+import DashboardSummary from "@/components/dashboard/SummaryWidget";
 import { SetStateAction, useState,useEffect } from "react";
+import ListItem from "@/components/ui/ListItem";
 
 export default function Home() {
   
@@ -26,6 +27,9 @@ const isSidebarOpen = isPinned || isHoverOpen;
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+
+  
   // const toggleSidebar = () => {
   //   setIsSidebarOpen(!isSidebarOpen);
   // };
@@ -38,9 +42,9 @@ const isSidebarOpen = isPinned || isHoverOpen;
   const renderActivePage = () => {
       switch (currentPageTitle) {
           case 'Overview':
-              return <SummaryWidget />;
+              return <DashboardSummary />;
           case 'Calendar':
-              return "Calendar";
+              return "calender";
           case 'Cards':
               return "Cards";
           case 'Budget':
