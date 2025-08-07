@@ -6,7 +6,7 @@ import React from "react";
 // Interface defining all possible props for the ListItem component
 interface ListItemProps {
   variant: "notification" | "goal" | "transaction" | "reminder";
-  icon?: string; // Should be the path to the icon in /public
+  icon?: React.ReactNode;
   title: string;
   description?: string;
   date?: string;
@@ -37,8 +37,8 @@ const ListItem: React.FC<ListItemProps> = ({
           <div className="flex items-center gap-4 min-w-0">
             {" "}
             {/* ACTION: Added min-w-0 */}
-            <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-neutral-grey3 dark:bg-neutral-grey1 flex items-center justify-center">
-              {icon && <Image src={icon} alt={title} width={28} height={28} />}
+            <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-neutral-softGrey3 dark:bg-neutral-grey1 flex items-center justify-center">
+              {icon}
             </div>
             <div className="min-w-0">
               {" "}
@@ -76,8 +76,8 @@ const ListItem: React.FC<ListItemProps> = ({
     return (
       <div className={baseContainerClasses}>
         <div className="flex items-center gap-4">
-          <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-neutral-grey3 dark:bg-neutral-grey1 flex items-center justify-center">
-            {icon && <Image src={icon} alt={title} width={28} height={28} />}
+          <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-neutral-softGrey3 dark:bg-neutral-grey1 flex items-center justify-center">
+            {icon}
           </div>
           <div className="flex-grow min-w-0">
             {" "}
@@ -117,8 +117,8 @@ const ListItem: React.FC<ListItemProps> = ({
           <div className="flex items-center gap-4 min-w-0">
             {" "}
             {/* ACTION: Added min-w-0 */}
-            <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-neutral-grey3 dark:bg-neutral-grey1 flex items-center justify-center">
-              {icon && <Image src={icon} alt={title} width={28} height={28} />}
+            <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-neutral-softGrey3 dark:bg-neutral-grey1 flex items-center justify-center">
+              {icon}
             </div>
             <div className="min-w-0">
               {" "}
