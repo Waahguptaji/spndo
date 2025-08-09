@@ -1,20 +1,16 @@
 'use client'
 
-import { Home, Calendar, CreditCard, DollarSign, Settings, Menu, X } from 'lucide-react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { appNav } from '@/config/nav'
+
 type DesktopSidebarProps = {
   isOpen: boolean;
-  onNavItemClick: (title: string) => void;
-  activeItem: string;
   onMouseLeave: () => void;
 };
-export default function DesktopSidebar({ isOpen, onNavItemClick, activeItem, onMouseLeave }: DesktopSidebarProps) {
-  const navItems = [
-    { label: 'Overview', icon: Home },
-    { label: 'Calendar', icon: Calendar },
-    { label: 'Cards', icon: CreditCard },
-    { label: 'Budget', icon: DollarSign },
-    { label: 'Preferences', icon: Settings },
-  ];
+
+export default function DesktopSidebar({ isOpen, onMouseLeave }: DesktopSidebarProps) {
+  const pathname = usePathname();
 
   return (
     <div className="hidden md:flex"onMouseLeave={onMouseLeave}>
@@ -41,20 +37,23 @@ export default function DesktopSidebar({ isOpen, onNavItemClick, activeItem, onM
 
         {/* Navigation */}
         <nav className="flex flex-col gap-4 p-4 mt-2">
-          {navItems.map(({ label, icon: Icon }, index) => {
-            const isActive = activeItem === label;
+          {appNav.map(({ label, href, icon: Icon }) => {
+            const isActive = pathname === href || pathname.startsWith(href + '/');
             return (
-            <button
-              key={label}
-              className={`flex items-center gap-3 px-4 py-2  text-secondary-darkBrand dark:text-neutral-white hover:bg-primary-dark rounded-md transition text-xl ${isActive ? 'bg-primary-dark' : ''}`}
-              onClick={() => onNavItemClick(label)}
-            >
-              <Icon size={20} />
-              <span>{label}</span>
-            </button>
-          );
-        })}
-
+              <Link
+                key={href}
+                href={href}
+                className={`flex items-center gap-3 px-4 py-2 rounded-md transition text-xl
+                  ${isActive
+                    ? 'bg-primary-dark text-secondary-darkBrand dark:text-neutral-white'
+                    : 'text-secondary-darkBrand dark:text-neutral-white hover:bg-primary-dark/60'}
+                `}
+              >
+                {Icon ? <Icon size={20} /> : null}
+                <span>{label}</span>
+              </Link>
+            );
+          })}
         </nav>
       </aside>
     </div>

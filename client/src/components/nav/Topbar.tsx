@@ -1,6 +1,6 @@
 import { ArrowLeft, Bell, Menu, MoreVertical, Search, X } from "lucide-react";
 import { useState } from "react";
-import Login from "@/app/login/page";
+import { useRouter } from "next/navigation";
  
 type TopAppBarProps = {
   variant?: 'default' | 'back' | 'search';
@@ -11,15 +11,16 @@ type TopAppBarProps = {
 
 export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSidebarOpen }: TopAppBarProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
 
   const handleLogout = () => console.log('Logging out...');
   const handleHelp = () => console.log('Navigating to Help & Support...');
-  const handleBack = () => {return <Login />};
+  const handleBack = () => router.back();
   const handleSearch = () =>  console.log('Opening search...'); 
   
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between px-4 sm:px-6 bg-netral-white dark:bg-secondary-darkBrand text-gray-800 dark:text-white border-b border-gray-200 dark:border-gray-700 shadow-sm">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between px-4 sm:px-6 bg-neutral-white dark:bg-secondary-darkBrand text-gray-800 dark:text-white border-b border-gray-200 dark:border-gray-700 shadow-sm">
       {/* Left Section: Varies based on the 'variant' prop */}
       <div className="flex items-center gap-4">
         {variant === 'default' && (
