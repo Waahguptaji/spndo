@@ -1,4 +1,3 @@
-// src/app/login/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -8,13 +7,6 @@ import Button from "@/components/ui/Button";
 
 import { MdOutlineEmail } from "react-icons/md";
 import { TbLockPassword } from "react-icons/tb";
-import loginImage from "../../../public/assets/tree.png";
-import appleIcon from "../../../public/assets/apple-icon-light.svg";
-import facebookIcon from "../../../public/assets/facebook-icon.svg";
-import twitterIcon from "../../../public/assets/x-icon-light.svg";
-import googleIcon from "../../../public/assets/google-icon.svg";
-import xicondark from "../../../public/assets/x-icon-dark.svg";
-import appleIcondark from "../../../public/assets/apple-icon-dark.svg";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -65,7 +57,8 @@ export default function LoginPage() {
               variant="social"
               aria-label="Login with Google"
             >
-              <Image src={googleIcon} alt="Google Icon" className="w-7 h-7" />
+              <Image src="/assets/google-icon.svg" alt="Google Icon" width={26}
+                height={26} />
             </Button>
             <Button
               type="button"
@@ -73,14 +66,18 @@ export default function LoginPage() {
               aria-label="Login with Apple"
             >
               <Image
-                src={appleIcon}
+                src="/assets/apple-icon-light.svg"
                 alt="Apple Icon"
                 className="w-7 h-7 dark:hidden"
+                width={28}
+                height={28}
               />
               <Image
-                src={appleIcondark}
+                src="/assets/apple-icon-dark.svg"
                 alt="Apple Icon"
                 className="w-7 h-7 hidden dark:block"
+                width={28}
+                height={28}
               />
             </Button>
             <Button
@@ -89,9 +86,11 @@ export default function LoginPage() {
               aria-label="Login with Facebook"
             >
               <Image
-                src={facebookIcon}
+                src="/assets/facebook-icon.svg"
                 alt="Facebook Icon"
                 className="w-7 h-7"
+                width={28}
+                height={28}
               />
             </Button>
             <Button
@@ -100,14 +99,18 @@ export default function LoginPage() {
               aria-label="Login with Twitter"
             >
               <Image
-                src={twitterIcon}
+                src="/assets/x-icon-light.svg"
                 alt="Twitter Icon"
                 className="w-7 h-7 dark:hidden"
+                width={28}
+                height={28}
               />
               <Image
-                src={xicondark}
+                src="/assets/x-icon-dark.svg"
                 alt="Twitter Icon"
                 className="w-7 h-7 hidden dark:block"
+                width={28}
+                height={28}
               />
             </Button>
           </div>
@@ -160,7 +163,7 @@ export default function LoginPage() {
         {/* Image container - added centering and padding */}
         <div className="hidden md:block w-7/12 h-screen relative ">
           <Image
-            src={loginImage}
+            src="/assets/tree.png"
             alt="Login illustration"
             className="object-cover p-3 rounded-3xl"
             fill

@@ -136,7 +136,7 @@ const RegisterPage: React.FC = () => {
               htmlFor="terms"
               className="ml-2 text-neutral-dark2 dark:text-neutral-white"
             >
-              I agree to the{" "}
+              I agree to the {" "}
               <a
                 href="#"
                 className="text-neutral-dark1 dark:text-primary-brand underline"
@@ -158,7 +158,7 @@ const RegisterPage: React.FC = () => {
 
         {/* footer link */}
         <p className="text-sm text-center text-neutral-dark2 dark:text-neutral-grey3">
-          Already have an account?{" "}
+          Already have an account? {" "}
           <Link
             href="/login"
             className="text-neutral-dark2 dark:text-primary-brand underline"
