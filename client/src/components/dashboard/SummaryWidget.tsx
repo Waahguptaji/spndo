@@ -1,13 +1,13 @@
 import { Calendar, TrendingDown, Wallet } from "lucide-react";
 
-// Internal SummaryCard component, driven by a 'variant' prop.
-type SummaryCardProps = {
+// Internal SummaryWidget component, driven by a 'variant' prop.
+type SummaryWidgetProps = {
   variant: "savings" | "totalExpenses" | "monthlyExpenses";
   title: string;
   amount: number;
 };
 
-const SummaryWidget = ({ variant, title, amount }: SummaryCardProps) => {
+const SummaryWidget = ({ variant, title, amount }: SummaryWidgetProps) => {
   const formatCurrency = (num: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -38,7 +38,7 @@ const SummaryWidget = ({ variant, title, amount }: SummaryCardProps) => {
   const { icon: Icon, iconBgColor, iconColor } = styleVariants[variant];
 
   return (
-    <div className="bg-white dark:bg-neutral-dark2 p-4 rounded-lg shadow-xl flex flex-col items-baseline md:items-center md:flex-row space-x-4 flex-shrink-0 w-44 md:w-auto gap-2 md:gap-0">
+    <div className="bg-white dark:bg-neutral-dark2 p-4 rounded-lg shadow-md border border-neutral-softGrey1 dark:border-neutral-grey1 flex items-center gap-4 w-44 md:w-auto">
       <div className={`p-3 rounded-full ${iconBgColor}`}>
         <Icon className={`w-6 h-6 ${iconColor}`} />
       </div>
