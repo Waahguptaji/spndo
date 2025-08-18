@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import React from "react";
 
 // Interface defining all possible props for the ListItem component
@@ -36,22 +35,18 @@ const ListItem: React.FC<ListItemProps> = ({
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
             {" "}
-            {/* ACTION: Added min-w-0 */}
             <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-neutral-softGrey3 dark:bg-neutral-grey1 flex items-center justify-center">
               {icon}
             </div>
             <div className="min-w-0">
               {" "}
-              {/* ACTION: Added min-w-0 */}
               <div className="text-neutral-dark1 dark:text-neutral-white font-semibold truncate">
                 {" "}
-                {/* ACTION: Added truncate */}
                 {title}
               </div>
               {description && (
                 <div className="text-xs text-neutral-grey2 dark:text-neutral-grey3 truncate">
                   {" "}
-                  {/* ACTION: Added truncate */}
                   {description}
                 </div>
               )}
@@ -59,7 +54,6 @@ const ListItem: React.FC<ListItemProps> = ({
           </div>
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             {" "}
-            {/* ACTION: Added flex-shrink-0 */}
             {rightLabel && (
               <div className="text-xs text-neutral-grey2 dark:text-neutral-grey3">
                 {rightLabel}
@@ -81,10 +75,8 @@ const ListItem: React.FC<ListItemProps> = ({
           </div>
           <div className="flex-grow min-w-0">
             {" "}
-            {/* ACTION: Added min-w-0 */}
             <div className="text-neutral-dark1 dark:text-neutral-white font-semibold truncate">
               {" "}
-              {/* ACTION: Added truncate */}
               {title}
             </div>
             {progress && (
@@ -116,16 +108,13 @@ const ListItem: React.FC<ListItemProps> = ({
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
             {" "}
-            {/* ACTION: Added min-w-0 */}
             <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-neutral-softGrey3 dark:bg-neutral-grey1 flex items-center justify-center">
               {icon}
             </div>
             <div className="min-w-0">
               {" "}
-              {/* ACTION: Added min-w-0 */}
               <div className="text-neutral-dark1 dark:text-neutral-white font-semibold truncate">
                 {" "}
-                {/* ACTION: Added truncate */}
                 {title}
               </div>
               {date && (
@@ -137,7 +126,6 @@ const ListItem: React.FC<ListItemProps> = ({
           </div>
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             {" "}
-            {/* ACTION: Added flex-shrink-0 */}
             {amount && (
               <div
                 className={`font-semibold ${
@@ -167,7 +155,6 @@ const ListItem: React.FC<ListItemProps> = ({
         <div className="flex justify-between items-start gap-4">
           <div className="flex flex-col min-w-0">
             {" "}
-            {/* ACTION: Added min-w-0 */}
             {description && (
               <div className="text-xs text-neutral-grey2 dark:text-neutral-grey3">
                 {description}
@@ -175,7 +162,6 @@ const ListItem: React.FC<ListItemProps> = ({
             )}
             <div className="text-neutral-dark1 dark:text-neutral-white font-semibold mt-1 truncate">
               {" "}
-              {/* ACTION: Added truncate */}
               {title}
             </div>
             {amount && (
@@ -187,7 +173,6 @@ const ListItem: React.FC<ListItemProps> = ({
 
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             {" "}
-            {/* ACTION: Added flex-shrink-0 */}
             <button className="text-neutral-grey2 dark:text-neutral-grey3 hover:text-neutral-dark1 dark:hover:text-neutral-white">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
