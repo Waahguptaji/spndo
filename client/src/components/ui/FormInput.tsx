@@ -1,24 +1,31 @@
-import React, { forwardRef, useState } from "react";
-import { ChevronDown, User, Mail, Lock, Eye, EyeOff } from "lucide-react";
+"use client";
 
-interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+import React, { forwardRef, useState } from "react";
+import { ChevronDown, Eye, EyeOff } from "lucide-react";
+
+export interface FormInputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
-  icon?: React.ReactNode;
+  leadingIcon?: React.ReactNode; // head
+  trailingIcon?: React.ReactNode; // tail
+  onTrailingClick?: () => void;
+  suffixText?: string | React.ReactNode; // small "value" chip
   hasDropdown?: boolean;
   dropdownOptions?: { value: string; label: string }[];
   onDropdownSelect?: (value: string) => void;
   variant?: "default" | "password";
 }
 
-type InputState = "default" | "focus" | "error" | "disabled";
-
 const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
-  (
+  function FormInput(
     {
       label,
       error,
-      icon,
+      leadingIcon,
+      trailingIcon,
+      onTrailingClick,
+      suffixText,
       hasDropdown = false,
       dropdownOptions = [],
       onDropdownSelect,
@@ -26,197 +33,146 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
       disabled = false,
       className = "",
       type = "text",
-      placeholder = "Example",
-      value = "",
-      onChange,
-      onFocus,
-      onBlur,
       ...props
     },
     ref
-  ) => {
-    const [isFocused, setIsFocused] = useState(false);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  ) {
+    const [focused, setFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [open, setOpen] = useState(false);
 
-    const getCurrentState = (): InputState => {
-      if (disabled) return "disabled";
-      if (error) return "error";
-      if (isFocused) return "focus";
-      return "default";
-    };
+    const state = disabled
+      ? "disabled"
+      : error
+      ? "error"
+      : focused
+      ? "focus"
+      : "default";
 
-    const currentState = getCurrentState();
-    // const hasContent = value && value.toString().length > 0;
+    const base =
+      "w-full rounded-lg border outline-none transition-all duration-150 py-2.5";
+    const colors =
+      state === "disabled"
+        ? "bg-neutral-softGrey2 dark:bg-neutral-dark2 text-neutral-grey2 dark:text-neutral-grey2 border-neutral-softGrey1 dark:border-neutral-grey1 cursor-not-allowed"
+        : state === "error"
+        ? "bg-neutral-white dark:bg-neutral-dark2 text-neutral-dark1 dark:text-white border-system-red ring-1 ring-system-red"
+        : state === "focus"
+        ? "bg-neutral-white dark:bg-neutral-dark2 text-neutral-dark1 dark:text-white border-primary-brand ring-1 ring-primary-brand"
+        : "bg-neutral-white dark:bg-neutral-dark2 text-neutral-dark1 dark:text-white border-neutral-softGrey1 dark:border-neutral-grey1";
 
-    const stateStyles = {
-      default: {
-        border: "border-neutral-grey1",
-        background: "bg-neutral-white dark:bg-neutral-dark2",
-        text: "text-neutral-dark2 dark:text-neutral-white",
-        placeholder:
-          "placeholder-neutral-grey1 dark:placeholder-neutral-softgrey3",
-      },
-      focus: {
-        border: "border-primary-brand ring-1 ring-primary-brand",
-        background: "bg-neutral-white dark:bg-neutral-dark2",
-        text: "text-neutral-grey1 dark:text-neutral-white",
-        placeholder:
-          "placeholder-neutral-softgrey3 dark:placeholder-neutral-softgrey3",
-      },
-      error: {
-        border: "border-red-500 ring-1 ring-red-500",
-        background: "bg-neutral-white dark:bg-neutral-dark2",
-        text: "text-neutral-grey1 dark:text-neutral-white",
-        placeholder:
-          "placeholder-neutral-softgrey3 dark:placeholder-neutral-softgrey3",
-      },
-      disabled: {
-        border: "border-neutral-grey1",
-        background: "bg-neutral-white dark:bg-neutral-dark2",
-        text: "text-neutral-grey2",
-        placeholder:
-          "placeholder-neutral-grey1 dark:placeholder-neutral-softgrey3",
-      },
-    };
+    const placeholder =
+      "placeholder-neutral-grey2 dark:placeholder-neutral-grey3";
 
-    const currentStyles = stateStyles[currentState];
-
-    const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-      setIsFocused(true);
-      onFocus?.(e);
-    };
-
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-      setIsFocused(false);
-      onBlur?.(e);
-    };
-
-    const handleDropdownToggle = () => {
-      if (!disabled) {
-        setIsDropdownOpen(!isDropdownOpen);
-      }
-    };
-
-    const handleDropdownSelect = (option: { value: string; label: string }) => {
-      onDropdownSelect?.(option.value);
-      setIsDropdownOpen(false);
-    };
-
-    const togglePasswordVisibility = () => {
-      setShowPassword(!showPassword);
-    };
+    const hasTail =
+      !!suffixText || !!trailingIcon || hasDropdown || variant === "password";
+    const paddingLeft = leadingIcon ? "pl-10" : "pl-3";
+    const paddingRight = hasTail ? "pr-28" : "pr-3";
 
     const inputType =
-      variant === "password" && !showPassword ? "password" : type;
+      variant === "password" ? (showPassword ? "text" : "password") : type;
 
     return (
-      <div className="">
+      <div className={`w-full ${className}`}>
         {label && (
-          <label className="block text-sm font-medium text-neutral-dark1 dark:text-neutral-white mb-2">
+          <label className="block mb-2 text-sm font-medium text-neutral-dark1 dark:text-neutral-white">
             {label}
           </label>
         )}
 
         <div className="relative">
-          {icon && (
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-              <div
-                className={`w-5 h-5 ${
-                  currentState === "error"
-                    ? "text-red-500"
-                    : currentState === "disabled"
-                    ? "text-gray-300"
-                    : "text-gray-400"
-                }`}
-              >
-                {icon}
-              </div>
-            </div>
+          {leadingIcon && (
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-grey2 dark:text-neutral-grey3 pointer-events-none">
+              {leadingIcon}
+            </span>
           )}
 
           <input
             ref={ref}
             type={inputType}
-            value={value}
-            onChange={onChange}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
             disabled={disabled}
-            placeholder={placeholder}
-            className={`
-              w-full px-3 py-2.5 rounded-lg border transition-all duration-200 outline-none
-              ${currentStyles.border}
-              ${currentStyles.background}
-              ${currentStyles.text}
-              ${currentStyles.placeholder}
-              ${icon ? "pl-10" : ""}
-              ${hasDropdown || variant === "password" ? "pr-10" : ""}
-              ${disabled ? "cursor-not-allowed" : "cursor-text"}
-              ${className}
-            `}
+            aria-invalid={!!error}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            className={[
+              base,
+              colors,
+              placeholder,
+              paddingLeft,
+              paddingRight,
+            ].join(" ")}
             {...props}
           />
 
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
-            {variant === "password" && (
-              <button
-                type="button"
-                onClick={togglePasswordVisibility}
-                className={`w-5 h-5 ${
-                  currentState === "disabled"
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-400 hover:text-gray-600"
-                }`}
-                disabled={disabled}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            )}
+          {hasTail && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              {suffixText && (
+                <span className="px-2 py-0.5 text-xs rounded-md bg-neutral-softGrey2 dark:bg-neutral-dark1 text-neutral-grey3">
+                  {suffixText}
+                </span>
+              )}
 
-            {hasDropdown && (
-              <button
-                type="button"
-                onClick={handleDropdownToggle}
-                className={`w-5 h-5 transition-transform duration-200 ${
-                  isDropdownOpen ? "rotate-180" : ""
-                } ${
-                  currentState === "error"
-                    ? "text-red-500"
-                    : currentState === "disabled"
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-400 hover:text-gray-600"
-                }`}
-                disabled={disabled}
-              >
-                <ChevronDown size={20} />
-              </button>
-            )}
-          </div>
-
-          {hasDropdown && isDropdownOpen && dropdownOptions.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
-              {dropdownOptions.map((option, index) => (
+              {trailingIcon && (
                 <button
-                  key={index}
                   type="button"
-                  onClick={() => handleDropdownSelect(option)}
-                  className="w-full px-3 py-2 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none first:rounded-t-lg last:rounded-b-lg"
+                  onClick={onTrailingClick}
+                  disabled={disabled}
+                  className="text-neutral-grey2 dark:text-neutral-grey3 hover:text-neutral-dark1 dark:hover:text-neutral-white disabled:opacity-50"
                 >
-                  {option.label}
+                  {trailingIcon}
+                </button>
+              )}
+
+              {variant === "password" && (
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  disabled={disabled}
+                  className="text-neutral-grey2 dark:text-neutral-grey3 hover:text-neutral-dark1 dark:hover:text-neutral-white disabled:opacity-50"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              )}
+
+              {hasDropdown && (
+                <button
+                  type="button"
+                  onClick={() => setOpen((o) => !o)}
+                  disabled={disabled}
+                  className="text-neutral-grey2 dark:text-neutral-grey3 hover:text-neutral-dark1 dark:hover:text-neutral-white disabled:opacity-50"
+                  aria-haspopup="listbox"
+                  aria-expanded={open}
+                >
+                  <ChevronDown size={18} />
+                </button>
+              )}
+            </div>
+          )}
+
+          {hasDropdown && open && dropdownOptions.length > 0 && (
+            <div className="absolute z-50 mt-2 w-full rounded-lg border bg-neutral-white dark:bg-neutral-dark2 border-neutral-softGrey1 dark:border-neutral-grey1 shadow-lg overflow-hidden">
+              {dropdownOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  role="option"
+                  onClick={() => {
+                    onDropdownSelect?.(opt.value);
+                    setOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-softGrey2 dark:hover:bg-neutral-dark1 text-neutral-dark1 dark:text-neutral-white"
+                >
+                  {opt.label}
                 </button>
               ))}
             </div>
           )}
         </div>
 
-        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-2 text-sm text-system-red">{error}</p>}
       </div>
     );
   }
 );
 
-FormInput.displayName = "FormInput";
-
 export default FormInput;
-
