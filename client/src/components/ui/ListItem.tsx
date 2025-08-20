@@ -151,7 +151,8 @@ const ListItem: React.FC<ListItemProps> = ({
   // Reminder Variant
   if (variant === "reminder") {
     return (
-      <div className={baseContainerClasses}>
+      <div className={`${baseContainerClasses} gap-2 shadow-md border border-neutral-softGrey1 p-2 rounded-lg dark:border-none`}
+>
         <div className="flex justify-between items-start gap-4">
           <div className="flex flex-col min-w-0">
             {" "}

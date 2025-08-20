@@ -1,4 +1,4 @@
-import { ArrowLeft, Bell, Menu, MoreVertical, Search, X } from "lucide-react";
+import { ArrowLeft, Bell, Menu, MoreVertical, Search, X,CalendarClock } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
  
@@ -7,6 +7,7 @@ type TopAppBarProps = {
   title: string;
   onToggleSidebar?: () => void;
   isSidebarOpen?: boolean;
+  
 };
 
 export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSidebarOpen }: TopAppBarProps) => {
@@ -15,8 +16,10 @@ export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSideb
 
   const handleLogout = () => console.log('Logging out...');
   const handleHelp = () => console.log('Navigating to Help & Support...');
-  const handleBack = () => router.back();
+  const handleBack = () => window.history.back();
   const handleSearch = () =>  console.log('Opening search...'); 
+  
+
   
 
   return (
@@ -64,6 +67,7 @@ export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSideb
             >
               <Bell className="w-5 h-5" />
             </button>
+            
             <div className="relative">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
@@ -83,6 +87,7 @@ export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSideb
                         Help & Support
                       </button>
                     </li>
+                    
                     <li>
                       <button
                         onClick={handleLogout}
