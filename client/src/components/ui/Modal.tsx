@@ -30,15 +30,20 @@ const Modal: React.FC<ModalProps> = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60">
+    // Backdrop handles close
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      {/* Dialog stops bubbling so inside clicks don't close */}
       <div
         className={clsx(
-          "bg-neutral-white dark:bg-neutral-dark2 rounded-xl shadow-xl p-6 w-full max-w-md mx-4",
+          "bg-neutral-white dark:bg-neutral-dark2 rounded-xl shadow-xl  w-full max-w-md mx-4",
           className
         )}
         onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
       >
         {title && (
           <h2 className="text-lg font-semibold mb-4 text-neutral-dark1 dark:text-neutral-white">
@@ -50,8 +55,6 @@ const Modal: React.FC<ModalProps> = ({
           <div className="mt-6 flex justify-end gap-2">{actions}</div>
         )}
       </div>
-      {/* Overlay click closes modal */}
-      <div className="fixed inset-0" onClick={onClose} />
     </div>
   );
 };
