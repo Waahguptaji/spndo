@@ -1,23 +1,23 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { appNav } from '@/config/nav'
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { appNav } from '@/config/nav';
 
 type DesktopSidebarProps = {
   isOpen: boolean;
   onMouseLeave: () => void;
+  onReminderClick?: () => void; // Callback from parent
 };
 
-export default function DesktopSidebar({ isOpen, onMouseLeave }: DesktopSidebarProps) {
+export default function DesktopSidebar({ isOpen, onMouseLeave, onReminderClick }: DesktopSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <div className="hidden md:flex"onMouseLeave={onMouseLeave}>
-      {/* The toggle button has been removed from here */}
+    <div className="hidden md:flex" onMouseLeave={onMouseLeave}>
       <aside
         className={`
-         w-64 h-screen bg-neutral-white dark:bg-secondary-darkBrand border-r shadow-md space-y-6 fixed top-0 left-0 z-40
+          w-64 h-screen bg-neutral-white dark:bg-secondary-darkBrand border-r shadow-md space-y-6 fixed top-0 left-0 z-40
           transition-all duration-300
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
@@ -39,10 +39,19 @@ export default function DesktopSidebar({ isOpen, onMouseLeave }: DesktopSidebarP
         <nav className="flex flex-col gap-4 p-4 mt-2">
           {appNav.map(({ label, href, icon: Icon }) => {
             const isActive = pathname === href || pathname.startsWith(href + '/');
+
+            const handleClick = (e: React.MouseEvent) => {
+              if (label === "Reminder" && onReminderClick) {
+                e.preventDefault(); // Prevent navigation
+                onReminderClick(); // Call parent function
+              }
+            };
+
             return (
               <Link
                 key={href}
                 href={href}
+                onClick={handleClick}
                 className={`flex items-center gap-3 px-4 py-2 rounded-md transition text-xl
                   ${isActive
                     ? 'bg-primary-dark text-secondary-darkBrand dark:text-neutral-white'

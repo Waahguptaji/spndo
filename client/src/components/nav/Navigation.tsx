@@ -1,12 +1,14 @@
 'use client';
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { usePathname } from "next/navigation";
 import LeftNavBar from "./LeftNavBar";
 import BottomNavBar from "./BottomNavBar";
 import { TopAppBar } from "./Topbar";
 import { useNavigation } from "@/hooks/useNavigation";
 import { titleForPathname } from "@/config/nav";
+import ReminderList from "@/app/(app)/reminder/page";
+import SetReminder from "@/components/reminder/setReminder";
 
 interface NavigationProps {
   children: ReactNode;
@@ -17,9 +19,25 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
   const { isMobileView, isSidebarOpen, togglePin, setHoverOpen } = useNavigation();
   const currentPageTitle = titleForPathname(pathname);
 
+  // Manage which view to show
+  const [activeView, setActiveView] = useState<"dashboard" | "reminders" | "addReminder">("dashboard");
+
+  // Sidebar click triggers reminder view
+  const handleReminderClick = () => {
+    setActiveView("reminders");
+  };
+
+  const goToAddReminder = () => {
+    setActiveView("addReminder");
+  };
+
+  const goBackToReminders = () => {
+    setActiveView("reminders");
+  };
 
   return (
     <div className="bg-neutral-white dark:bg-secondary-darkBrand min-h-screen">
+      {/* Sidebar hover trigger for desktop */}
       {!isMobileView && (
         <div
           onMouseEnter={() => setHoverOpen(true)}
@@ -27,22 +45,44 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
         />
       )}
 
-  <LeftNavBar isOpen={isSidebarOpen} onMouseLeave={() => setHoverOpen(false)} />
-      
+      {/* Left Sidebar with reminder handler */}
+      <LeftNavBar
+        isOpen={isSidebarOpen}
+        onMouseLeave={() => setHoverOpen(false)}
+        onReminderClick={handleReminderClick}
+      />
+
       <div className={`relative transition-all duration-300 ease-in-out ${isSidebarOpen ? 'md:ml-64' : 'ml-0'}`}>
-        <TopAppBar 
-          variant={isMobileView ? 'back' : 'default'} 
-          title={currentPageTitle}
-          onToggleSidebar={togglePin} 
-          isSidebarOpen={isSidebarOpen} 
+        {/* Top Bar */}
+        <TopAppBar
+          variant={isMobileView ? 'back' : 'default'}
+          title={
+            activeView === "dashboard"
+              ? currentPageTitle
+              : activeView === "reminders"
+              ? "Reminders"
+              : "Set Reminder"
+          }
+          onToggleSidebar={togglePin}
+          isSidebarOpen={isSidebarOpen}
         />
-        
-        <main className="pt-16">
-          {children}
+
+        {/* Main Content */}
+        <main className="pt-16 p-4">
+          {activeView === "dashboard" && children}
+
+          {activeView === "reminders" && (
+            <ReminderList onAddReminderClick={goToAddReminder} />
+          )}
+
+          {activeView === "addReminder" && (
+            <SetReminder onBack={goBackToReminders} />
+          )}
         </main>
       </div>
-      
-  <BottomNavBar />
+
+      {/* Bottom Nav for Mobile */}
+      <BottomNavBar />
     </div>
   );
 };
