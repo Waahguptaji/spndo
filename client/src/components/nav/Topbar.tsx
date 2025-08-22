@@ -1,6 +1,6 @@
 import { ArrowLeft, Bell, Menu, MoreVertical, Search, X,CalendarClock } from "lucide-react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
  
 type TopAppBarProps = {
   variant?: 'default' | 'back' | 'search';
@@ -18,9 +18,9 @@ export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSideb
   const handleHelp = () => console.log('Navigating to Help & Support...');
   const handleBack = () => window.history.back();
   const handleSearch = () =>  console.log('Opening search...'); 
-  
+  const goToNotifications = () => router.push("/notifications");
 
-  
+  const dynamicTitle = usePathname()==='/notifications' ? 'Notifications' : title;
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between px-4 sm:px-6 bg-neutral-white dark:bg-secondary-darkBrand text-gray-800 dark:text-white border-b border-gray-200 dark:border-gray-700 shadow-sm">
@@ -44,7 +44,7 @@ export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSideb
             <ArrowLeft size={20} />
           </button>
         )}
-        <h1 className="text-xl font-semibold">{title}</h1>
+        <h1 className="text-xl font-semibold">{dynamicTitle}</h1>
       </div>
 
       {/* Right Section: Varies based on the 'variant' prop */}
@@ -62,7 +62,7 @@ export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSideb
         {variant === 'default' && (
           <>
             <button
-              aria-label="Notifications"
+              aria-label="Notifications" onClick={goToNotifications}
               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <Bell className="w-5 h-5" />
