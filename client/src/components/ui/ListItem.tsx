@@ -31,7 +31,7 @@ const ListItem: React.FC<ListItemProps> = ({
   // Notification Variant
   if (variant === "notification") {
     return (
-      <div className={baseContainerClasses}>
+      <div className={`${baseContainerClasses} gap-2 shadow-md border border-neutral-softGrey1 p-2 rounded-lg dark:border-none`}>
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
             {" "}
@@ -40,12 +40,12 @@ const ListItem: React.FC<ListItemProps> = ({
             </div>
             <div className="min-w-0">
               {" "}
-              <div className="text-neutral-dark1 dark:text-neutral-white font-semibold truncate">
+              <div className="text-neutral-dark1 dark:text-neutral-white font-semibold truncate"  title={title} >
                 {" "}
                 {title}
               </div>
               {description && (
-                <div className="text-xs text-neutral-grey2 dark:text-neutral-grey3 truncate">
+                <div className="text-xs text-neutral-grey2 dark:text-neutral-grey3 truncate"title={description}>
                   {" "}
                   {description}
                 </div>

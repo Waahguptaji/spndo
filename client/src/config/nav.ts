@@ -1,12 +1,20 @@
-import { Home, Calendar, CreditCard, DollarSign, Settings } from "lucide-react";
+import { Home, Calendar, CreditCard, DollarSign, Settings, Bell } from "lucide-react";
 
 export const appNav = [
   { label: "Overview", href: "/dashboard", icon: Home },
   { label: "Calendar", href: "/calendar", icon: Calendar },
-  { label: "Cards", href: "/cards", icon: CreditCard },
+  { label: "Reminder", href: "/reminder", icon: CreditCard },
   { label: "Budget", href: "/budget", icon: DollarSign },
   { label: "Preferences", href: "/preferences", icon: Settings },
+
 ] as const;
+
+export const bottomNav = [
+  { label: "Home", href: "/home", icon: Home },
+  { label: "Calendar", href: "/calendar", icon: Calendar },
+  { label: "Reminder", href: "/reminder", icon: CreditCard },
+  { label: "Notifications", href: "/notifications", icon: Bell }
+];
 
 export function titleForPathname(pathname: string): string {
   if (pathname === "/") return "Overview";
