@@ -8,6 +8,13 @@ export const appNav = [
   { label: "Preferences", href: "/preferences", icon: Settings },
 ] as const;
 
+export const bottomNav = [
+   { label: "Overview", href: "/dashboard", icon: Home },
+  { label: "Calendar", href: "/calendar", icon: Calendar },
+  { label: "Reminder", href: "/reminder", icon: CreditCard },
+  { label: "Notifications", href: "/notifications", icon: Bell }
+];
+
 export function titleForPathname(pathname: string): string {
   if (pathname === "/") return "Overview";
   const exact = appNav.find((n) => n.href === pathname);

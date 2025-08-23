@@ -40,18 +40,18 @@ export default function DesktopSidebar({ isOpen, onMouseLeave, onReminderClick }
           {appNav.map(({ label, href, icon: Icon }) => {
             const isActive = pathname === href || pathname.startsWith(href + '/');
 
-            const handleClick = (e: React.MouseEvent) => {
-              if (label === "Reminder" && onReminderClick) {
-                e.preventDefault(); // Prevent navigation
-                onReminderClick(); // Call parent function
-              }
-            };
+            // const handleClick = (e: React.MouseEvent) => {
+            //   if (label === "Reminder" && onReminderClick) {
+            //   // Prevent navigation
+            //     onReminderClick(); // Call parent function
+            //   }
+            // };
 
             return (
               <Link
                 key={href}
                 href={href}
-                onClick={handleClick}
+                // onClick={handleClick}
                 className={`flex items-center gap-3 px-4 py-2 rounded-md transition text-xl
                   ${isActive
                     ? 'bg-primary-dark text-secondary-darkBrand dark:text-neutral-white'
