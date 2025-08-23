@@ -1,4 +1,6 @@
+
 import { Home, Calendar, CreditCard, DollarSign, Settings, Bell } from "lucide-react";
+
 
 export const appNav = [
   { label: "Overview", href: "/dashboard", icon: Home },
@@ -10,7 +12,9 @@ export const appNav = [
 ] as const;
 
 export const bottomNav = [
-  { label: "Home", href: "/home", icon: Home },
+
+   { label: "Overview", href: "/dashboard", icon: Home },
+
   { label: "Calendar", href: "/calendar", icon: Calendar },
   { label: "Reminder", href: "/reminder", icon: CreditCard },
   { label: "Notifications", href: "/notifications", icon: Bell }
