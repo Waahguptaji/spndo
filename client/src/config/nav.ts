@@ -3,7 +3,7 @@ import { Home, Calendar, CreditCard, DollarSign, Settings,Bell } from "lucide-re
 export const appNav = [
   { label: "Overview", href: "/dashboard", icon: Home },
   { label: "Calendar", href: "/calendar", icon: Calendar },
-  { label: "Cards", href: "/cards", icon: CreditCard },
+  { label: "Reminder", href: "/reminder", icon: CreditCard },
   { label: "Budget", href: "/budget", icon: DollarSign },
   { label: "Preferences", href: "/preferences", icon: Settings },
 ] as const;
