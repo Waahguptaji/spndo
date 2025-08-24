@@ -1,12 +1,13 @@
 import { Car, Film, ShoppingCart, Utensils } from "lucide-react";
 import React from "react";
-import WidgetCard from "./WidgetCard";
-import ListItem from "../ui/ListItem";
+import ListItem from "@/components/ui/ListItem";
+import WidgetCard from "@/components/dashboard/WidgetCard";
+import AddGoalButton from "@/components/goal/AddGoalButton";
 
 type Goal = {
   title: string;
-  amount: number; // target amount
-  current: number; // amount saved so far
+  amount: number;
+  current: number;
   date: string;
   description: string;
 };
@@ -65,22 +66,20 @@ const iconMap: { [key: string]: React.ReactNode } = {
   ),
 };
 
-const GoalsWidget = () => {
+const GoalsPage = () => {
   return (
-    <WidgetCard title="Goals" href="/goals">
-      <div className="space-y-2">
-        {goalsData.map((goal) => (
-          <ListItem
-            key={goal.title}
-            variant="goal"
-            title={goal.title}
-            icon={iconMap[goal.title]}
-            progress={{ current: goal.current, total: goal.amount }}
-          />
-        ))}
-      </div>
+    <WidgetCard title="All Goals" actionSlot={<AddGoalButton />}>
+      {goalsData.map((goal) => (
+        <ListItem
+          key={goal.title}
+          variant="goal"
+          title={goal.title}
+          icon={iconMap[goal.title]}
+          progress={{ current: goal.current, total: goal.amount }}
+        />
+      ))}
     </WidgetCard>
   );
 };
 
-export default GoalsWidget;
+export default GoalsPage;
