@@ -4,7 +4,7 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import FormInput from "../ui/FormInput";
 import Button from "../ui/Button";
-import Calendar from "../ui/Calendar";
+import Calendar from "../ui/calendar";
 import Modal from "../ui/Modal";
 
 const contributionOptions = [
