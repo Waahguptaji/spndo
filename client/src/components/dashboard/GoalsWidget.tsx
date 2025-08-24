@@ -67,7 +67,7 @@ const iconMap: { [key: string]: React.ReactNode } = {
 
 const GoalsWidget = () => {
   return (
-    <WidgetCard title="Goals">
+    <WidgetCard title="Goals" href="/goals">
       <div className="space-y-2">
         {goalsData.map((goal) => (
           <ListItem
