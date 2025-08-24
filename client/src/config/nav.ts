@@ -8,6 +8,7 @@ export const appNav = [
   { label: "Reminder", href: "/reminder", icon: CreditCard },
   { label: "Budget", href: "/budget", icon: DollarSign },
   { label: "Preferences", href: "/preferences", icon: Settings },
+  { label: "Savings", href: "/savings", icon: DollarSign }
 
 ] as const;
 
