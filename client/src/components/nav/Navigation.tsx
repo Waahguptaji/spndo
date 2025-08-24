@@ -20,21 +20,11 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
   const currentPageTitle = titleForPathname(pathname);
 
   // Manage which view to show
-  const [activeView, setActiveView] = useState<"dashboard" | "reminder" | "addReminder">("dashboard");
+  const [activeView, setActiveView] = useState("dashboard");
 
   // Sidebar click triggers reminder view
-  const handleReminderClick = () => {
-    setActiveView("reminder");
-  };
 
-  const goToAddReminder = () => {
-    setActiveView("addReminder");
-  };
 
-  const goBackToReminders = () => {
-    setActiveView("reminder");
-  };
-  {console.log(activeView)}
   return (
     <div className="bg-neutral-white dark:bg-secondary-darkBrand min-h-screen">
       {/* Sidebar hover trigger for desktop */}
@@ -49,7 +39,7 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
       <LeftNavBar
         isOpen={isSidebarOpen}
         onMouseLeave={() => setHoverOpen(false)}
-        onReminderClick={handleReminderClick}
+   
       />
 
       <div className={`relative transition-all duration-300 ease-in-out ${isSidebarOpen ? 'md:ml-64' : 'ml-0'}`}>
@@ -72,13 +62,9 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
         <main className="pt-16 p-4">
           {activeView === "dashboard" && children}
 
-          {activeView === "reminder" && (
-            <ReminderList onAddReminderClick={goToAddReminder} />
-          )}
+          
 
-          {activeView === "addReminder" && (
-            <SetReminder onBack={goBackToReminders} />
-          )}
+          
         </main>
       </div>
 
