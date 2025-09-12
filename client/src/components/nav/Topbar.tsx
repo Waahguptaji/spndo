@@ -1,7 +1,7 @@
-import { ArrowLeft, Bell, Menu, MoreVertical, Search, X,CalendarClock } from "lucide-react";
+import { ArrowLeft, Bell, Menu, MoreVertical, Search, X,CalendarClock,CircleUser } from "lucide-react";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
- 
+ import { useSession, signOut } from "next-auth/react";
 type TopAppBarProps = {
   variant?: 'default' | 'back' | 'search';
   title: string;
@@ -12,9 +12,10 @@ type TopAppBarProps = {
 
 export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSidebarOpen }: TopAppBarProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen,setProfileOpen] = useState(false);
   const router = useRouter();
-
-  const handleLogout = () => console.log('Logging out...');
+ const { data: session, status } = useSession();
+  const handleLogout = () => signOut({ callbackUrl: "/login" });
   const handleHelp = () => console.log('Navigating to Help & Support...');
   const handleBack = () => window.history.back();
   const handleSearch = () =>  console.log('Opening search...'); 
@@ -61,6 +62,14 @@ export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSideb
 
         {variant === 'default' && (
           <>
+      <button
+          aria-label="Profile"
+          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          onClick={() => setProfileOpen(!profileOpen)}
+        >
+          <CircleUser className="w-5 h-5"/>
+        </button>
+        {profileOpen && ( <div className="p-1 absolute right-0 mt-20 w-fit bg-white dark:bg-gray-700 shadow-xl rounded-lg z-30 ring-1 ring-black ring-opacity-5"> {session?.user?.email}</div>)}
             <button
               aria-label="Notifications" onClick={goToNotifications}
               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -72,7 +81,7 @@ export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSideb
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 aria-label="More actions"
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="p-2 rounded-full  hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 <MoreVertical className="w-5 h-5" />
               </button>

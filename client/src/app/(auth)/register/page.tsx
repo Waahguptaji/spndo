@@ -6,14 +6,34 @@ import Button from "@/components/ui/Button";
 import { Mail, Lock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation"; 
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email, password });
+//     console.log({ email, password });
+//      alert("Account created successfully! Please log in.");
+//     router.push("/login");
+const res = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+        
+        if (res.ok) {
+            alert("Account created successfully! Please log in.");
+            router.push("/login");
+        } else {
+            alert(data.message || "Registration failed. User may already exist.");
+        }
   };
 
   return (
@@ -129,6 +149,7 @@ const RegisterPage: React.FC = () => {
           <div className="flex items-center text-sm">
             <input
               id="terms"
+              required
               type="checkbox"
               className="w-4 h-4 text-primary-brand rounded border-neutral-grey1 focus:ring-primary-brand"
             />
