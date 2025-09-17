@@ -43,6 +43,17 @@ export default function LoginPage() {
     if (result?.error) {
       alert("Invalid credentials. Please try again.");
     } else {
+      // ✅ Login success → fetch user by email
+      const res = await fetch("/api/user?email=" + formData.email);
+      const user = await res.json();
+
+      if (user.success) {
+    localStorage.setItem("userId", user.data.id); // ✅ save userId
+    console.log("Logged in user:", user);
+  }
+  console.log("Logged in user:", user);
+
+      // localStorage.setItem("userId", user.id); // ✅ save userId
       router.push("/dashboard");
     }
   };

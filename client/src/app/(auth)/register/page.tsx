@@ -1,39 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
 import { Mail, Lock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; 
-
+import { useRouter } from "next/navigation";
+import { useSession, signIn } from "next-auth/react";
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
-
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/dashboard"); // replace avoids back/forward issue
+    }
+  }, [status, router]);
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-lg">Loading...</p>
+      </div>
+    );
+  }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-//     console.log({ email, password });
-//      alert("Account created successfully! Please log in.");
-//     router.push("/login");
-const res = await fetch('/api/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-        });
+    //     console.log({ email, password });
+    //      alert("Account created successfully! Please log in.");
+    //     router.push("/login");
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-        const data = await res.json();
-        
-        if (res.ok) {
-            alert("Account created successfully! Please log in.");
-            router.push("/login");
-        } else {
-            alert(data.message || "Registration failed. User may already exist.");
-        }
+    const data = await res.json();
+
+    if (res.ok) {
+       const newUser = data.user;
+       localStorage.setItem("userId", newUser.id);
+      alert("Account created successfully! Please log in.");
+      router.push("/login");
+    } else {
+      alert(data.message || "Registration failed. User may already exist.");
+    }
   };
 
   return (
@@ -43,7 +59,7 @@ const res = await fetch('/api/register', {
       <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  h-full px-6 justify-center space-y-4">
         {/* logo */}
         <div>
-          <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md">
+          <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md mt-8">
             <Image
               src="/assets/bag-icon.svg"
               alt="Bag"
@@ -126,6 +142,7 @@ const res = await fetch('/api/register', {
 
         {/* form */}
         <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
+          
           <FormInput
             label="Email"
             type="email"
@@ -145,6 +162,8 @@ const res = await fetch('/api/register', {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+
+
 
           <div className="flex items-center text-sm">
             <input
@@ -195,7 +214,7 @@ const res = await fetch('/api/register', {
           src="/assets/tree.png"
           alt="Serene tree"
           fill
-          className="object-cover rounded-3xl p-3"
+          className="object-cover rounded-3xl p-1"
         />
       </div>
     </div>
