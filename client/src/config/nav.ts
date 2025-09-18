@@ -4,11 +4,10 @@ import { Home, Calendar, CreditCard, DollarSign, Settings, Bell } from "lucide-r
 
 export const appNav = [
   { label: "Overview", href: "/dashboard", icon: Home },
-  { label: "Calendar", href: "/calendar", icon: Calendar },
   { label: "Reminder", href: "/reminder", icon: CreditCard },
   { label: "Budget", href: "/budget", icon: DollarSign },
+  { label: "Savings", href: "/savings", icon: DollarSign },
   { label: "Preferences", href: "/preferences", icon: Settings },
-  { label: "Savings", href: "/savings", icon: DollarSign }
 
 ] as const;
 

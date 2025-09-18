@@ -12,6 +12,7 @@ export interface FormInputProps
   onTrailingClick?: () => void;
   suffixText?: string | React.ReactNode; // small "value" chip
   hasDropdown?: boolean;
+  icon?: React.ReactNode;
   dropdownOptions?: { value: string; label: string }[];
   onDropdownSelect?: (value: string) => void;
   variant?: "default" | "password";
@@ -20,6 +21,7 @@ export interface FormInputProps
 const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
   function FormInput(
     {
+     
       label,
       error,
       leadingIcon,

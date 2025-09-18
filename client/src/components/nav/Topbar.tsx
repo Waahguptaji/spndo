@@ -20,8 +20,13 @@ export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSideb
   const handleBack = () => window.history.back();
   const handleSearch = () =>  console.log('Opening search...'); 
   const goToNotifications = () => router.push("/notifications");
-
-  const dynamicTitle = usePathname()==='/notifications' ? 'Notifications' : title;
+   const pathname = usePathname();
+  const dynamicTitle =
+  pathname === '/notifications'
+    ? 'Notifications'
+    : pathname === '/profile'
+    ? 'Profile'
+    : title;
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between px-4 sm:px-6 bg-neutral-white dark:bg-secondary-darkBrand text-gray-800 dark:text-white border-b border-gray-200 dark:border-gray-700 shadow-sm">

@@ -6,14 +6,20 @@ import SummaryWidget from "@/components/dashboard/SummaryWidget";
 import TransactionWidget from "@/components/dashboard/TransactionWidget";
 import WeeklyBarGraphWidget from "@/components/dashboard/WeeklyBarGraphWidget";
 import React from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession} from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 function Dashboard() {
    const { data: session, status } = useSession();
   const router = useRouter();
 
-  if (status === "loading") return <p>Loading...</p>;
+ if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-lg">Loading...</p>
+      </div>
+    );
+  }
 
   if (!session) {
     router.push("/login");
