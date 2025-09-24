@@ -15,7 +15,8 @@ export const bottomNav = [
 
    { label: "Overview", href: "/dashboard", icon: Home },
 
-  { label: "Calendar", href: "/calendar", icon: Calendar },
+{ label: "Preferences", href: "/preferences", icon: Settings },
+
   { label: "Reminder", href: "/reminder", icon: CreditCard },
   { label: "Notifications", href: "/notifications", icon: Bell }
 ];

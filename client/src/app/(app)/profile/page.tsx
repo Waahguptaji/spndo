@@ -5,11 +5,12 @@ import { useState, useEffect } from "react";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
 import { CircleUserRound } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function ProfileInfo() {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
-
+ const router = useRouter();
   const [profile, setProfile] = useState({
     name: "",
     address: "",
@@ -111,7 +112,7 @@ export default function ProfileInfo() {
   if (loading) return <p className="text-center mt-10">Loading profile...</p>;
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background md:p-8 p-4 mb-10 md:mb-0">
       <div className="max-w-4xl mx-auto rounded-2xl shadow-2xl bg-card p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left Column */}
         <div className="flex flex-col items-center space-y-4">
@@ -190,6 +191,12 @@ export default function ProfileInfo() {
             className="mt-4 w-full md:w-auto shadow-md hover:shadow-lg"
           >
             Save
+          </Button>
+           <Button
+            onClick={() => router.push('/dashboard')}
+            className="mt-4 w-full md:w-auto shadow-md hover:shadow-lg md:ml-4"
+          >
+            Cancel
           </Button>
         </div>
       </div>
