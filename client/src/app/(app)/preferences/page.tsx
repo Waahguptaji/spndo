@@ -1,13 +1,12 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { User, Shield, Bell, LogOut, ChevronRight ,CircleUserRound} from "lucide-react";
+import { User, Shield, Bell, LogOut, ChevronRight, CircleUserRound } from "lucide-react";
 import Image from "next/image";
 import React from "react";
-// import router, { useRouter } from "next/router";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-
+import Modal from "@/components/ui/Modal"; // ✅ make sure your Modal file is here
 
 const PreferenceItem = ({
   icon,
@@ -40,7 +39,7 @@ const PreferenceItem = ({
 );
 
 const PreferencesPage = () => {
-    const router = useRouter();
+  const router = useRouter();
   const [user, setUser] = useState<{
     id: string;
     email: string;
@@ -51,6 +50,13 @@ const PreferencesPage = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", image: "" });
+
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -88,7 +94,39 @@ const PreferencesPage = () => {
       alert(data.message);
     }
   };
- const handleLogout = () => signOut({ callbackUrl: "/login" });
+
+  const handlePasswordUpdate = async () => {
+  if (!user) return;
+
+  if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+    alert("New password and confirmation do not match!");
+    return;
+  }
+
+  const res = await fetch("/api/user/password", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: user.id,
+      currentPassword: passwordForm.currentPassword,
+      newPassword: passwordForm.newPassword,
+    }),
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    alert("Password updated successfully! Please login again.");
+    setShowPasswordModal(false);
+    setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    signOut({ callbackUrl: "/login" }); // ✅ log out immediately
+  } else {
+    alert(data.message);
+  }
+};
+
+
+  const handleLogout = () => signOut({ callbackUrl: "/login" });
+
   return (
     <div className="p-4 md:p-6 lg:p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
       {/* Profile Card */}
@@ -129,7 +167,7 @@ const PreferencesPage = () => {
           <h3 className="font-bold text-lg text-neutral-dark1 dark:text-neutral-white px-4 pb-2">
             My Account
           </h3>
-        
+
           <PreferenceItem
             icon={<User size={24} />}
             label="Personal Info"
@@ -140,6 +178,7 @@ const PreferencesPage = () => {
             icon={<Shield size={24} />}
             label="Security"
             description="Change your password"
+            onClick={() => setShowPasswordModal(true)}
           />
         </div>
 
@@ -186,7 +225,7 @@ const PreferencesPage = () => {
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-300"
               >
                 Cancel
               </button>
@@ -200,6 +239,60 @@ const PreferencesPage = () => {
           </div>
         </div>
       )}
+
+      {/* ✅ Change Password Modal using reusable Modal */}
+      <Modal
+      className="p-6"
+        open={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        title="Change Password"
+        actions={
+          <>
+            <button
+              onClick={() => setShowPasswordModal(false)}
+              className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handlePasswordUpdate}
+              className="px-4 py-2 rounded bg-primary-brand text-white hover:bg-primary-brand/80"
+            >
+              Save
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-6">
+          <input
+            type="password"
+            placeholder="Current Password"
+            value={passwordForm.currentPassword}
+            onChange={(e) =>
+              setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
+            }
+            className="w-full p-2 border rounded"
+          />
+          <input
+            type="password"
+            placeholder="New Password"
+            value={passwordForm.newPassword}
+            onChange={(e) =>
+              setPasswordForm({ ...passwordForm, newPassword: e.target.value })
+            }
+            className="w-full p-2 border rounded"
+          />
+          <input
+            type="password"
+            placeholder="Retype New Password"
+            value={passwordForm.confirmPassword}
+            onChange={(e) =>
+              setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
+            }
+            className="w-full p-2 border rounded"
+          />
+        </div>
+      </Modal>
     </div>
   );
 };
