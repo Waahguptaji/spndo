@@ -56,10 +56,10 @@ const RegisterPage: React.FC = () => {
     // The corrected code
     <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full justify-center">
       {/* left: form */}
-      <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  h-full px-6 justify-center space-y-4">
+      <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  h-full px-4 justify-center space-y-4">
         {/* logo */}
         <div>
-          <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md mt-8">
+          <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md md:mt-8 ">
             <Image
               src="/assets/bag-icon.svg"
               alt="Bag"
@@ -80,55 +80,55 @@ const RegisterPage: React.FC = () => {
         </div>
 
         {/* social buttons */}
-        <div className="flex justify-center gap-4 flex-wrap">
-          <button className="w-20 h-12 dark:bg-neutral-grey1 bg-neutral-white rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
+        <div className="flex justify-center gap-1 md:gap-4 ">
+          <Button variant="social" type="button" aria-label="Sign up with Google">
             <Image
               src="/assets/google-icon.svg"
               alt="Google"
-              width={26}
-              height={26}
+              width={22}
+              height={22}
             />
-          </button>
-          <button className="w-20 h-12 dark:bg-neutral-grey1 bg-neutral-white rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
+          </Button>
+          <Button variant="social" type="button" aria-label="Sign up with Facebook">
             <Image
               src="/assets/facebook-icon.svg"
               alt="Facebook"
-              width={26}
-              height={26}
+              width={22}
+              height={22}
             />
-          </button>
-          <button className="w-20 h-12 dark:bg-neutral-grey1 bg-neutral-white rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
+          </Button>
+          <Button variant="social" type="button" aria-label="Sign up with Apple">
             <Image
               src="/assets/apple-icon-light.svg"
               alt="Apple"
-              width={26}
-              height={26}
+              width={22}
+              height={22}
               className="block dark:hidden"
             />
             <Image
               src="/assets/apple-icon-dark.svg"
               alt="Apple"
-              width={26}
-              height={26}
+              width={22}
+              height={22}
               className="hidden dark:block"
             />
-          </button>
-          <button className="w-20 h-12 dark:bg-neutral-grey1 bg-neutral-white rounded-xl shadow-sm flex items-center justify-center hover:bg-neutral-grey2 transition">
+          </Button>
+          <Button variant="social"type="button" aria-label="Sign up with Twitter">
             <Image
               src="/assets/x-icon-light.svg"
-              alt="Apple"
-              width={26}
-              height={26}
+              alt="Twitter"
+              width={22}
+              height={22}
               className="block dark:hidden"
             />
             <Image
               src="/assets/x-icon-dark.svg"
-              alt="Apple"
-              width={26}
-              height={26}
+              alt="Twitter"
+              width={22}
+              height={22}
               className="hidden dark:block"
             />
-          </button>
+          </Button>
         </div>
 
         {/* divider */}

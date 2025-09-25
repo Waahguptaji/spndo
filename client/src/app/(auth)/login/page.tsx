@@ -76,7 +76,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen md:flex-col justify-center">
       <div className="flex overflow-hidden">
         {/* Left side - form */}
-        <div className="md:px-24 md:w-5/12 flex flex-col justify-center relative">
+        <div className="md:px-24 md:w-5/12 flex flex-col justify-center relative ">
           {/* Logo */}
           <div className="flex justify-center relative">
             <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md">
@@ -100,52 +100,52 @@ export default function LoginPage() {
           </div>
 
           {/* Social logins */}
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-1 md:gap-4 flex-wrap px-3 md:px-0">
             <Button type="button" variant="social" aria-label="Login with Google">
               <Image
                 src="/assets/google-icon.svg"
                 alt="Google Icon"
-                width={26}
-                height={26}
+                width={24}
+                height={24}
               />
             </Button>
             <Button type="button" variant="social" aria-label="Login with Apple">
               <Image
                 src="/assets/apple-icon-light.svg"
                 alt="Apple Icon"
-                className="w-7 h-7 dark:hidden"
-                width={28}
-                height={28}
+                className="dark:hidden"
+                width={24}
+                height={24}
               />
               <Image
                 src="/assets/apple-icon-dark.svg"
                 alt="Apple Icon"
-                className="w-7 h-7 hidden dark:block"
-                width={28}
-                height={28}
+                className="hidden dark:block"
+                width={24}
+                height={24}
               />
             </Button>
             <Button type="button" variant="social" aria-label="Login with Facebook">
               <Image
                 src="/assets/facebook-icon.svg"
                 alt="Facebook Icon"
-                className="w-7 h-7"
-                width={28}
-                height={28}
+             
+                width={24}
+                height={24}
               />
             </Button>
             <Button type="button" variant="social" aria-label="Login with Twitter">
               <Image
                 src="/assets/x-icon-light.svg"
                 alt="Twitter Icon"
-                className="w-7 h-7 dark:hidden"
+                className="dark:hidden"
                 width={28}
                 height={28}
               />
               <Image
                 src="/assets/x-icon-dark.svg"
                 alt="Twitter Icon"
-                className="w-7 h-7 hidden dark:block"
+                className="hidden dark:block"
                 width={28}
                 height={28}
               />
@@ -153,7 +153,7 @@ export default function LoginPage() {
           </div>
 
           {/* Divider */}
-          <div className="flex items-center my-6">
+          <div className="flex items-center my-6 mx-4 md:mx-0">
             <div className="flex-grow h-px bg-neutral-softGrey1"></div>
             <span className="mx-4 text-sm text-neutral-grey2 dark:text-dark-muted">
               OR
@@ -162,7 +162,7 @@ export default function LoginPage() {
           </div>
 
           {/* Login form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4 px-4 md:px-0">
             <FormInput
               id="email"
               type="email"
