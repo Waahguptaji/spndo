@@ -101,7 +101,14 @@ export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSideb
                         Help & Support
                       </button>
                     </li>
-                    
+                    <li>
+                      <button
+                        onClick={() => router.push('/login')}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-b-lg"
+                      >
+                        Sign In
+                      </button>
+                    </li>
                     <li>
                       <button
                         onClick={handleLogout}
@@ -110,6 +117,7 @@ export const TopAppBar = ({ variant = 'default', title, onToggleSidebar, isSideb
                         Logout
                       </button>
                     </li>
+                     
                   </ul>
                 </div>
               )}

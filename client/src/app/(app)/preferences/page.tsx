@@ -128,7 +128,7 @@ const PreferencesPage = () => {
   const handleLogout = () => signOut({ callbackUrl: "/login" });
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div className="p-4 md:p-6 lg:p-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 md:mb-0">
       {/* Profile Card */}
       <div className="md:col-span-1">
         <div className="bg-neutral-white dark:bg-neutral-dark2 p-6 rounded-xl shadow-md flex flex-col items-center text-center">

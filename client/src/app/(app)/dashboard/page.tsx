@@ -26,7 +26,7 @@ function Dashboard() {
     return null;
   }
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-4 space-y-6 mb-12 md:mb-0">
       <div className="flex overflow-x-auto gap-4 pb-2 md:grid md:grid-cols-3 md:overflow-visible scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <SummaryWidget variant="savings" title="Total Balance" amount={0} />
         <SummaryWidget
