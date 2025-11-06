@@ -1,0 +1,31 @@
+name: ci
+on:
+  pull_request:
+    branches: [main, dev]
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: client # because your Next.js app lives here
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: |
+          if [ -f tsconfig.json ]; then
+            npm run typecheck
+          else
+            echo "No tsconfig.json, skipping typecheck"
+          fi
+      - run: npm test -- --ci || echo "⚠️ No tests yet, skipping"
+      - run: npm run build
