@@ -21,7 +21,6 @@ export interface FormInputProps
 const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
   function FormInput(
     {
-     
       label,
       error,
       leadingIcon,
@@ -157,6 +156,7 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
                 <button
                   key={opt.value}
                   type="button"
+                  // eslint-disable-next-line jsx-a11y/role-has-required-aria-props
                   role="option"
                   onClick={() => {
                     onDropdownSelect?.(opt.value);

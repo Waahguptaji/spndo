@@ -1,9 +1,7 @@
 import AddGoalForm from "@/components/goal/AddGoalForm";
 import React from "react";
 
-type Props = {};
-
-const AddGoalPage = (props: Props) => {
+const AddGoalPage = () => {
   return (
     <div className="p-8">
       <AddGoalForm />

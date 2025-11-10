@@ -128,7 +128,7 @@ const Transactions = () => {
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 30;
 
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null!);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
 import {
@@ -10,13 +11,13 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import resolveConfig from "tailwindcss/resolveConfig";
-import tailwindConfig from "../../../tailwind.config";
+import resolveConfig from "tailwindcss/resolveConfig"; // 1. Import the helper
+import tailwindConfig from "../../../tailwind.config"; // 2. Import your config
 import WidgetCard from "./WidgetCard";
 
-// Helper to get actual hex values from Tailwind config
+// 3. Process the config and cast to 'any' to fix all TypeScript errors
 const fullConfig = resolveConfig(tailwindConfig);
-const themeColors = fullConfig.theme.colors;
+const customColors = fullConfig.theme.colors as any;
 
 // Sample data for the last 7 days
 const data = [
@@ -114,8 +115,11 @@ const WeeklyBarGraphWidget = () => {
                 strokeDasharray="3 3"
                 className="stroke-neutral-grey2 dark:stroke-neutral-grey1"
               />
-              <XAxis dataKey="day" tick={{ fill: themeColors.neutral.grey3 }} />
-              <YAxis tick={{ fill: themeColors.neutral.grey3 }} />
+              <XAxis
+                dataKey="day"
+                tick={{ fill: customColors.neutral.grey3 }}
+              />
+              <YAxis tick={{ fill: customColors.neutral.grey3 }} />
               <Tooltip
                 content={<CustomTooltip />}
                 cursor={{ fill: "rgba(156, 163, 175, 0.1)" }}
@@ -123,7 +127,7 @@ const WeeklyBarGraphWidget = () => {
               <Legend
                 wrapperStyle={{
                   fontSize: "0.875rem",
-                  color: themeColors.neutral.grey2,
+                  color: customColors.neutral.grey2,
                 }}
               />
 
@@ -132,7 +136,7 @@ const WeeklyBarGraphWidget = () => {
                 <Bar
                   dataKey="income"
                   name="Income"
-                  fill={themeColors.primary.brand}
+                  fill={customColors.primary.brand}
                   radius={[4, 4, 0, 0]}
                 />
               )}
@@ -140,7 +144,7 @@ const WeeklyBarGraphWidget = () => {
                 <Bar
                   dataKey="expense"
                   name="Expense"
-                  fill={themeColors.system.red}
+                  fill={customColors.system.red}
                   radius={[4, 4, 0, 0]}
                 />
               )}

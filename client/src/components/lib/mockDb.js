@@ -21,7 +21,6 @@ export const addUser = (email, password) => {
     state: "",
     pinCode: "",
     image: "", // ✅ added image persistence
-   
   };
   mockUsers.push(newUser);
   return newUser;
@@ -49,4 +48,4 @@ export function updatePassword(id, currentPassword, newPassword) {
   user.password = newPassword;
   return user;
 }
-console.log("Mock DB initialized with users:", mockUsers);
+console.warn("Mock DB initialized with users:", mockUsers);

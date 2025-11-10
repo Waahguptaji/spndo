@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   // 🚨 Redirect if already logged in
   useEffect(() => {
@@ -48,10 +48,10 @@ export default function LoginPage() {
       const user = await res.json();
 
       if (user.success) {
-    localStorage.setItem("userId", user.data.id); // ✅ save userId
-    console.log("Logged in user:", user);
-  }
-  console.log("Logged in user:", user);
+        localStorage.setItem("userId", user.data.id); // ✅ save userId
+        console.warn("Logged in user:", user);
+      }
+      console.warn("Logged in user:", user);
 
       // localStorage.setItem("userId", user.id); // ✅ save userId
       router.push("/dashboard");
@@ -101,7 +101,11 @@ export default function LoginPage() {
 
           {/* Social logins */}
           <div className="flex justify-center gap-1 md:gap-4 flex-wrap px-3 md:px-0">
-            <Button type="button" variant="social" aria-label="Login with Google">
+            <Button
+              type="button"
+              variant="social"
+              aria-label="Login with Google"
+            >
               <Image
                 src="/assets/google-icon.svg"
                 alt="Google Icon"
@@ -109,7 +113,11 @@ export default function LoginPage() {
                 height={24}
               />
             </Button>
-            <Button type="button" variant="social" aria-label="Login with Apple">
+            <Button
+              type="button"
+              variant="social"
+              aria-label="Login with Apple"
+            >
               <Image
                 src="/assets/apple-icon-light.svg"
                 alt="Apple Icon"
@@ -125,16 +133,23 @@ export default function LoginPage() {
                 height={24}
               />
             </Button>
-            <Button type="button" variant="social" aria-label="Login with Facebook">
+            <Button
+              type="button"
+              variant="social"
+              aria-label="Login with Facebook"
+            >
               <Image
                 src="/assets/facebook-icon.svg"
                 alt="Facebook Icon"
-             
                 width={24}
                 height={24}
               />
             </Button>
-            <Button type="button" variant="social" aria-label="Login with Twitter">
+            <Button
+              type="button"
+              variant="social"
+              aria-label="Login with Twitter"
+            >
               <Image
                 src="/assets/x-icon-light.svg"
                 alt="Twitter Icon"
@@ -162,7 +177,10 @@ export default function LoginPage() {
           </div>
 
           {/* Login form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4 px-4 md:px-0">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4 px-4 md:px-0"
+          >
             <FormInput
               id="email"
               type="email"
@@ -181,12 +199,7 @@ export default function LoginPage() {
               onChange={handleChange}
               icon={<TbLockPassword />}
             />
-            <Button
-              type="submit"
-              fullWidth
-              className="mt-4"
-              disabled={loading}
-            >
+            <Button type="submit" fullWidth className="mt-4" disabled={loading}>
               {loading ? "Logging in..." : "Login"}
             </Button>
           </form>

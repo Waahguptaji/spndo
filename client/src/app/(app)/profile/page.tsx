@@ -6,11 +6,12 @@ import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
 import { CircleUserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function ProfileInfo() {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
- const router = useRouter();
+  const router = useRouter();
   const [profile, setProfile] = useState({
     name: "",
     address: "",
@@ -64,13 +65,13 @@ export default function ProfileInfo() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfile({ ...profile, image: reader.result as string }); // base64 string
-    };
-    reader.readAsDataURL(file);
-  }
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfile({ ...profile, image: reader.result as string }); // base64 string
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSave = async () => {
@@ -117,7 +118,7 @@ export default function ProfileInfo() {
         {/* Left Column */}
         <div className="flex flex-col items-center space-y-4">
           {profile.image ? (
-            <img
+            <Image
               src={profile.image}
               alt="Profile"
               className="w-32 h-32 rounded-full object-cover shadow-md"
@@ -150,7 +151,7 @@ export default function ProfileInfo() {
             onChange={handleChange}
             placeholder="John Doe"
           />
-           <FormInput
+          <FormInput
             label="Phone"
             name="phone"
             value={profile.phone}
@@ -192,8 +193,8 @@ export default function ProfileInfo() {
           >
             Save
           </Button>
-           <Button
-            onClick={() => router.push('/dashboard')}
+          <Button
+            onClick={() => router.push("/dashboard")}
             className="mt-4 w-full md:w-auto shadow-md hover:shadow-lg md:ml-4"
           >
             Cancel

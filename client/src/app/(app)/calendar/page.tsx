@@ -1,11 +1,7 @@
-import React from 'react'
+import React from "react";
 
-type Props = {}
+const CalendarPage = () => {
+  return <div>CalendarPage</div>;
+};
 
-const CalendarPage = (props: Props) => {
-    return (
-        <div>CalendarPage</div>
-    )
-}
-
-export default CalendarPage
+export default CalendarPage;
