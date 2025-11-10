@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
-import BottomNavBar from  "@/components/nav/BottomNavBar";
+import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -51,9 +50,7 @@ export default function RootLayout({
             style={{ backgroundColor: "rgba(140,152,110,0.3)" }}
           />
           {children}
-          
         </ThemeProvider>
-        
       </body>
     </html>
   );

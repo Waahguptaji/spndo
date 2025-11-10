@@ -1,9 +1,7 @@
 import TransactionForm from "@/components/transactions/TransactionForm";
 import React from "react";
 
-type Props = {};
-
-function page({}: Props) {
+function page() {
   return (
     <div>
       <TransactionForm kind="income" />

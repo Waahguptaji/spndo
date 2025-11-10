@@ -20,12 +20,7 @@ type TransactionsTableProps = {
   sentinelRef: React.RefObject<HTMLDivElement>;
 };
 
-export default function TransactionsTable({
-  data,
-  onLoadMore,
-  isLoadingMore,
-  sentinelRef,
-}: TransactionsTableProps) {
+export default function TransactionsTable({ data }: TransactionsTableProps) {
   // Group entries by date
   const groupedByDate = React.useMemo(() => {
     const map: Record<string, Entry[]> = {};
@@ -52,7 +47,7 @@ export default function TransactionsTable({
 
   if (data.length === 0) {
     return (
-      <WidgetCard>
+      <WidgetCard title="">
         <div className="text-center p-8 text-muted-foreground">
           No transactions found matching your filters
         </div>

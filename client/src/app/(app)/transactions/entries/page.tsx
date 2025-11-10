@@ -3,7 +3,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import ListItem from "@/components/ui/ListItem";
 import { Wallet2 } from "lucide-react";
-import WidgetCard from "@/components/dashboard/WidgetCard";
 
 type Entry = {
   id: string;

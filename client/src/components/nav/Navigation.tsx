@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { ReactNode, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -7,8 +7,6 @@ import BottomNavBar from "./BottomNavBar";
 import { TopAppBar } from "./Topbar";
 import { useNavigation } from "@/hooks/useNavigation";
 import { titleForPathname } from "@/config/nav";
-import ReminderList from "@/app/(app)/reminder/page";
-import SetReminder from "@/components/reminder/setReminder";
 
 interface NavigationProps {
   children: ReactNode;
@@ -16,14 +14,15 @@ interface NavigationProps {
 
 const Navigation: React.FC<NavigationProps> = ({ children }) => {
   const pathname = usePathname();
-  const { isMobileView, isSidebarOpen, togglePin, setHoverOpen } = useNavigation();
+  const { isMobileView, isSidebarOpen, togglePin, setHoverOpen } =
+    useNavigation();
   const currentPageTitle = titleForPathname(pathname);
 
   // Manage which view to show
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [activeView, setActiveView] = useState("dashboard");
 
   // Sidebar click triggers reminder view
-
 
   return (
     <div className="bg-neutral-white dark:bg-secondary-darkBrand min-h-screen">
@@ -39,32 +38,30 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
       <LeftNavBar
         isOpen={isSidebarOpen}
         onMouseLeave={() => setHoverOpen(false)}
-   
       />
 
-      <div className={`relative transition-all duration-300 ease-in-out ${isSidebarOpen ? 'md:ml-64' : 'ml-0'}`}>
+      <div
+        className={`relative transition-all duration-300 ease-in-out ${
+          isSidebarOpen ? "md:ml-64" : "ml-0"
+        }`}
+      >
         {/* Top Bar */}
         <TopAppBar
-          variant={isMobileView ? 'back' : 'default'}
+          variant={isMobileView ? "back" : "default"}
           title={
             activeView === "dashboard"
               ? currentPageTitle
               : activeView === "reminder"
               ? "Reminder"
               : "Set Reminder"
-              
           }
           onToggleSidebar={togglePin}
           isSidebarOpen={isSidebarOpen}
         />
-        
+
         {/* Main Content */}
         <main className="pt-16 p-4">
           {activeView === "dashboard" && children}
-
-          
-
-          
         </main>
       </div>
 

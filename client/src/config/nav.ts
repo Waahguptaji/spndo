@@ -1,11 +1,4 @@
-import {
-  Home,
-  Calendar,
-  CreditCard,
-  DollarSign,
-  Settings,
-  Bell,
-} from "lucide-react";
+import { Home, CreditCard, DollarSign, Settings, Bell } from "lucide-react";
 
 export const appNav = [
   { label: "Overview", href: "/dashboard", icon: Home },

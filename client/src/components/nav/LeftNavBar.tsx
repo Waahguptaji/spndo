@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { appNav } from '@/config/nav';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { appNav } from "@/config/nav";
+import Image from "next/image";
 
 type DesktopSidebarProps = {
   isOpen: boolean;
@@ -10,7 +11,10 @@ type DesktopSidebarProps = {
   onReminderClick?: () => void; // Callback from parent
 };
 
-export default function DesktopSidebar({ isOpen, onMouseLeave, onReminderClick }: DesktopSidebarProps) {
+export default function DesktopSidebar({
+  isOpen,
+  onMouseLeave,
+}: DesktopSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -19,17 +23,17 @@ export default function DesktopSidebar({ isOpen, onMouseLeave, onReminderClick }
         className={`
           w-64 h-screen bg-neutral-white dark:bg-secondary-darkBrand border-r shadow-md space-y-6 fixed top-0 left-0 z-40
           transition-all duration-300
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-4 py-5 font-bold text-3xl text-gray-800 dark:text-white text-center ml-4">
-          <img
+          <Image
             src="/assets/bag-icon.svg"
             alt="Bag"
             width={28}
             height={28}
-            className='bg-primary-brand rounded-full flex items-center justify-center shadow-md p-1'
+            className="bg-primary-brand rounded-full flex items-center justify-center shadow-md p-1"
           />
           <span>Spndo</span>
         </div>
@@ -38,7 +42,8 @@ export default function DesktopSidebar({ isOpen, onMouseLeave, onReminderClick }
         {/* Navigation */}
         <nav className="flex flex-col gap-4 p-4 mt-2">
           {appNav.map(({ label, href, icon: Icon }) => {
-            const isActive = pathname === href || pathname.startsWith(href + '/');
+            const isActive =
+              pathname === href || pathname.startsWith(href + "/");
 
             // const handleClick = (e: React.MouseEvent) => {
             //   if (label === "Reminder" && onReminderClick) {
@@ -53,9 +58,11 @@ export default function DesktopSidebar({ isOpen, onMouseLeave, onReminderClick }
                 href={href}
                 // onClick={handleClick}
                 className={`flex items-center gap-3 px-4 py-2 rounded-md transition text-xl
-                  ${isActive
-                    ? 'bg-primary-dark text-secondary-darkBrand dark:text-neutral-white'
-                    : 'text-secondary-darkBrand dark:text-neutral-white hover:bg-primary-dark/60'}
+                  ${
+                    isActive
+                      ? "bg-primary-dark text-secondary-darkBrand dark:text-neutral-white"
+                      : "text-secondary-darkBrand dark:text-neutral-white hover:bg-primary-dark/60"
+                  }
                 `}
               >
                 {Icon ? <Icon size={20} /> : null}

@@ -7,14 +7,14 @@ import { Mail, Lock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  // const [firstName, setFirstName] = useState("");
+  // const [lastName, setLastName] = useState("");
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   useEffect(() => {
     if (status === "authenticated") {
       router.replace("/dashboard"); // replace avoids back/forward issue
@@ -32,10 +32,10 @@ const RegisterPage: React.FC = () => {
     //     console.log({ email, password });
     //      alert("Account created successfully! Please log in.");
     //     router.push("/login");
-    const res = await fetch('/api/register', {
-      method: 'POST',
+    const res = await fetch("/api/register", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password }),
     });
@@ -43,8 +43,8 @@ const RegisterPage: React.FC = () => {
     const data = await res.json();
 
     if (res.ok) {
-       const newUser = data.user;
-       localStorage.setItem("userId", newUser.id);
+      const newUser = data.user;
+      localStorage.setItem("userId", newUser.id);
       alert("Account created successfully! Please log in.");
       router.push("/login");
     } else {
@@ -81,7 +81,11 @@ const RegisterPage: React.FC = () => {
 
         {/* social buttons */}
         <div className="flex justify-center gap-1 md:gap-4 ">
-          <Button variant="social" type="button" aria-label="Sign up with Google">
+          <Button
+            variant="social"
+            type="button"
+            aria-label="Sign up with Google"
+          >
             <Image
               src="/assets/google-icon.svg"
               alt="Google"
@@ -89,7 +93,11 @@ const RegisterPage: React.FC = () => {
               height={22}
             />
           </Button>
-          <Button variant="social" type="button" aria-label="Sign up with Facebook">
+          <Button
+            variant="social"
+            type="button"
+            aria-label="Sign up with Facebook"
+          >
             <Image
               src="/assets/facebook-icon.svg"
               alt="Facebook"
@@ -97,7 +105,11 @@ const RegisterPage: React.FC = () => {
               height={22}
             />
           </Button>
-          <Button variant="social" type="button" aria-label="Sign up with Apple">
+          <Button
+            variant="social"
+            type="button"
+            aria-label="Sign up with Apple"
+          >
             <Image
               src="/assets/apple-icon-light.svg"
               alt="Apple"
@@ -113,7 +125,11 @@ const RegisterPage: React.FC = () => {
               className="hidden dark:block"
             />
           </Button>
-          <Button variant="social"type="button" aria-label="Sign up with Twitter">
+          <Button
+            variant="social"
+            type="button"
+            aria-label="Sign up with Twitter"
+          >
             <Image
               src="/assets/x-icon-light.svg"
               alt="Twitter"
@@ -142,7 +158,6 @@ const RegisterPage: React.FC = () => {
 
         {/* form */}
         <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-          
           <FormInput
             label="Email"
             type="email"
@@ -163,8 +178,6 @@ const RegisterPage: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-
-
           <div className="flex items-center text-sm">
             <input
               id="terms"
@@ -176,7 +189,7 @@ const RegisterPage: React.FC = () => {
               htmlFor="terms"
               className="ml-2 text-neutral-dark2 dark:text-neutral-white"
             >
-              I agree to the {" "}
+              I agree to the{" "}
               <a
                 href="#"
                 className="text-neutral-dark1 dark:text-primary-brand underline"
@@ -198,7 +211,7 @@ const RegisterPage: React.FC = () => {
 
         {/* footer link */}
         <p className="text-sm text-center text-neutral-dark2 dark:text-neutral-grey3">
-          Already have an account? {" "}
+          Already have an account?{" "}
           <Link
             href="/login"
             className="text-neutral-dark2 dark:text-primary-brand underline"
