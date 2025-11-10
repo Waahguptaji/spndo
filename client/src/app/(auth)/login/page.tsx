@@ -49,9 +49,9 @@ export default function LoginPage() {
 
       if (user.success) {
         localStorage.setItem("userId", user.data.id); // ✅ save userId
-        console.log("Logged in user:", user);
+        console.warn("Logged in user:", user);
       }
-      console.log("Logged in user:", user);
+      console.warn("Logged in user:", user);
 
       // localStorage.setItem("userId", user.id); // ✅ save userId
       router.push("/dashboard");

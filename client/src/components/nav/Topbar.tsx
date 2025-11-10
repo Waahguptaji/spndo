@@ -28,9 +28,9 @@ export const TopAppBar = ({
   const router = useRouter();
   const { data: session } = useSession();
   const handleLogout = () => signOut({ callbackUrl: "/login" });
-  const handleHelp = () => console.log("Navigating to Help & Support...");
+  const handleHelp = () => console.warn("Navigating to Help & Support...");
   const handleBack = () => window.history.back();
-  const handleSearch = () => console.log("Opening search...");
+  const handleSearch = () => console.warn("Opening search...");
   const goToNotifications = () => router.push("/notifications");
   const pathname = usePathname();
   const dynamicTitle =

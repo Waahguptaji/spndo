@@ -76,7 +76,7 @@ const Calendar: React.FC<CalendarProps> = ({
 
   const handleDateSelect = (day: Date) => {
     // ACTION: Added console.log for debugging
-    console.log("Date selected inside Calendar component:", day);
+    console.warn("Date selected inside Calendar component:", day);
 
     setSelectedDate(day);
     if (variant === "week") {
