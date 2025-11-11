@@ -1,63 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
 import { Mail, Lock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+// import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { RegisterSchema } from "@/lib/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PiPerson } from "react-icons/pi";
 const RegisterPage: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  // const [firstName, setFirstName] = useState("");
-  // const [lastName, setLastName] = useState("");
-  const router = useRouter();
-  const { status } = useSession();
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.replace("/dashboard"); // replace avoids back/forward issue
-    }
-  }, [status, router]);
-  if (status === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-lg">Loading...</p>
-      </div>
-    );
-  }
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    //     console.log({ email, password });
-    //      alert("Account created successfully! Please log in.");
-    //     router.push("/login");
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(RegisterSchema),
+  });
 
-    const data = await res.json();
+  // const router = useRouter();
+  // useEffect(() => {
+  //   if (status === "authenticated") {
+  //     router.replace("/dashboard"); // replace avoids back/forward issue
+  //   }
+  // }, [status, router]);
+  // if (status === "loading") {
+  //   return (
+  //     <div className="flex min-h-screen items-center justify-center">
+  //       <p className="text-lg">Loading...</p>
+  //     </div>
+  //   );
+  // }
 
-    if (res.ok) {
-      const newUser = data.user;
-      localStorage.setItem("userId", newUser.id);
-      alert("Account created successfully! Please log in.");
-      router.push("/login");
-    } else {
-      alert(data.message || "Registration failed. User may already exist.");
-    }
+  const onSubmit = async (data: z.infer<typeof RegisterSchema>) => {
+    // const res = await fetch("/api/register", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     email: data.email,
+    //     password: data.password,
+    //     name: data.name,
+    //   }),
+    // });
+
+    // const result = await res.json();
+    // if (res.ok) {
+    //   const newUser = result.user;
+    //   localStorage.setItem("userId", newUser.id);
+    //   alert("Account created successfully! Please log in.");
+    //   router.push("/login");
+    // } else {
+    //   alert(result.message || "Registration failed. User may already exist.");
+    // }
+    console.log("Form Data:", data);
   };
 
   return (
-    // The corrected code
     <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full justify-center">
-      {/* left: form */}
       <div className="relative z-10 w-full md:w-5/12 flex flex-col items-center  h-full px-4 justify-center space-y-4">
-        {/* logo */}
         <div>
           <div className="bg-primary-brand w-14 h-14 rounded-full flex items-center justify-center shadow-md md:mt-8 ">
             <Image
@@ -69,7 +74,6 @@ const RegisterPage: React.FC = () => {
           </div>
         </div>
 
-        {/* title */}
         <div className="text-center">
           <h1 className="text-2xl md:text-3xl font-bold dark:text-neutral-white text-neutral-dark1">
             Create an account
@@ -79,7 +83,6 @@ const RegisterPage: React.FC = () => {
           </p>
         </div>
 
-        {/* social buttons */}
         <div className="flex justify-center gap-1 md:gap-4 ">
           <Button
             variant="social"
@@ -147,7 +150,6 @@ const RegisterPage: React.FC = () => {
           </Button>
         </div>
 
-        {/* divider */}
         <div className="flex items-center w-full max-w-sm">
           <hr className="flex-grow border-neutral-grey1" />
           <span className="px-3 text-xs dark:text-neutral-white text-neutral-grey3">
@@ -157,33 +159,51 @@ const RegisterPage: React.FC = () => {
         </div>
 
         {/* form */}
-        <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="w-full max-w-sm space-y-4"
+        >
+          <FormInput
+            label="Name"
+            type="text"
+            placeholder="John Doe"
+            leadingIcon={<PiPerson className="w-5 h-5 text-neutral-grey3" />}
+            {...register("name")}
+            error={errors.name?.message}
+          />
           <FormInput
             label="Email"
-            type="email"
+            type="text"
             placeholder="helloexample@gmail.com"
-            required
-            icon={<Mail className="w-5 h-5 text-neutral-grey3" />}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            leadingIcon={<Mail className="w-5 h-5 text-neutral-grey3" />}
+            {...register("email")}
+            error={errors.email?.message}
           />
 
           <FormInput
             label="Password"
             variant="password"
             placeholder="••••••••••••"
-            required
-            icon={<Lock className="w-5 h-5 text-neutral-grey3" />}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            leadingIcon={<Lock className="w-5 h-5 text-neutral-grey3" />}
+            {...register("password")}
+            error={errors.password?.message}
+          />
+
+          <FormInput
+            label="Confirm Password "
+            variant="password"
+            placeholder="••••••••••••"
+            leadingIcon={<Lock className="w-5 h-5 text-neutral-grey3" />}
+            {...register("confirmPassword")}
+            error={errors.confirmPassword?.message}
           />
 
           <div className="flex items-center text-sm">
             <input
               id="terms"
-              required
               type="checkbox"
               className="w-4 h-4 text-primary-brand rounded border-neutral-grey1 focus:ring-primary-brand"
+              {...register("terms")}
             />
             <label
               htmlFor="terms"
