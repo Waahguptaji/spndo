@@ -2,7 +2,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import { logger } from "./lib/logger";
-import { env } from "./config/env";
+// import { env } from "./config/env";
 import jwtPlugin from "./plugins/jwt";
 import health from "./routes/health";
 
