@@ -21,8 +21,9 @@
     "@fastify/helmet": "^13.0.2",
     "@fastify/jwt": "^10.0.0",
     "@prisma/client": "^6.19.0",
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "fastify": "^5.6.2",
+    "fastify-plugin": "^5.1.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {

@@ -1,7 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fastifyJwt from "@fastify/jwt";
+import fp from "fastify-plugin";
 
-export default async function jwtPlugin(app: FastifyInstance) {
+async function jwtPlugin(app: FastifyInstance) {
   app.register(fastifyJwt, {
     secret: process.env.JWT_SECRET || "dev-secret",
   });
@@ -17,3 +18,6 @@ export default async function jwtPlugin(app: FastifyInstance) {
     }
   );
 }
+
+// CRITICAL: Wrap with fp() to make jwt available in routes!
+export default fp(jwtPlugin);
