@@ -4,7 +4,8 @@ import helmet from "@fastify/helmet";
 import jwtPlugin from "./plugins/jwt";
 import health from "./routes/health";
 import auth from "./routes/auth";
-
+import {userRoutes} from "./routes/user";
+import {userRoute} from "./routes/user";
 export function buildApp() {
   const app = Fastify({
     logger: {
@@ -34,6 +35,7 @@ export function buildApp() {
   app.register(jwtPlugin);
   app.register(health, { prefix: "/" });
   app.register(auth, { prefix: "/auth" });
-
+  app.register(userRoutes, { prefix: "/user" });
+  app.register(userRoute, { prefix: "/user" });
   return app;
 }
