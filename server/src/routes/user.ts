@@ -26,7 +26,7 @@ export const userRoutes: FastifyPluginAsync = async (fastify, _options) => {
       const validation = userSchema.safeParse(user);
       if (!validation.success) {
         return reply.code(400).send({
-          error: "User data is invalid",
+          error: "User data is invalid ",
           details: validation.error.format(),
         });
       }
