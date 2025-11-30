@@ -3,6 +3,7 @@ import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import jwtPlugin from "./plugins/jwt";
 import health from "./routes/health";
+import auth from "./routes/auth";
 
 export function buildApp() {
   const app = Fastify({
@@ -32,6 +33,7 @@ export function buildApp() {
 
   app.register(jwtPlugin);
   app.register(health, { prefix: "/" });
+  app.register(auth, { prefix: "/auth" });
 
   return app;
 }
