@@ -1,4 +1,4 @@
-import fastify, { FastifyPluginAsync, FastifyRequest } from "fastify";
+import  { FastifyPluginAsync, FastifyRequest } from "fastify";
 import {userSchema,profileDataSchema} from "../schemas/user";
 import {PrismaClient} from "@prisma/client";
 
@@ -6,7 +6,7 @@ import {PrismaClient} from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const userRoutes : FastifyPluginAsync = async (fastify, options) => {
+export const userRoutes : FastifyPluginAsync = async (fastify, _options) => {
     fastify.get("/me", {preHandler :[(fastify as any).authenticate]}, async (request: FastifyRequest, reply) => {
         const user = await prisma.user.findUnique({
             where: { id: (request as any).user.userId },
@@ -34,7 +34,7 @@ export const userRoutes : FastifyPluginAsync = async (fastify, options) => {
         reply.send(user);
     });
 }
-export const userRoute : FastifyPluginAsync = async (fastify, options) => {
+export const userRoute : FastifyPluginAsync = async (fastify, _options) => {
     fastify.patch("/me", { preHandler: [(fastify as any).authenticate] },async (request: FastifyRequest<{ Body: { email?: string; phone?: string; profile_data?:JSON  } }>, reply) => {
         console.log("request.user.userId:", (request as any).user.userId);
         const { email, phone, profile_data } = request.body;
