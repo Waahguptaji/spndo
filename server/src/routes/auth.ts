@@ -1,12 +1,11 @@
 import { PrismaClient } from "@prisma/client";
-import fastify, { FastifyPluginAsync } from "fastify";
+import  { FastifyPluginAsync } from "fastify";
 import { registerSchema } from "../schemas/auth";
-import { error } from "console";
 import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-const auth: FastifyPluginAsync = async (fastify, options) => {
+const auth: FastifyPluginAsync = async (fastify, _options) => {
   fastify.post("/register", async (request, reply) => {
     const validation = registerSchema.safeParse(request.body);
     if (!validation.success) {
@@ -46,7 +45,7 @@ const auth: FastifyPluginAsync = async (fastify, options) => {
       email: newUser.email,
     });
     console.log("Generated token:", token);
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password_hash: _, ...userWithoutPassword } = newUser;
 
     return reply.code(201).send({
@@ -55,15 +54,15 @@ const auth: FastifyPluginAsync = async (fastify, options) => {
     });
   });
 
-  fastify.post("/login", async (request, reply) => {
+  fastify.post("/login", async (_request, _reply) => {
     return { status: "auth route works" };
   });
 
-  fastify.post("/refresh", async (request, reply) => {
+  fastify.post("/refresh", async (_request, _reply) => {
     return { status: "refresh route works" };
   });
 
-  fastify.post("/password", async (request, reply) => {
+  fastify.post("/password", async (_request, _reply) => {
     return { status: "password reset route works" };
   });
 };
