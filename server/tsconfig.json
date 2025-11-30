@@ -16,6 +16,6 @@
     "sourceMap": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "tsconfig.json"],
   "exclude": ["node_modules", "dist"]
 }
