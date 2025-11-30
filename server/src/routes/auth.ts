@@ -260,7 +260,7 @@ const auth: FastifyPluginAsync = async (fastify) => {
         message: "Password changed successfully",
       });
     } catch (err) {
-      if (err.name === "UnauthorizedError") {
+      if (err instanceof Error && err.name === "UnauthorizedError") {
         return reply.code(401).send({
           error: "Unauthorized - Valid token required",
         });
