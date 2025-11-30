@@ -59,7 +59,7 @@ export const userRoute : FastifyPluginAsync = async (fastify, _options) => {
             })
         }
         else{
-        reply.send("db updated successfully!");
+        reply.send("db updated successfully!"+ JSON.stringify(user));
         }
     });
 }
