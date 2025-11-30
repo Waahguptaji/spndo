@@ -11,7 +11,9 @@ async function jwtPlugin(app: FastifyInstance) {
     "authenticate",
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        await request.jwtVerify();
+        const decoded = await request.jwtVerify();
+        request.user= decoded;
+        console.log("Decoded JWT:", decoded);
       } catch (err) {
         reply.code(401).send({ error: "Unauthorized" });
       }
