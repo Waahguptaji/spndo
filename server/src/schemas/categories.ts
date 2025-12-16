@@ -1,5 +1,4 @@
 import  {z} from "zod";
-import { id } from "zod/v4/locales";
 
 export const createCategorySchema = z.object({
     userId : z.string().cuid(),
@@ -27,7 +26,6 @@ export const getCategorySchema = z.object({
     })
 })
 export const patchCategorySchema = z.object({
-    id : z.string().cuid(),
     name : z.string().min(2,"Category name must be at least 2 characters").max(50,"Category name must be at most 50 characters").optional(),
     type : z.enum(["INCOME","EXPENSE"],{
         required_error:"Category type is required",

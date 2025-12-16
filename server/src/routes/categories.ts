@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { createCategorySchema , getCategorySchema , patchCategorySchema, deleteCategorySchema } from "../schemas/categories";
-import { id } from "zod/v4/locales";
 
 const prisma = new PrismaClient();
 
@@ -74,53 +73,63 @@ export const categoryroutes : FastifyPluginAsync = async (fastify,_optioins) =>{
 
     })
 
-    fastify.patch('/categories/:id',{preHandler : [(fastify as any).authenticate]},async (request:FastifyRequest,reply)=>{
-        const categoryid = (request.params as any).id;
-        const userId = (request.user as any).userId;
-        const category = await prisma.categories.updateMany({
-            where : {
-                id : categoryid,
-            },
-            data : {
-                name : (request.body as any).name,
-                type : (request.body as any).type
-            }
+    fastify.patch('/categories/:id',{ preHandler: [(fastify as any).authenticate] },async (request, reply) => {
 
-        })
-        const validation = patchCategorySchema.safeParse(request.body);
-        if(!validation.success){
-            return reply.code(400).send({
-                error : "Invalid data",
-                details : validation.error.format()
-            })
-        }
-        else{
-            reply.send("Category updated successfully")
-        }
-    })
+    const validation = patchCategorySchema.safeParse(request.body);
+    if (!validation.success) {
+      return reply.code(400).send({
+        error: 'Invalid data',
+        details: validation.error.format(),
+      });
+    }
 
-    fastify.delete('/categories/:id',{preHandler : [(fastify as any).authenticate]},async (request:FastifyRequest,reply)=>{
-        const categoryid = (request.params as any).id;
-        const userId = (request.user as any).userId;
-        const category = await prisma.categories.deleteMany({
-            where : {
-                id : categoryid,
-            }
-        })
-        if(category.count === 0){
-            return reply.code(404).send({
-                error : "Category not found !!!!"
-            })
-        } 
-        const validation = deleteCategorySchema.safeParse(request.params);
-        if(!validation.success){
-            return reply.code(400).send({
-                error : "Invalid data",
-                details : validation.error.format()
-            })
-        }
-        else{
-        reply.send("Category deleted successfully");
-        }
+    const { name, type } = validation.data;
+    const { id } = request.params as { id: string };
+    const userId = (request.user as any).id;
+
+    const updated = await prisma.categories.updateMany({
+      where: {
+        id,
+        userId,
+      },
+      data: { name, type },
     });
+
+    if (updated.count === 0) {
+      return reply.code(404).send({
+        error: 'Category not found or not authorized',
+      });
+    }
+
+    return reply.send({ message: 'Category updated successfully' });
+  }
+);
+
+
+    fastify.delete('/categories/:id',{ preHandler: [(fastify as any).authenticate] },async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const userId = (request.user as any).id;
+    const parsedParams = deleteCategorySchema.safeParse({ id });
+    if (!parsedParams.success) {
+      return reply.code(400).send({
+        error: 'Invalid category id',
+        details: parsedParams.error.format(),
+      });
+    }
+
+    const result = await prisma.categories.deleteMany({
+      where: {
+        id,
+        userId,
+      },
+    });
+
+    if (result.count === 0) {
+      return reply.code(404).send({
+        error: 'Category not found or not authorized',
+      });
+    }
+
+    return reply.send({ message: 'Category deleted successfully' });
+  })
 }
