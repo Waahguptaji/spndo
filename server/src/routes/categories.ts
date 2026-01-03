@@ -96,7 +96,7 @@ export const categoryRoutes : FastifyPluginAsync = async (fastify,_options) =>{
 
         const { name, type } = validation.data;
         const { id } = request.params as { id: string };
-        const userId = (request.user as any).id;
+        const userId = (request.user as any).userId;
 
         const updated = await prisma.categories.updateMany({
           where: {
@@ -124,7 +124,7 @@ export const categoryRoutes : FastifyPluginAsync = async (fastify,_options) =>{
     fastify.delete('/categories/:id',{ preHandler: [(fastify as any).authenticate] },async (request, reply) => {
     try {
         const { id } = request.params as { id: string };
-        const userId = (request.user as any).id;
+        const userId = (request.user as any).userId;
         const parsedParams = deleteCategorySchema.safeParse({ id });
         if (!parsedParams.success) {
           return reply.code(400).send({
