@@ -44,5 +44,6 @@ model Categories {
   type        String
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
+  @@unique([userId, name, type])
 }
 
