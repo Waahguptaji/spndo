@@ -37,9 +37,9 @@ export const categoryRoutes : FastifyPluginAsync = async (fastify,_options) =>{
                     }
                 })
                 
-                reply.send("Database entry created: " + category.type + " - " + category.name)
+                reply.send(`Database entry created: ${category.type} - ${category.name}`)
             } catch (error) {
-                console.error("Error creating category:", error);
+                console.error("Error creating category");
                 return reply.code(500).send({ error: "Failed to create category" });
             }
         }
@@ -81,7 +81,7 @@ export const categoryRoutes : FastifyPluginAsync = async (fastify,_options) =>{
             }   
             reply.send(category);
         } catch (error) {
-            console.error("Error fetching categories:", error);
+            console.error("Error fetching categories");
             return reply.code(500).send({ error: "Failed to fetch categories" });
         }
     })
@@ -116,7 +116,7 @@ export const categoryRoutes : FastifyPluginAsync = async (fastify,_options) =>{
 
             return reply.send({ message: 'Category updated successfully' });
         } catch (error) {
-            console.error("Error updating category:", error);
+            console.error("Error updating category");
             return reply.code(500).send({ error: "Failed to update category" });
         }
     }
@@ -152,7 +152,7 @@ export const categoryRoutes : FastifyPluginAsync = async (fastify,_options) =>{
 
             return reply.send({ message: 'Category deleted successfully' });
         } catch (error) {
-            console.error("Error deleting category:", error);
+            console.error("Error deleting category");
             return reply.code(500).send({ error: "Failed to delete category" });
         }
     })
