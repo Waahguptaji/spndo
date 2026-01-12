@@ -14,13 +14,13 @@ export const categoryRoutes : FastifyPluginAsync = async (fastify,_options) =>{
         }> ,reply)=>{
             try {
                 const {name,type} = request.body;
-                const userId = (request.user as any).userId;
-                
+                const userid = (request.user as any).userId;
+
                 // Validate request body before database operation
-                const validation = createCategorySchema.safeParse({
+                const validation = createCategorySchema.partial({ userId: true }).safeParse({
                     name,
                     type,
-                    userId
+                    userId: userid
                 });
                 
                 if(!validation.success){
@@ -33,13 +33,13 @@ export const categoryRoutes : FastifyPluginAsync = async (fastify,_options) =>{
                     data : {
                         name,
                         type,
-                        userId
+                        userId : userid
                     }
                 })
                 
-                reply.send(`Database entry created: ${category.type} - ${category.name}`)
+                reply.send("Database entry created: " + category.type + " " + category.name)
             } catch (error) {
-                console.error("Error creating category");
+                console.error("Error creating category:", error);
                 return reply.code(500).send({ error: "Failed to create category" });
             }
         }
@@ -67,11 +67,9 @@ export const categoryRoutes : FastifyPluginAsync = async (fastify,_options) =>{
                     }
                 }
             })
-            
             if(category.length === 0){
                 return reply.code(404).send({error : "No categories found for this user"})
             }
-            
             const validation = getCategorySchema.array().safeParse(category);
             if(!validation.success){
                 return reply.code(400).send({
@@ -81,79 +79,77 @@ export const categoryRoutes : FastifyPluginAsync = async (fastify,_options) =>{
             }   
             reply.send(category);
         } catch (error) {
-            console.error("Error fetching categories");
+            console.error("Error fetching categories:", error);
             return reply.code(500).send({ error: "Failed to fetch categories" });
         }
     })
 
     fastify.patch('/categories/:id',{ preHandler: [(fastify as any).authenticate] },async (request, reply) => {
-        try {
-            const validation = patchCategorySchema.safeParse(request.body);
-            if (!validation.success) {
-                return reply.code(400).send({
-                    error: 'Invalid data',
-                    details: validation.error.format(),
-                });
-            }
-
-            const { name, type } = validation.data;
-            const { id } = request.params as { id: string };
-            const userId = (request.user as any).userId;
-
-            const updated = await prisma.categories.updateMany({
-                where: {
-                    id,
-                    userId,
-                },
-                data: { name, type },
-            });
-
-            if (updated.count === 0) {
-                return reply.code(404).send({
-                    error: 'Category not found or not authorized',
-                });
-            }
-
-            return reply.send({ message: 'Category updated successfully' });
-        } catch (error) {
-            console.error("Error updating category");
-            return reply.code(500).send({ error: "Failed to update category" });
+    try {
+        const validation = patchCategorySchema.safeParse(request.body);
+        if (!validation.success) {
+          return reply.code(400).send({
+            error: 'Invalid data',
+            details: validation.error.format(),
+          });
         }
+
+        const { name, type } = validation.data;
+        const { id } = request.params as { id: string };
+        const userId = (request.user as any).userId;
+
+        const updated = await prisma.categories.updateMany({
+          where: {
+            id,
+            userId,
+          },
+          data: { name, type },
+        });
+
+        if (updated.count === 0) {
+          return reply.code(404).send({
+            error: 'Category not found or not authorized',
+          });
+        }
+
+        return reply.send({ message: 'Category updated successfully' });
+    } catch (error) {
+        console.error("Error updating category:", error);
+        return reply.code(500).send({ error: "Failed to update category" });
     }
-    );
+  }
+);
 
 
     fastify.delete('/categories/:id',{ preHandler: [(fastify as any).authenticate] },async (request, reply) => {
-        try {
-            const { id } = request.params as { id: string };
-            const userId = (request.user as any).userId;
-            
-            // Validate parameters before database operation
-            const parsedParams = deleteCategorySchema.safeParse({ id });
-            if (!parsedParams.success) {
-                return reply.code(400).send({
-                    error: 'Invalid category id',
-                    details: parsedParams.error.format(),
-                });
-            }
-
-            const result = await prisma.categories.deleteMany({
-                where: {
-                    id,
-                    userId,
-                },
-            });
-
-            if (result.count === 0) {
-                return reply.code(404).send({
-                    error: 'Category not found or not authorized',
-                });
-            }
-
-            return reply.send({ message: 'Category deleted successfully' });
-        } catch (error) {
-            console.error("Error deleting category");
-            return reply.code(500).send({ error: "Failed to delete category" });
+    try {
+        const { id } = request.params as { id: string };
+        const userId = (request.user as any).userId;
+        const parsedParams = deleteCategorySchema.safeParse({ id });
+        if (!parsedParams.success) {
+          return reply.code(400).send({
+            error: 'Invalid category id',
+            details: parsedParams.error.format(),
+          });
         }
-    })
+
+        const result = await prisma.categories.deleteMany({
+          where: {
+            id,
+            userId,
+          },
+        });
+
+        if (result.count === 0) {
+          return reply.code(404).send({
+            error: 'Category not found or not authorized',
+          });
+        }
+
+        return reply.send({ message: 'Category deleted successfully' });
+    } catch (error) {
+        console.error("Error deleting category:", error);
+        return reply.code(500).send({ error: "Failed to delete category" });
+    }
+  })
 }
