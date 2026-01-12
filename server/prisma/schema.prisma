@@ -23,6 +23,8 @@ model User {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
   refreshTokens RefreshToken[]
+
+  categories Categories[]
 }
 
 model RefreshToken {
@@ -33,3 +35,15 @@ model RefreshToken {
   expiresAt DateTime
   createdAt DateTime @default(now())
 }
+
+model Categories {
+  id          String  @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  name        String
+  type        String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  @@unique([userId, name, type])
+}
+

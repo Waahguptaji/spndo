@@ -6,6 +6,7 @@ import health from "./routes/health";
 import auth from "./routes/auth";
 import {userRoutes} from "./routes/user";
 import {userRoute} from "./routes/user";
+import {categoryroutes} from "./routes/categories";
 export function buildApp() {
   const app = Fastify({
     logger: {
@@ -37,5 +38,6 @@ export function buildApp() {
   app.register(auth, { prefix: "/auth" });
   app.register(userRoutes, { prefix: "/user" });
   app.register(userRoute, { prefix: "/user" });
+  app.register(categoryroutes);
   return app;
 }
