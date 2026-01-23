@@ -1,3 +1,4 @@
+import "dotenv/config";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
@@ -7,6 +8,7 @@ import auth from "./routes/auth";
 import {userRoutes} from "./routes/user";
 import {userRoute} from "./routes/user";
 import {categoryRoutes} from "./routes/categories";
+import { budgetRoutes } from "./routes/budgets";
 export function buildApp() {
   const app = Fastify({
     logger: {
@@ -36,8 +38,9 @@ export function buildApp() {
   app.register(jwtPlugin);
   app.register(health, { prefix: "/" });
   app.register(auth, { prefix: "/auth" });
-  app.register(userRoutes, { prefix: "/user" });
+  app.register(userRoutes, { prefix: "/user" }); 
   app.register(userRoute, { prefix: "/user" });
   app.register(categoryRoutes);
+  app.register(budgetRoutes);
   return app;
 }

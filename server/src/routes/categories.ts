@@ -1,8 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../lib/prisma";
+
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { createCategorySchema , getCategorySchema , patchCategorySchema, deleteCategorySchema } from "../schemas/categories";
-
-const prisma = new PrismaClient();
 
 export const categoryRoutes : FastifyPluginAsync = async (fastify,_options) =>{
     fastify.post("/categories",{
