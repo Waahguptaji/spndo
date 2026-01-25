@@ -80,14 +80,15 @@ export const budgetRoutes : FastifyPluginAsync = async (fastify,_options) =>{
             
                 // Verify all categories exist and belong to the user
                 const categoryIds = budgets.map(b => b.categoryId);
+                const uniqueCategoryIds = [...new Set(categoryIds)];
                 const existingCategories = await prisma.categories.findMany({
                     where: {
-                        id: { in: categoryIds },
+                        id: { in: uniqueCategoryIds },
                         userId: userId
                     }
                 });
                 
-                if (existingCategories.length !== categoryIds.length) {
+                if (existingCategories.length !== uniqueCategoryIds.length) {
                     return reply.code(404).send({
                         error: "Category not found",
                         message: "One or more specified categories do not exist or do not belong to you"
