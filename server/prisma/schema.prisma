@@ -53,11 +53,11 @@ model Categories {
 model Budget {
   id          String  @id @default(uuid())
   userId      String 
-  user        User    @relation(fields: [userId],references: [id])
+  user        User    @relation(fields: [userId],references: [id], onDelete: Cascade)
   categoryId  String
-  category    Categories @relation(fields: [categoryId], references: [id])
+  category    Categories @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   month       DateTime
-  amount      Float
+  amount      Decimal  @db.Decimal(10, 2)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
   @@unique([userId, categoryId, month])    
