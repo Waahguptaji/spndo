@@ -1,8 +1,6 @@
+import { prisma } from "../lib/prisma";
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { userSchema, profileDataSchema } from "../schemas/user";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
 
 export const userRoutes: FastifyPluginAsync = async (fastify, _options) => {
   fastify.get(

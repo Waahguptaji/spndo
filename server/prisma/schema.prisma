@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+ url      = env("DATABASE_URL")
 }
 
 model User {
@@ -25,6 +25,8 @@ model User {
   refreshTokens RefreshToken[]
 
   categories Categories[]
+
+  budgets Budget[]
 }
 
 model RefreshToken {
@@ -45,5 +47,19 @@ model Categories {
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
   @@unique([userId, name, type])
+  budgets    Budget[]
+}
+
+model Budget {
+  id          String  @id @default(uuid())
+  userId      String 
+  user        User    @relation(fields: [userId],references: [id], onDelete: Cascade)
+  categoryId  String
+  category    Categories @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  month       DateTime
+  amount      Decimal  @db.Decimal(10, 2)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  @@unique([userId, categoryId, month])    
 }
 
