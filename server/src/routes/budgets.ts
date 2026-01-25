@@ -1,10 +1,9 @@
-
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { getBudgetSchema, putBudgetSchema } from "../schemas/budgets";
 import { prisma } from "../lib/prisma";
 
 
-export const budgetRoutes : FastifyPluginAsync = async (fastify,_optional) =>{
+export const budgetRoutes : FastifyPluginAsync = async (fastify,_options) =>{
  
     fastify.get("/budgets/:month",{
         preHandler : [(fastify as any).authenticate]},async (request:FastifyRequest<{
@@ -16,8 +15,6 @@ export const budgetRoutes : FastifyPluginAsync = async (fastify,_optional) =>{
 
                 const userId = (request.user as any).userId
                 const {month} =request.params;
-                // Convert month string (YYYY-MM) to DateTime (first day of the month)
-                const monthDate = new Date(`${month}-01`);
                 
                 const validation = getBudgetSchema.safeParse({
                     userId,month
@@ -28,19 +25,24 @@ export const budgetRoutes : FastifyPluginAsync = async (fastify,_optional) =>{
                         details : validation.error.format(),
                     })
                 }
+                
+                // Convert month string (YYYY-MM) to DateTime (first day of the month) using UTC
+                const monthDate = new Date(`${month}-01T00:00:00.000Z`);
+                
                 const budget = await prisma.budget.findMany({
                     where :{
                         userId : userId,
                         month : monthDate
                     }
                 })
-                reply.send("get data :" + JSON.stringify(budget));
+                reply.send(budget);
             
 
 
 
             }catch (error){
                 console.error("Error fetching budgets:", error);
+                return reply.code(500).send({ error: "Failed to fetch budgets" });
             }
 
         }
@@ -50,69 +52,78 @@ export const budgetRoutes : FastifyPluginAsync = async (fastify,_optional) =>{
             Params:{
                 month:string
             },
-            Body : {
+            Body : Array<{
                 amount : number,
                 categoryId : string
-            }
+            }>
         }>,reply)=>{
             try {
                 const userId = (request.user as any).userId;
                 const {month} = request.params;
-                const {amount,categoryId} = request.body;
+                const budgets = request.body;
                 
-                // Convert month string (YYYY-MM) to DateTime (first day of the month)
-                const monthDate = new Date(`${month}-01`);
-            
                 const validation = putBudgetSchema.safeParse({
-                    userId,month,amount,categoryId
-                    
+                    userId,
+                    month,
+                    budgets
                 });
+                
                 if(!validation.success){
-
                     return reply.code(400).send({
                         error : "Invalid request data",
                         details : validation.error.format(),
                     })
                 }
                 
-                // Verify that the category exists and belongs to the user
-                const categoryExists = await prisma.categories.findFirst({
+                // Convert month string (YYYY-MM) to DateTime (first day of the month) using UTC
+                const monthDate = new Date(`${month}-01T00:00:00.000Z`);
+            
+                // Verify all categories exist and belong to the user
+                const categoryIds = budgets.map(b => b.categoryId);
+                const existingCategories = await prisma.categories.findMany({
                     where: {
-                        id: categoryId,
+                        id: { in: categoryIds },
                         userId: userId
                     }
                 });
                 
-                if (!categoryExists) {
+                if (existingCategories.length !== categoryIds.length) {
                     return reply.code(404).send({
                         error: "Category not found",
-                        message: "The specified category does not exist or does not belong to you"
+                        message: "One or more specified categories do not exist or do not belong to you"
                     });
                 }
-                    
-                const budget = await prisma.budget.upsert({
-                    where :{
-                        userId_categoryId_month : {
-                            userId : userId,
-                            month : monthDate,
-                            categoryId : categoryId
-                        }
-                    },
-                    create : {
-                        userId : userId,
-                        month : monthDate,
-                        amount : amount,
-                        categoryId : categoryId     
-                    },
-                    update : {
-                        amount : amount
-                    }
-                })
-                reply.send("database entry created :" + JSON.stringify(budget));
+                
+                // Upsert all budgets
+                const results = await Promise.all(
+                    budgets.map(({ categoryId, amount }) =>
+                        prisma.budget.upsert({
+                            where: {
+                                userId_categoryId_month: {
+                                    userId,
+                                    month: monthDate,
+                                    categoryId
+                                }
+                            },
+                            create: {
+                                userId,
+                                month: monthDate,
+                                amount,
+                                categoryId
+                            },
+                            update: {
+                                amount
+                            }
+                        })
+                    )
+                );
+                
+                reply.send(results);
 
 
             }catch(error){
                 console.error("Error updating budget:", error);
+                return reply.code(500).send({ error: "Failed to update budget" });
             }
 
         }
