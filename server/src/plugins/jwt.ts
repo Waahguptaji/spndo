@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fastifyJwt from "@fastify/jwt";
 import fp from "fastify-plugin";
 
-async function jwtPlugin(app: FastifyInstance) {
+async function jwtPlugin(app: FastifyInstance): Promise<void> {
   app.register(fastifyJwt, {
     secret: process.env.JWT_SECRET || "dev-secret",
   });
@@ -11,9 +11,7 @@ async function jwtPlugin(app: FastifyInstance) {
     "authenticate",
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        const decoded = await request.jwtVerify();
-        request.user= decoded;
-        console.log("Decoded JWT:", decoded);
+        await request.jwtVerify();
       } catch (err) {
         reply.code(401).send({ error: "Unauthorized" });
       }

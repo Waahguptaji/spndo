@@ -1,32 +1,31 @@
-import "dotenv/config";
-import { prisma } from "../lib/prisma";
+import { FastifyInstance } from "fastify";
+import prisma from "./prisma";
 
-async function createRefreshToken(
-  fastify: any,
-  userId: string
-): Promise<string> {
+const createRefreshToken = async (fastify: FastifyInstance, userId: string) => {
+  // Create refresh token with DIFFERENT secret
   const refreshToken = fastify.jwt.sign(
     {
-      userId: userId,
+      userId,
       type: "refresh",
     },
     {
       expiresIn: "7d",
-    }
+    },
   );
 
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 7);
+  // Calculate expiration date (7 days from now)
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
+  // Store in database
   await prisma.refreshToken.create({
     data: {
       token: refreshToken,
-      userId: userId,
-      expiresAt: expiresAt,
+      userId,
+      expiresAt,
     },
   });
 
   return refreshToken;
-}
+};
 
 export default createRefreshToken;
