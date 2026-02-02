@@ -1,10 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "../lib/prisma";
 import { FastifyPluginAsync } from "fastify";
-import { loginSchema, registerSchema } from "../schemas/auth";
+import { registerSchema, loginSchema } from "../schemas/auth";
 import bcrypt from "bcrypt";
 import createRefreshToken from "../lib/token";
-
-const prisma = new PrismaClient();
 
 const auth: FastifyPluginAsync = async (fastify) => {
   fastify.post("/register", async (request, reply) => {
@@ -16,7 +14,9 @@ const auth: FastifyPluginAsync = async (fastify) => {
           details: validation.error.errors,
         });
       }
+
       const { email, password, confirmPassword } = validation.data;
+
       if (password !== confirmPassword) {
         return reply.code(400).send({
           error: "Passwords do not match",
@@ -33,7 +33,8 @@ const auth: FastifyPluginAsync = async (fastify) => {
         });
       }
 
-      const password_hash = await bcrypt.hash(confirmPassword, 10);
+      const password_hash = await bcrypt.hash(password, 10);
+
       const newUser = await prisma.user.create({
         data: {
           email,
@@ -46,16 +47,17 @@ const auth: FastifyPluginAsync = async (fastify) => {
           userId: newUser.id,
           email: newUser.email,
         },
-        { expiresIn: "15m" }
+        {
+          expiresIn: "15m",
+        },
       );
 
       const refreshToken = await createRefreshToken(fastify, newUser.id);
 
-      //eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password_hash: _, ...userWithoutPassword } = newUser;
 
       return reply.code(201).send({
-        message: " User registered successfully",
+        message: "User registered successfully",
         accessToken,
         refreshToken,
         user: userWithoutPassword,
@@ -90,33 +92,34 @@ const auth: FastifyPluginAsync = async (fastify) => {
           error: "Invalid email or password",
         });
       }
+
       const isPasswordValid = await bcrypt.compare(
         password,
-        user.password_hash
+        user.password_hash,
       );
+
       if (!isPasswordValid) {
         return reply.code(401).send({
           error: "Invalid email or password",
         });
       }
+
       const accessToken = fastify.jwt.sign(
         {
           userId: user.id,
           email: user.email,
         },
         {
-          expiresIn: "15m", // 15 minutes
-        }
+          expiresIn: "15m",
+        },
       );
 
-      // Create refresh token (long-lived)
       const refreshToken = await createRefreshToken(fastify, user.id);
 
-      //eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password_hash: _, ...userWithoutPassword } = user;
 
-      return reply.code(201).send({
-        message: " User login successfully",
+      return reply.send({
+        message: "User login successfully",
         accessToken,
         refreshToken,
         user: userWithoutPassword,
@@ -132,24 +135,26 @@ const auth: FastifyPluginAsync = async (fastify) => {
   fastify.post("/refresh", async (request, reply) => {
     try {
       const { refreshToken } = request.body as { refreshToken: string };
+
       if (!refreshToken) {
-        return reply.code(400).send({ error: "Refresh token is required" });
+        return reply.code(400).send({
+          error: "Refresh token is required",
+        });
       }
 
-      // Verify the JWT signature and extract payload
-      const decoded = fastify.jwt.verify(refreshToken) as {
+      const decoded = fastify.jwt.verify(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET, // ← Use refresh secret!
+      }) as {
         userId: string;
         type: string;
       };
 
-      // Check if it's actually a refresh token
       if (decoded.type !== "refresh") {
         return reply.code(401).send({
           error: "Invalid token type",
         });
       }
 
-      // Check if token exists in database and is not expired
       const storedToken = await prisma.refreshToken.findUnique({
         where: { token: refreshToken },
         include: { user: true },
@@ -157,21 +162,20 @@ const auth: FastifyPluginAsync = async (fastify) => {
 
       if (!storedToken) {
         return reply.code(401).send({
-          error: "Invalid refresh token",
+          error: "Refresh token not found",
         });
       }
 
       if (storedToken.expiresAt < new Date()) {
-        //Token has expired, delete from DB
         await prisma.refreshToken.delete({
-          where: { token: refreshToken },
+          where: { id: storedToken.id },
         });
+
         return reply.code(401).send({
-          error: "Refresh token has expired",
+          error: "Refresh token expired",
         });
       }
 
-      // Create new access token
       const newAccessToken = fastify.jwt.sign(
         {
           userId: storedToken.userId,
@@ -179,7 +183,7 @@ const auth: FastifyPluginAsync = async (fastify) => {
         },
         {
           expiresIn: "15m",
-        }
+        },
       );
 
       return reply.send({
@@ -193,79 +197,25 @@ const auth: FastifyPluginAsync = async (fastify) => {
     }
   });
 
-  fastify.patch("/change-password", async (request, reply) => {
-    //password change logic here
+  fastify.post("/logout", async (request, reply) => {
     try {
-      // Verify the user is authenticated
-      await request.jwtVerify();
+      const { refreshToken } = request.body as { refreshToken: string };
 
-      const { oldPassword, newPassword, confirmNewPassword } = request.body as {
-        oldPassword: string;
-        newPassword: string;
-        confirmNewPassword: string;
-      };
-
-      if (!oldPassword || !newPassword || !confirmNewPassword) {
+      if (!refreshToken) {
         return reply.code(400).send({
-          error: "Old password, new password and confirm password are required",
+          error: "Refresh token is required",
         });
       }
 
-      if (newPassword !== confirmNewPassword) {
-        return reply.code(400).send({
-          error: "Passwords do not match",
-        });
-      }
-
-      // Get userId from JWT token
-      const { userId } = request.user as { userId: string; email: string };
-
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-      });
-
-      if (!user || !user.password_hash) {
-        return reply.code(404).send({
-          error: "User not found",
-        });
-      }
-
-      // Verify old password
-      const isOldPasswordValid = await bcrypt.compare(
-        oldPassword,
-        user.password_hash
-      );
-
-      if (!isOldPasswordValid) {
-        return reply.code(401).send({
-          error: "Old password is incorrect",
-        });
-      }
-
-      const newPasswordHash = await bcrypt.hash(newPassword, 10);
-
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          password_hash: newPasswordHash,
-        },
-      });
-
-      // Optionally: Invalidate all refresh tokens for this user
       await prisma.refreshToken.deleteMany({
-        where: { userId },
+        where: { token: refreshToken },
       });
 
-      return reply.code(200).send({
-        message: "Password changed successfully",
+      return reply.send({
+        message: "Logged out successfully",
       });
     } catch (err) {
-      if (err instanceof Error && err.name === "UnauthorizedError") {
-        return reply.code(401).send({
-          error: "Unauthorized - Valid token required",
-        });
-      }
-      console.error("Error during password change:", err);
+      console.error("Error during logout:", err);
       return reply.code(500).send({
         error: "Internal Server Error",
       });
@@ -273,5 +223,4 @@ const auth: FastifyPluginAsync = async (fastify) => {
   });
 };
 
-//ESM
 export default auth;
