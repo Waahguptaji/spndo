@@ -54,6 +54,7 @@ const auth: FastifyPluginAsync = async (fastify) => {
 
       const refreshToken = await createRefreshToken(fastify, newUser.id);
 
+      // eslint-disable-next-line
       const { password_hash: _, ...userWithoutPassword } = newUser;
 
       return reply.code(201).send({
@@ -116,6 +117,7 @@ const auth: FastifyPluginAsync = async (fastify) => {
 
       const refreshToken = await createRefreshToken(fastify, user.id);
 
+      // eslint-disable-next-line
       const { password_hash: _, ...userWithoutPassword } = user;
 
       return reply.send({
