@@ -9,7 +9,6 @@ const createRefreshToken = async (fastify: FastifyInstance, userId: string) => {
       type: "refresh",
     },
     {
-      secret: process.env.JWT_REFRESH_SECRET, // ← Use refresh secret!
       expiresIn: "7d",
     },
   );

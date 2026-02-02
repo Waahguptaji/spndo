@@ -144,9 +144,7 @@ const auth: FastifyPluginAsync = async (fastify) => {
         });
       }
 
-      const decoded = fastify.jwt.verify(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET, // ← Use refresh secret!
-      }) as {
+      const decoded = fastify.jwt.verify(refreshToken) as {
         userId: string;
         type: string;
       };
