@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
- url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
 }
 
 model User {
@@ -27,6 +27,7 @@ model User {
   categories Categories[]
 
   budgets Budget[]
+  goals Goal[]
 }
 
 model RefreshToken {
@@ -63,3 +64,24 @@ model Budget {
   @@unique([userId, categoryId, month])    
 }
 
+model Goal {
+  id          String @id @default(uuid())
+  userId String 
+  user User @relation(fields: [userId] , references: [id] , onDelete: Cascade) 
+  title String 
+  target_amount Decimal @db.Decimal(14,2)   
+  deadline DateTime
+  progress_amount Decimal @db.Decimal(14,2) @default(0)
+  status GoalStatus @default(active)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([userId, title])
+  
+}
+enum GoalStatus{
+  active
+  paused
+  completed
+  cancelled
+}
