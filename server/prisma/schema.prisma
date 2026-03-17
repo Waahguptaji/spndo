@@ -17,6 +17,14 @@ enum TransactionType {
   EXPENSE
 }
 
+enum RepeatEnum {
+  NONE
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
@@ -31,6 +39,7 @@ model User {
   categories Categories[]
   Transactions Transaction[]
   budgets Budget[]
+  reminders Reminder[]
 }
 
 model RefreshToken {
@@ -70,20 +79,32 @@ model Budget {
 
 model Transaction {
   id          String          @id @default(cuid())
-  user_id     String          // ← Changed from userId
+  user_id     String          
   user        User            @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  category_id String          // ← Changed from categoryId
+  category_id String          
   category    Categories      @relation(fields: [category_id], references: [id], onDelete: Cascade)
   title       String
   amount      Decimal         @db.Decimal(14, 2)
   type        TransactionType
-  occurred_at DateTime        @db.Timestamptz(6) // ← Changed from occurredAt
+  occurred_at DateTime        @db.Timestamptz(6) 
   metadata    Json?
   note        String?
-  is_deleted  Boolean         @default(false)    // ← Changed from isDeleted
-  created_at  DateTime        @default(now()) @db.Timestamptz(6)  // ← Changed from createdAt
-  updated_at  DateTime        @updatedAt @db.Timestamptz(6)       // ← Changed from updatedAt
+  is_deleted  Boolean         @default(false)   
+  created_at  DateTime        @default(now()) @db.Timestamptz(6)  
+  updated_at  DateTime        @updatedAt @db.Timestamptz(6)      
 
-  @@index([user_id, occurred_at])  // ← Update index
-  @@index([user_id, category_id])  // ← Update index
+  @@index([user_id, occurred_at])
+  @@index([user_id, category_id]) 
+}
+model Reminder {
+  id          String    @id @default(uuid())
+  user_id     String
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  title       String
+  note        String?
+  due_at      DateTime  @db.Timestamptz(6)
+  repeat      RepeatEnum @default(NONE)
+  is_done     Boolean   @default(false)
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime  @updatedAt @db.Timestamptz(6)
 }

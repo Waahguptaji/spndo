@@ -10,6 +10,7 @@ import { userRoute } from "./routes/user";
 import { categoryRoutes } from "./routes/categories";
 import { budgetRoutes } from "./routes/budgets";
 import transactionRoutes from "./routes/transaction";
+import reminderRoutes from "./routes/reminder";
 export function buildApp() {
   const app = Fastify({
     logger: {
@@ -44,5 +45,6 @@ export function buildApp() {
   app.register(categoryRoutes);
   app.register(budgetRoutes);
   app.register(transactionRoutes);
+  app.register(reminderRoutes);
   return app;
 }
