@@ -7,6 +7,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum RepeatEnum {
+  NONE
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum GoalStatus {
+  active
+  paused
+  completed
+  cancelled
+}
+
 model User {
   id            String         @id @default(cuid())
   email         String         @unique
@@ -21,6 +41,7 @@ model User {
   goal          Goal[]
   refreshTokens RefreshToken[]
   Transaction   Transaction[]
+  reminders Reminder[]
 }
 
 model RefreshToken {
@@ -76,33 +97,51 @@ model Goal {
 }
 
 model Transaction {
-  id          String          @id
-  user_id     String
-  category_id String
+  id          String          @id @default(cuid())
+  user_id     String          
+  user        User            @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  category_id String          
+  category    Categories      @relation(fields: [category_id], references: [id], onDelete: Cascade)
   title       String
   amount      Decimal         @db.Decimal(14, 2)
   type        TransactionType
-  occurred_at DateTime        @db.Timestamptz(6)
+  occurred_at DateTime        @db.Timestamptz(6) 
   metadata    Json?
   note        String?
-  is_deleted  Boolean         @default(false)
-  created_at  DateTime        @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime        @db.Timestamptz(6)
-  Categories  Categories      @relation(fields: [category_id], references: [id], onDelete: Cascade)
-  User        User            @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  is_deleted  Boolean         @default(false)   
+  created_at  DateTime        @default(now()) @db.Timestamptz(6)  
+  updated_at  DateTime        @updatedAt @db.Timestamptz(6)      
 
-  @@index([user_id, category_id])
   @@index([user_id, occurred_at])
+  @@index([user_id, category_id]) 
 }
 
-enum GoalStatus {
-  active
-  paused
-  completed
-  cancelled
+
+model Goal {
+  id              String     @id @default(uuid())
+  userId          String
+  title           String
+  target_amount   Decimal    @db.Decimal(14, 2)
+  deadline        DateTime
+  progress_amount Decimal    @default(0) @db.Decimal(14, 2)
+  status          GoalStatus @default(active)
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, title])
 }
 
-enum TransactionType {
-  INCOME
-  EXPENSE
+
+model Reminder {
+  id          String    @id @default(uuid())
+  user_id     String
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  title       String
+  note        String?
+  due_at      DateTime  @db.Timestamptz(6)
+  repeat      RepeatEnum @default(NONE)
+  is_done     Boolean   @default(false)
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime  @updatedAt @db.Timestamptz(6)
 }
