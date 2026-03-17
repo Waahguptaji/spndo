@@ -1,0 +1,186 @@
+import { FastifyPluginAsync , FastifyRequest } from "fastify";
+import { prisma } from "../lib/prisma";
+import { postGoalSchema ,getGoalSchema,patchGoatSchema ,deleteGoalSchema} from "../schemas/goal";
+import { Decimal } from "@prisma/client/runtime/library";
+
+
+export const goalRoutes : FastifyPluginAsync = async (fastify , _optional) => {
+    fastify.post("/goals" , {
+        preHandler : [(fastify as any).authenticate]} , async (request : FastifyRequest<{
+            Body : {
+                title : string,
+                target_amount : number,
+                deadline : Date,
+                status ?: "active" | "completed" | "cancelled" | "paused"
+            }
+        }> , reply) =>{
+            try {
+                const userId = (request.user as any).userId;
+                const { title , target_amount , deadline, status } = request.body;
+                const dateObj = new Date(deadline)
+                const isValidation = postGoalSchema.safeParse({
+                    userId,
+                    title,
+                    target_amount,
+                    deadline:dateObj,
+                    status,
+                    progress_amount : new Decimal(0)
+                })
+                if(!isValidation.success){
+                    return reply.code(400).send({
+                        error : "Invalid request data",
+                        details : isValidation.error.format()
+
+                    })
+                }
+                const goal = await prisma.goal.create({
+                    data : {
+                        userId : userId,
+                        title,
+                        target_amount : target_amount,
+                        deadline,
+                        status : status || "active",
+                        progress_amount : new Decimal(0)
+                    }
+                })
+                reply.code(201).send(goal);
+
+            } catch (error) {
+                reply.code(500).send({ error: "Internal Server Error" });
+            }
+        }
+    )
+    fastify.get("/goals",{preHandler : [(fastify as any).authenticate]},async (request : FastifyRequest,reply)=>{
+        try{
+            const userId = (request.user as any).userId;
+           const isValidation = getGoalSchema.safeParse({
+            userId
+           })
+           if(!isValidation.success){
+            return reply.code(400).send({
+                error : "Invalid request data",
+                details : isValidation.error.format()
+            })
+           }
+            const goals = await prisma.goal.findMany({
+                where :{
+                    userId : userId
+                }
+            });
+            reply.code(200).send(goals);
+
+        }catch(error){
+            reply.code(500).send({ error: "Internal Server Error" });
+        }
+
+    })
+    fastify.patch('/goals/:goalId',{preHandler : [(fastify as any).authenticate]},async(request : FastifyRequest<{
+        Params : {
+            goalId:string
+        },
+        Body : {
+            title : string,
+                target_amount? : number,
+                deadline ?: Date,
+                status ?: "active" | "completed" | "cancelled" | "paused"
+            
+        }
+    }>,reply)=>{
+        try {
+            const userId = (request.user as any).userId;
+            const {goalId} = request.params;
+            const {title , target_amount,deadline,status} = request.body;
+
+            const dateObj = deadline ? new Date(deadline) : undefined;
+
+            const isValidation = patchGoatSchema.safeParse({
+                userId,goalId,title,target_amount,deadline:dateObj,status
+            })
+
+            if(!isValidation.success){
+                return reply.code(400).send({
+                    error : "Invalid request data",
+                    details : isValidation.error.format()
+                })
+            }
+            const existingGoal = await prisma.goal.findFirst({
+                where : {
+                    id : goalId,
+                    userId : userId
+                }
+
+
+            })
+            if(!existingGoal){
+                return reply.code(404).send({error : "Goal not found !!!!!"})
+            }
+            const updateGoal = await prisma.goal.update({
+                where :{
+                    id : goalId},
+                    data : {
+                        title : title || existingGoal.title,
+                        target_amount : target_amount !== undefined ? target_amount : existingGoal.target_amount,
+                        deadline : deadline ? dateObj : existingGoal.deadline,
+                        status : status || existingGoal.status
+                    }
+                
+            })
+            reply.code(200).send("goal updated "+updateGoal);
+
+
+
+        }catch(error){
+            reply.code(500).send(
+                {error : "Internal Server Error"}
+            )
+        }
+
+    }
+    )
+    fastify.delete("/goals/:goalId",{preHandler : [(fastify as any).authenticate]},async(request : FastifyRequest<{
+
+        Params : {
+            goalId : string
+        }
+    }>,reply)=>{
+        try {
+            const userId = (request.user as any).userId;
+            const {goalId} = request.params;
+            const existingGoal = await prisma.goal.findFirst({
+                where :{
+                    id : goalId,
+                    userId : userId
+                }
+            })
+            const validation = deleteGoalSchema.safeParse({
+                userId,goalId
+            })
+            if(!validation.success){
+                return reply.code(400).send({
+                    error : "Invalid request data",
+                    details : validation.error.format()         
+                })
+            }
+            if(!existingGoal){
+                return reply.code(404).send({error : "Goal not found !!!!!"})
+            }
+            const deleteGoal = await prisma.goal.delete({
+                where :{
+                    id : goalId,
+                    userId : userId
+                }
+            })
+            reply.code(200).send({message : "Goal deleted successfully"});
+            reply.code(200).send(deleteGoal);
+        }catch(error){
+            reply.code(500).send({error : "Internal Server Error"})
+            
+        }
+    }
+    )
+}
+
+
+
+    
+

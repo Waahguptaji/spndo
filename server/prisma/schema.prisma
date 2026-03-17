@@ -1,12 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -25,20 +20,27 @@ enum RepeatEnum {
   YEARLY
 }
 
+enum GoalStatus {
+  active
+  paused
+  completed
+  cancelled
+}
+
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
+  id            String         @id @default(cuid())
+  email         String         @unique
   password_hash String?
   phone         String?
   profile_data  Json?
-  is_active     Boolean  @default(true)
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  is_active     Boolean        @default(true)
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  budgets       Budget[]
+  categories    Categories[]
+  goal          Goal[]
   refreshTokens RefreshToken[]
-
-  categories Categories[]
-  Transactions Transaction[]
-  budgets Budget[]
+  Transaction   Transaction[]
   reminders Reminder[]
 }
 
@@ -46,35 +48,52 @@ model RefreshToken {
   id        String   @id @default(uuid())
   token     String   @unique
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
   expiresAt DateTime
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Categories {
-  id          String  @id @default(cuid())
+  id          String        @id @default(cuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
   name        String
   type        String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+  budgets     Budget[]
+  user        User          @relation(fields: [userId], references: [id])
+  Transaction Transaction[]
+
   @@unique([userId, name, type])
-  budgets    Budget[]
-  transactions Transaction[]
 }
 
 model Budget {
-  id          String  @id @default(uuid())
-  userId      String 
-  user        User    @relation(fields: [userId],references: [id], onDelete: Cascade)
-  categoryId  String
-  category    Categories @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  month       DateTime
-  amount      Decimal  @db.Decimal(10, 2)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  @@unique([userId, categoryId, month])    
+  id         String     @id @default(uuid())
+  userId     String
+  categoryId String
+  month      DateTime
+  amount     Decimal    @db.Decimal(10, 2)
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  category   Categories @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryId, month])
+}
+
+model Goal {
+  id              String     @id @default(uuid())
+  userId          String
+  title           String
+  target_amount   Decimal    @db.Decimal(14, 2)
+  deadline        DateTime
+  progress_amount Decimal    @default(0) @db.Decimal(14, 2)
+  status          GoalStatus @default(active)
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, title])
 }
 
 model Transaction {
@@ -96,6 +115,24 @@ model Transaction {
   @@index([user_id, occurred_at])
   @@index([user_id, category_id]) 
 }
+
+
+model Goal {
+  id              String     @id @default(uuid())
+  userId          String
+  title           String
+  target_amount   Decimal    @db.Decimal(14, 2)
+  deadline        DateTime
+  progress_amount Decimal    @default(0) @db.Decimal(14, 2)
+  status          GoalStatus @default(active)
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, title])
+}
+
+
 model Reminder {
   id          String    @id @default(uuid())
   user_id     String
