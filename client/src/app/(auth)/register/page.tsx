@@ -23,7 +23,7 @@ const RegisterPage: React.FC = () => {
   if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-lg">Loading...</p>
+        <p className="text-lg">Loading. ..</p>
       </div>
     );
   }
