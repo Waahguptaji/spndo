@@ -81,20 +81,7 @@ model Budget {
   @@unique([userId, categoryId, month])
 }
 
-model Goal {
-  id              String     @id @default(uuid())
-  userId          String
-  title           String
-  target_amount   Decimal    @db.Decimal(14, 2)
-  deadline        DateTime
-  progress_amount Decimal    @default(0) @db.Decimal(14, 2)
-  status          GoalStatus @default(active)
-  created_at      DateTime   @default(now())
-  updated_at      DateTime   @updatedAt
-  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, title])
-}
 
 model Transaction {
   id          String          @id @default(cuid())
