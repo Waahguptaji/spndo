@@ -6,7 +6,10 @@ type ApiOptions = {
   headers?: Record<string, string>;
 };
 
-export async function apiFetch(endpoint: string, options: ApiOptions = {}) {
+export default async function apiFetch(
+  endpoint: string,
+  options: ApiOptions = {},
+) {
   const { method = "GET", body, headers = {} } = options;
 
   // Get token from localStorage
@@ -26,14 +29,33 @@ export async function apiFetch(endpoint: string, options: ApiOptions = {}) {
 
     // Parse response safely
     const data = await res.json().catch(() => ({}));
+    console.log("API Response:", {
+      data,
+    });
 
     // Handle errors
+    // Handle errors
     if (!res.ok) {
-      throw new Error(data?.message || "Something went wrong");
+      let errorMsg = "Something went wrong";
+      // Check for validation details first
+      if (
+        data?.details &&
+        Array.isArray(data.details) &&
+        data.details.length > 0
+      ) {
+        errorMsg = data.details[0].message;
+      } else if (data?.error) {
+        errorMsg = data.error;
+      }
+
+      throw new Error(errorMsg);
     }
 
     return data;
-  } catch (error: any) {
-    throw new Error(error.message || "Network error");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw error; // Re-throw with its message
+    }
+    throw new Error("Network error");
   }
 }

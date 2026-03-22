@@ -7,48 +7,53 @@ import { Mail, Lock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { registerUser } from "@/lib/api/auth";
+import Toast from "@/components/ui/Toast";
+
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // const [firstName, setFirstName] = useState("");
-  // const [lastName, setLastName] = useState("");
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error" | "info">(
+    "error",
+  );
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { status } = useSession();
   useEffect(() => {
-    if (status === "authenticated") {
-      router.replace("/dashboard"); // replace avoids back/forward issue
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      router.replace("/dashboard");
     }
-  }, [status, router]);
-  if (status === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-lg">Loading. ..</p>
-      </div>
-    );
-  }
+  }, [router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
+    setLoading(true);
     e.preventDefault();
-    //     console.log({ email, password });
-    //      alert("Account created successfully! Please log in.");
-    //     router.push("/login");
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await registerUser({
+        email,
+        password,
+        confirmPassword: password,
+      });
 
-    const data = await res.json();
+      // Store tokens
+      localStorage.setItem("accessToken", res.accessToken);
+      localStorage.setItem("refreshToken", res.refreshToken);
 
-    if (res.ok) {
-      const newUser = data.user;
-      localStorage.setItem("userId", newUser.id);
-      alert("Account created successfully! Please log in.");
-      router.push("/login");
-    } else {
-      alert(data.message || "Registration failed. User may already exist.");
+      // Store user (optional)
+      localStorage.setItem("user", JSON.stringify(res.user));
+
+      // Redirect directly to dashboard (user is already logged in)
+      router.push("/dashboard");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Registration failed";
+      setToastMessage(message);
+      setToastType("error");
+      setToastOpen(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -203,9 +208,10 @@ const RegisterPage: React.FC = () => {
             type="submit"
             variant="primary"
             fullWidth
+            disabled={loading}
             className="w-full max-w-sm h-12 text-lg font-semibold rounded-lg"
           >
-            Sign up
+            {loading ? "Creating account..." : "Sign up"}
           </Button>
         </form>
 
@@ -230,6 +236,13 @@ const RegisterPage: React.FC = () => {
           className="object-cover rounded-3xl p-1"
         />
       </div>
+      <Toast
+        open={toastOpen}
+        message={toastMessage}
+        type={toastType}
+        duration={3000}
+        onClose={() => setToastOpen(false)}
+      />
     </div>
   );
 };
