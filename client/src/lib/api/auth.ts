@@ -58,18 +58,3 @@ export const login = async (data: LoginInput): Promise<LoginResponse> => {
         body: data
     })
 }
-export function getGoals(){
-    return apiFetch("/goals");
-}
-export function getUserProfile(){
-    return apiFetch("/user/me",{
-        method: "GET"
-    });
-}
-
-export function updateUserProfile(data: JSON){
-    return apiFetch("/user/me",{
-        method:"PATCH",
-        body:data
-    })
-}
