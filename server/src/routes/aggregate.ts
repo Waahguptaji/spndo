@@ -1,7 +1,17 @@
 import { FastifyPluginAsync , FastifyRequest } from "fastify";
 import { prisma } from "../lib/prisma";
 
+type Category = {
+  id: string;
+  name: string;
+};
 
+type CategoryAggregate = {
+  category_id: string;
+  _sum: {
+    amount: number | null;
+  };
+};
 export const aggregateRoutes : FastifyPluginAsync = async (fastify , _optional) => {
 
     fastify.get("/monthly",{
@@ -61,13 +71,16 @@ export const aggregateRoutes : FastifyPluginAsync = async (fastify , _optional) 
                         },
                     }
                 })
-                const categoryMap = new Map(categoryIds.map((c)=>[c.id,c.name]));
-                const formattedByCategory = byCategory.map((c)=>{
-                    return {
-                        category : categoryMap.get(c.category_id) || "Unknown",
-                        amount : c._sum.amount || 0
-                    }
-                })
+                const categoryMap = new Map(
+  (categoryIds as Category[]).map((c) => [c.id, c.name])
+);
+
+const formattedByCategory = (byCategory as CategoryAggregate[]).map((c) => {
+  return {
+    category: categoryMap.get(c.category_id) || "Unknown",
+    amount: c._sum.amount || 0,
+  };
+});
                 const incomeTotal = Number(incomeAggregate._sum.amount || 0);
                 const expenseTotal = Number(expenseAggregate._sum.amount || 0);
                 reply.send({
