@@ -12,6 +12,7 @@ import { budgetRoutes } from "./routes/budgets";
 import transactionRoutes from "./routes/transaction";
 import reminderRoutes from "./routes/reminder";
 import { goalRoutes } from "./routes/goal";
+import { aggregateRoutes } from "./routes/aggregate";
 export function buildApp() {
   const app = Fastify({
     logger: {
@@ -48,6 +49,6 @@ export function buildApp() {
   app.register(transactionRoutes);
   app.register(reminderRoutes);
   app.register(goalRoutes);
-
+  app.register(aggregateRoutes,{prefix: "/summary"});
   return app;
 }
