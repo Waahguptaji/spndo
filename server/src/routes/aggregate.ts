@@ -67,7 +67,7 @@ export const aggregateRoutes : FastifyPluginAsync = async (fastify , _optional) 
                 const categoryIds = await prisma.categories.findMany({
                     where : {
                         id : {
-                            in : byCategory.map((c)=>c.category_id)
+                            in : byCategory.map((c : { category_id: string })=>c.category_id)
                         },
                     }
                 })
