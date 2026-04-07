@@ -12,6 +12,8 @@ import TransactionForm from "@/components/transactions/TransactionForm";
 import Modal from "@/components/ui/Modal";
 import MobileView from "@/components/transactions/MobileView";
 import WebView from "@/components/transactions/WebView";
+import { getTransactions, Transaction } from "@/lib/api/transactions";
+import { getCategories } from "@/lib/api/categories";
 
 type Entry = {
   id: string;
@@ -22,74 +24,10 @@ type Entry = {
   category: string;
 };
 
-// Sample data (replace with API call)
-const baseEntries: Entry[] = [
-  {
-    id: "1",
-    title: "Coffee",
-    description: "Starbucks",
-    date: "2025-08-27",
-    amount: "-$5.40",
-    category: "Food",
-  },
-  {
-    id: "2",
-    title: "Salary",
-    description: "August Payroll",
-    date: "2025-08-27",
-    amount: "+$3,200.00",
-    category: "Income",
-  },
-  {
-    id: "3",
-    title: "Groceries",
-    description: "Whole Foods",
-    date: "2025-08-26",
-    amount: "-$86.22",
-    category: "Food",
-  },
-  {
-    id: "4",
-    title: "Gym Membership",
-    description: "Monthly",
-    date: "2025-08-26",
-    amount: "-$40.00",
-    category: "Health",
-  },
-  {
-    id: "5",
-    title: "Stocks Dividend",
-    description: "ETF payout",
-    date: "2025-08-25",
-    amount: "+$18.70",
-    category: "Income",
-  },
-];
-
-// Generate more mock data
-function generateMock(size = 150): Entry[] {
-  const cats = ["Food", "Income", "Health", "Transport", "Bills"];
-  const out: Entry[] = [];
-  for (let i = 0; i < size; i++) {
-    const base = baseEntries[i % baseEntries.length];
-    const d = new Date(base.date);
-    d.setDate(d.getDate() - Math.floor(i / 5));
-    out.push({
-      ...base,
-      id: `${i + 1}`,
-      title: `${base.title} ${i + 1}`,
-      date: d.toISOString().slice(0, 10),
-      category: cats[i % cats.length],
-      amount:
-        i % 7 === 0
-          ? `+$${(50 + (i % 9) * 13).toFixed(2)}`
-          : `-$${(5 + (i % 17) * 3.2).toFixed(2)}`,
-    });
-  }
-  return out;
-}
-
-const allEntries = generateMock();
+type FormCategory = {
+  id: string;
+  label: string;
+};
 
 export type Column = {
   id: string;
@@ -117,7 +55,7 @@ const Transactions = () => {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"all" | string>("all");
   const [typeFilter, setTypeFilter] = useState<"all" | "income" | "expense">(
-    "all"
+    "all",
   );
   const [columns, setColumns] = useState<Column[]>(defaultColumns);
   const [sortBy, setSortBy] = useState<"date" | "amount" | "title">("date");
@@ -131,12 +69,66 @@ const Transactions = () => {
   const sentinelRef = useRef<HTMLDivElement>(null!);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [expenseCats, setExpenseCats] = useState<FormCategory[]>([]);
+  const [incomeCats, setIncomeCats] = useState<FormCategory[]>([]);
+
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const res = await getTransactions();
+        const tx = res?.transactions ?? [];
+        setTransactions(tx);
+      } catch (err) {
+        console.error("Error fetching transactions:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, []);
+
+  useEffect(() => {
+    const preFetchCategories = async () => {
+      try {
+        const res = await getCategories();
+        setExpenseCats(
+          res.categories
+            .filter((category) => category.type === "EXPENSE")
+            .map((category) => ({ id: category.id, label: category.name })),
+        );
+        setIncomeCats(
+          res.categories
+            .filter((category) => category.type === "INCOME")
+            .map((category) => ({ id: category.id, label: category.name })),
+        );
+      } catch (err) {
+        console.error("Error pre-fetching categories:", err);
+      }
+    };
+    preFetchCategories();
+  }, []);
+
+  const allEntries = useMemo(() => {
+    return transactions.map((t) => ({
+      id: t.id,
+      title: t.title,
+      description: t.note ?? undefined,
+      date: t.occurred_at,
+      category: t.category?.name || "Other",
+      amount:
+        t.type === "INCOME" ? `+$${Number(t.amount)}` : `-$${Number(t.amount)}`,
+    }));
+  }, [transactions]);
 
   const handleAdd = (type: "income" | "expense") => {
     if (isMobile) {
@@ -152,8 +144,8 @@ const Transactions = () => {
   const toggleColumn = (id: string) => {
     setColumns((prev) =>
       prev.map((col) =>
-        col.id === id ? { ...col, visible: !col.visible } : col
-      )
+        col.id === id ? { ...col, visible: !col.visible } : col,
+      ),
     );
   };
 
@@ -192,11 +184,11 @@ const Transactions = () => {
             : b.title.localeCompare(a.title);
         }
       });
-  }, [query, category, typeFilter, sortBy, sortOrder]);
+  }, [allEntries, query, category, typeFilter, sortBy, sortOrder]);
 
   const visible = useMemo(
     () => filtered.slice(0, visibleCount),
-    [filtered, visibleCount]
+    [filtered, visibleCount],
   );
 
   useEffect(() => {
@@ -214,7 +206,7 @@ const Transactions = () => {
       .sort((a, b) =>
         sortBy === "date" && sortOrder === "asc"
           ? a[0].localeCompare(b[0])
-          : b[0].localeCompare(a[0])
+          : b[0].localeCompare(a[0]),
       )
       .map(([d, items]) => ({
         date: d,
@@ -240,7 +232,7 @@ const Transactions = () => {
           loadMore();
         }
       },
-      { threshold: 1.0 }
+      { threshold: 1.0 },
     );
     observerRef.current.observe(sentinelRef.current);
     return () => {
@@ -250,8 +242,12 @@ const Transactions = () => {
 
   const categories = useMemo(
     () => ["all", ...Array.from(new Set(allEntries.map((e) => e.category)))],
-    []
+    [allEntries],
   );
+
+  if (loading) {
+    return <div className="p-6 text-center">Loading transactions...</div>;
+  }
 
   return (
     <>
@@ -263,7 +259,23 @@ const Transactions = () => {
           active ? (active === "income" ? "Add Income" : "Add Expense") : ""
         }
       >
-        {active && <TransactionForm kind={active} />}
+        {active && (
+          <TransactionForm
+            kind={active}
+            initialExpenseCats={expenseCats}
+            initialIncomeCats={incomeCats}
+            onSuccess={async () => {
+              try {
+                const res = await getTransactions();
+                setTransactions(res?.transactions ?? []);
+              } catch (err) {
+                console.error("Error refreshing transactions:", err);
+              } finally {
+                handleClose();
+              }
+            }}
+          />
+        )}
       </Modal>
 
       {isMobile ? (
@@ -290,10 +302,10 @@ const Transactions = () => {
           columns={columns}
           toggleColumn={toggleColumn}
           resetColumns={resetColumns}
-          filtered={filtered} // This should be the filtered array of transactions
           isLoadingMore={isLoadingMore}
           sentinelRef={sentinelRef}
           loadMore={loadMore}
+          filtered={filtered}
         />
       )}
     </>

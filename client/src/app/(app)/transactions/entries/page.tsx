@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect } from "react";
 import ListItem from "@/components/ui/ListItem";
 import { Wallet2 } from "lucide-react";
+import { Transaction } from "@/lib/api/transactions";
+import { getTransactions } from "@/lib/api/transactions";
 
 type Entry = {
   id: string;
@@ -13,106 +15,53 @@ type Entry = {
   category: string;
 };
 
-// Simulate a larger dataset (replace with API call)
-const baseEntries: Entry[] = [
-  {
-    id: "1",
-    title: "Coffee",
-    description: "Starbucks",
-    date: "2025-08-27",
-    amount: "-$5.40",
-    category: "Food",
-  },
-  {
-    id: "2",
-    title: "Salary",
-    description: "August Payroll",
-    date: "2025-08-27",
-    amount: "+$3,200.00",
-    category: "Income",
-  },
-  {
-    id: "3",
-    title: "Groceries",
-    description: "Whole Foods",
-    date: "2025-08-26",
-    amount: "-$86.22",
-    category: "Food",
-  },
-  {
-    id: "4",
-    title: "Gym Membership",
-    description: "Monthly",
-    date: "2025-08-26",
-    amount: "-$40.00",
-    category: "Health",
-  },
-  {
-    id: "5",
-    title: "Stocks Dividend",
-    description: "ETF payout",
-    date: "2025-08-25",
-    amount: "+$18.70",
-    category: "Income",
-  },
-];
-
-// Generate more (mock)
-function generateMock(size = 150): Entry[] {
-  const cats = ["Food", "Income", "Health", "Transport", "Bills"];
-  const out: Entry[] = [];
-  for (let i = 0; i < size; i++) {
-    const base = baseEntries[i % baseEntries.length];
-    const d = new Date(base.date);
-    d.setDate(d.getDate() - Math.floor(i / 5));
-    out.push({
-      ...base,
-      id: `${i + 1}`,
-      title: `${base.title} ${i + 1}`,
-      date: d.toISOString().slice(0, 10),
-      category: cats[i % cats.length],
-      amount:
-        i % 7 === 0
-          ? `+$${(50 + (i % 9) * 13).toFixed(2)}`
-          : `-$${(5 + (i % 17) * 3.2).toFixed(2)}`,
-    });
-  }
-  return out;
-}
-
-const allEntries = generateMock();
-
 export default function EntriesPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"all" | string>("all");
-  const [visibleCount, setVisibleCount] = useState(30); // first batch
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const pageSize = 30;
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const res = await getTransactions();
+        console.log("API raw response:", res);
+        const data = res.transactions ?? [];
+        setTransactions(data);
+        console.log("Fetched transactions:", data);
+      } catch (err) {
+        console.error("Error fetching transactions:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, []);
+
+  const entries = useMemo(() => {
+    return transactions.map((t) => ({
+      id: t.id,
+      title: t.title,
+      description: t.note ?? undefined,
+      date: t.occurred_at,
+      category: t.category?.name ?? "Other",
+      amount:
+        t.type === "INCOME" ? `+$${Number(t.amount)}` : `-$${Number(t.amount)}`,
+    }));
+  }, [transactions]);
 
   // Filter
   const filtered = useMemo(() => {
     const q = query.toLowerCase();
-    return allEntries.filter(
+    return entries.filter(
       (e) =>
         e.title.toLowerCase().includes(q) &&
-        (category === "all" || e.category === category)
+        (category === "all" || e.category === category),
     );
-  }, [query, category]);
+  }, [entries, query, category]);
 
   // Slice according to visibleCount
-  const visible = useMemo(
-    () => filtered.slice(0, visibleCount),
-    [filtered, visibleCount]
-  );
-
-  useEffect(() => {
-    setVisibleCount(30);
-    setHasMore(true);
-  }, [filtered.length, query, category]);
+  const visible = filtered;
 
   const grouped = useMemo(() => {
     const map: Record<string, Entry[]> = {};
@@ -128,37 +77,14 @@ export default function EntriesPage() {
       }));
   }, [visible]);
 
-  const loadMore = useCallback(() => {
-    if (isLoadingMore || !hasMore) return;
-    setIsLoadingMore(true);
-    setTimeout(() => {
-      setVisibleCount((prev) => Math.min(prev + pageSize, filtered.length));
-      setIsLoadingMore(false);
-      setHasMore(visibleCount + pageSize < filtered.length);
-    }, 500); // Simulate loading delay
-  }, [filtered.length, hasMore, isLoadingMore, visibleCount, pageSize]);
-
-  useEffect(() => {
-    if (!sentinelRef.current) return;
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMore();
-        }
-      },
-      { threshold: 1.0 }
-    );
-    observerRef.current.observe(sentinelRef.current);
-    return () => {
-      if (observerRef.current) observerRef.current.disconnect();
-    };
-  }, [loadMore, hasMore, grouped]);
-
   const categories = useMemo(
-    () => ["all", ...Array.from(new Set(allEntries.map((e) => e.category)))],
-    []
+    () => ["all", ...Array.from(new Set(entries.map((e) => e.category)))],
+    [entries],
   );
 
+  if (loading) {
+    return <div className="text-center py-10">Loading transactions...</div>;
+  }
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
@@ -205,8 +131,6 @@ export default function EntriesPage() {
         </section>
       ))}
 
-      {isLoadingMore && <div className="text-center">Loading more...</div>}
-      <div ref={sentinelRef} className="h-10"></div>
       {/* </WidgetCard> */}
     </div>
   );

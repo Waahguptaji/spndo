@@ -22,9 +22,10 @@ export type RegisterResponse = {
 };
 
 export type LoginInput = {
-  email : string;
-  password : string;
-}
+  email: string;
+  password: string;
+};
+
 export type LoginResponse = {
   message: string;
   accessToken: string;
@@ -38,23 +39,20 @@ export type LoginResponse = {
     created_at: string;
     updated_at: string;
   };
+};
 
-  
-}
-
-
-export const registerUser = async (data: RegisterInput): Promise<RegisterResponse> => {
+export const registerUser = async (
+  data: RegisterInput,
+): Promise<RegisterResponse> => {
   return apiFetch("/auth/register", {
     method: "POST",
     body: data,
   });
 };
 
-
-
 export const login = async (data: LoginInput): Promise<LoginResponse> => {
-    return apiFetch("/auth/login", {
-        method: "POST",
-        body: data
-    })
-}
+  return apiFetch("/auth/login", {
+    method: "POST",
+    body: data,
+  });
+};
