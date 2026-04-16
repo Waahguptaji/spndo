@@ -32,12 +32,13 @@ export function buildApp() {
   });
 
   app.register(helmet);
-  app.register(cors, {
-    origin: (origin, cb) => {
-      // Accept all in dev; set a proper allowlist for prod
-      cb(null, true);
-    },
-  });
+  // app.register(cors, {
+  //   origin: (origin, cb) => {
+  //     // Accept all in dev; set a proper allowlist for prod
+  //     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  //     cb(null, true);
+  //   },
+  // });
 
   app.register(jwtPlugin);
   app.register(health, { prefix: "/" });
@@ -50,5 +51,9 @@ export function buildApp() {
   app.register(reminderRoutes);
   app.register(goalRoutes);
   app.register(aggregateRoutes,{prefix: "/summary"});
+  app.register(cors, {
+  origin: "http://localhost:3000",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+});
   return app;
 }

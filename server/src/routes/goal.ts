@@ -2,6 +2,7 @@ import { FastifyPluginAsync , FastifyRequest } from "fastify";
 import { prisma } from "../lib/prisma";
 import { postGoalSchema ,getGoalSchema,patchGoatSchema ,deleteGoalSchema} from "../schemas/goal";
 import { Decimal } from "@prisma/client/runtime/library";
+import { GoalStatus } from "@prisma/client";
 
 
 export const goalRoutes : FastifyPluginAsync = async (fastify , _optional) => {
@@ -11,20 +12,21 @@ export const goalRoutes : FastifyPluginAsync = async (fastify , _optional) => {
                 title : string,
                 target_amount : number,
                 deadline : Date,
-                status ?: "active" | "completed" | "cancelled" | "paused"
+                status : GoalStatus,
+                progress_amount:number
             }
         }> , reply) =>{
             try {
                 const userId = (request.user as any).userId;
-                const { title , target_amount , deadline, status } = request.body;
+                const { title , target_amount , deadline, status ,progress_amount } = request.body;
                 const dateObj = new Date(deadline)
                 const isValidation = postGoalSchema.safeParse({
                     userId,
                     title,
                     target_amount,
                     deadline:dateObj,
-                    status,
-                    progress_amount : new Decimal(0)
+                    status:status?.toLowerCase(),
+                    progress_amount 
                 })
                 if(!isValidation.success){
                     return reply.code(400).send({
@@ -33,6 +35,7 @@ export const goalRoutes : FastifyPluginAsync = async (fastify , _optional) => {
 
                     })
                 }
+                
                 const goal = await prisma.goal.create({
                     data : {
                         userId : userId,
@@ -40,7 +43,7 @@ export const goalRoutes : FastifyPluginAsync = async (fastify , _optional) => {
                         target_amount : target_amount,
                         deadline,
                         status : status || "active",
-                        progress_amount : new Decimal(0)
+                        progress_amount:progress_amount
                     }
                 })
                 reply.code(201).send(goal);
@@ -82,19 +85,20 @@ export const goalRoutes : FastifyPluginAsync = async (fastify , _optional) => {
             title : string,
                 target_amount? : number,
                 deadline ?: Date,
-                status ?: "active" | "completed" | "cancelled" | "paused"
+                status ?: "active" | "completed" | "cancelled" | "paused",
+                progress_amount : number
             
         }
     }>,reply)=>{
         try {
             const userId = (request.user as any).userId;
             const {goalId} = request.params;
-            const {title , target_amount,deadline,status} = request.body;
+            const {title , target_amount,deadline,status,progress_amount} = request.body;
 
             const dateObj = deadline ? new Date(deadline) : undefined;
 
             const isValidation = patchGoatSchema.safeParse({
-                userId,goalId,title,target_amount,deadline:dateObj,status
+                userId,goalId,title,target_amount,deadline:dateObj,status,progress_amount
             })
 
             if(!isValidation.success){
@@ -121,7 +125,8 @@ export const goalRoutes : FastifyPluginAsync = async (fastify , _optional) => {
                         title : title || existingGoal.title,
                         target_amount : target_amount !== undefined ? target_amount : existingGoal.target_amount,
                         deadline : deadline ? dateObj : existingGoal.deadline,
-                        status : status || existingGoal.status
+                        status : status || existingGoal.status,
+                        progress_amount:progress_amount!==undefined ? progress_amount:existingGoal.progress_amount
                     }
                 
             })

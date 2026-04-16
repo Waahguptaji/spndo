@@ -7,7 +7,8 @@ export const postGoalSchema = z.object({
     deadline : z.date().refine((date) => date > new Date() ,{
         message : "DeadLine must be a future date"
     } ),
-    status : z.enum(["active","completed","cancelled","paused"]).default("active")
+    status : z.enum(["active","completed","cancelled","paused"]).default("active"),
+    progress_amount : z.number().min(0,"Amount must be at least 0"),
 })
 export const getGoalSchema = z.object({
     userId : z.string().cuid()
@@ -20,7 +21,8 @@ export const patchGoatSchema = z.object({
     deadline : z.date().refine((date)=> date > new Date(),{
         message : "Deadline must be a future date"
     }).optional(),
-status : z.enum(["active","completed","cancelled","paused"]).optional()
+status : z.enum(["active","completed","cancelled","paused"]).optional(),
+progress_amount : z.number().min(0,"Amount must be at least 0").optional(),
 })
 export const deleteGoalSchema = z.object({
     userId : z.string().cuid(),

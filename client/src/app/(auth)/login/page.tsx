@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, signIn } from "next-auth/react";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
 import { MdOutlineEmail } from "react-icons/md";

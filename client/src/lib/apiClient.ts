@@ -52,10 +52,12 @@ export default async function apiFetch(
     typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
 
   const sendRequest = async (token: string | null) => {
+    const hasBody = body !== undefined;
     return fetch(`${API_URL}${endpoint}`, {
       method,
       headers: {
-        "Content-Type": "application/json",
+        ...(hasBody?{
+        "Content-Type": "application/json"}:{}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...headers,
       },
@@ -92,7 +94,7 @@ export default async function apiFetch(
       } else if (data?.message) {
         errorMsg = data.message;
       }
-
+      console.log(data);
       throw new Error(errorMsg);
     }
 

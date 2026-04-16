@@ -12,21 +12,36 @@ interface ListItemProps {
   amount?: string;
   rightLabel?: string;
   progress?: { current: number; total: number };
+  status : string
+  icon1:React.ReactNode
+  icon2:React.ReactNode
 }
 
 // Base classes for the main container, applied to ALL variants for consistency.
 const baseContainerClasses =
   "p-4 rounded-xl bg-neutral-white dark:bg-neutral-dark2 w-full";
 
+const formatStatusLabel = (value: string) =>
+  value
+    .split(" ")
+    .map((word) =>
+      word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : word
+    )
+    .join(" ");
+
 const ListItem: React.FC<ListItemProps> = ({
   variant,
   icon,
   title,
   description,
+
   date,
   amount,
   rightLabel,
   progress,
+  status,
+  icon1,
+  icon2
 }) => {
   // Notification Variant
   if (variant === "notification") {
@@ -75,10 +90,19 @@ const ListItem: React.FC<ListItemProps> = ({
           </div>
           <div className="flex-grow min-w-0">
             {" "}
-            <div className="text-neutral-dark1 dark:text-neutral-white font-semibold truncate">
+
+            <div className="flex justify-between text-neutral-dark1 dark:text-neutral-white font-semibold truncate">
               {" "}
-              {title}
+              <span className="flex gap-2">
+               <span>{title}</span>{(icon1 || icon2) &&(
+                <span className="flex text-xs text-neutral-grey2 dark:text-neutral-grey3 gap-2">
+                  {icon1 && <span >{icon1}</span>}
+                  {icon2 && <span >{icon2}</span>}</span>
+                   
+               )}</span>
+              <span className="text-md text-neutral-grey2 dark:text-neutral-grey3">{formatStatusLabel(status)}</span>
             </div>
+           
             {progress && (
               <div>
                 <div className="w-full bg-neutral-grey2 dark:bg-neutral-grey1 h-2 rounded-full mt-1 overflow-hidden">
