@@ -8,7 +8,7 @@ import Modal from "../ui/Modal";
 import { Plus } from "lucide-react";
 import Button from "../ui/Button";
 import { createTransaction } from "@/lib/api/transactions";
-import { createCategory } from "@/lib/api/categories";
+import { createCategory, getCategories } from "@/lib/api/categories";
 
 type FormKind = "expense" | "income";
 
@@ -46,6 +46,32 @@ function TransactionForm({
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
 
   useEffect(() => setSelectedId(null), [kind]);
+
+  useEffect(() => {
+    if (initialExpenseCats.length > 0 || initialIncomeCats.length > 0) {
+      return;
+    }
+
+    const loadCategories = async () => {
+      try {
+        const res = await getCategories();
+        setExpenseCats(
+          res.categories
+            .filter((category) => category.type === "EXPENSE")
+            .map((category) => ({ id: category.id, label: category.name })),
+        );
+        setIncomeCats(
+          res.categories
+            .filter((category) => category.type === "INCOME")
+            .map((category) => ({ id: category.id, label: category.name })),
+        );
+      } catch (error) {
+        console.error("Failed to load categories", error);
+      }
+    };
+
+    loadCategories();
+  }, [initialExpenseCats.length, initialIncomeCats.length]);
 
   const categories = kind === "expense" ? expenseCats : incomeCats;
 

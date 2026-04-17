@@ -43,6 +43,17 @@ const defaultColumns: Column[] = [
   { id: "category", label: "Category", visible: true },
 ];
 
+const formatSignedInrAmount = (
+  amount: string | number,
+  type: "INCOME" | "EXPENSE",
+) => {
+  const value = Number(amount || 0);
+  const formatted = new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 0,
+  }).format(value);
+  return `${type === "INCOME" ? "+" : "-"}₹${formatted}`;
+};
+
 const Transactions = () => {
   const router = useRouter();
 
@@ -125,8 +136,7 @@ const Transactions = () => {
       description: t.note ?? undefined,
       date: t.occurred_at,
       category: t.category?.name || "Other",
-      amount:
-        t.type === "INCOME" ? `+$${Number(t.amount)}` : `-$${Number(t.amount)}`,
+      amount: formatSignedInrAmount(t.amount, t.type),
     }));
   }, [transactions]);
 
@@ -245,6 +255,67 @@ const Transactions = () => {
     [allEntries],
   );
 
+  const recentTransactions = useMemo(
+    () =>
+      [...allEntries]
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 5)
+        .map((entry) => ({
+          id: entry.id,
+          title: entry.title,
+          amount: entry.amount,
+          description: entry.description,
+        })),
+    [allEntries],
+  );
+
+  const mobileSummary = useMemo(() => {
+    const now = new Date();
+
+    const monthTransactions = transactions.filter((tx) => {
+      if (tx.is_deleted) return false;
+      const txDate = new Date(tx.occurred_at);
+      return (
+        txDate.getFullYear() === now.getFullYear() &&
+        txDate.getMonth() === now.getMonth()
+      );
+    });
+
+    const monthIncome = monthTransactions
+      .filter((tx) => tx.type === "INCOME")
+      .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+    const monthSpent = monthTransactions
+      .filter((tx) => tx.type === "EXPENSE")
+      .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+    const monthlyBudget = monthIncome;
+    const remaining = Math.max(0, monthlyBudget - monthSpent);
+
+    const lastDayOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+    ).getDate();
+    const daysLeft = Math.max(1, lastDayOfMonth - now.getDate() + 1);
+
+    const safeToSpendPerDay = remaining / daysLeft;
+    const spentPercentage =
+      monthlyBudget > 0
+        ? (monthSpent / monthlyBudget) * 100
+        : monthSpent > 0
+          ? 100
+          : 0;
+
+    return {
+      totalSpent: monthSpent,
+      totalIncome: monthIncome,
+      budgetUsed: monthlyBudget,
+      safeToSpendPerDay,
+      spentPercentage,
+    };
+  }, [transactions]);
+
   if (loading) {
     return <div className="p-6 text-center">Loading transactions...</div>;
   }
@@ -279,7 +350,12 @@ const Transactions = () => {
       </Modal>
 
       {isMobile ? (
-        <MobileView active={active} handleAdd={handleAdd} />
+        <MobileView
+          active={active}
+          handleAdd={handleAdd}
+          summary={mobileSummary}
+          recentTransactions={recentTransactions}
+        />
       ) : (
         <WebView
           active={active}

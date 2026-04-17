@@ -6,6 +6,17 @@ import { Wallet2 } from "lucide-react";
 import { Transaction } from "@/lib/api/transactions";
 import { getTransactions } from "@/lib/api/transactions";
 
+const formatSignedInrAmount = (
+  amount: string | number,
+  type: "INCOME" | "EXPENSE",
+) => {
+  const value = Number(amount || 0);
+  const formatted = new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 0,
+  }).format(value);
+  return `${type === "INCOME" ? "+" : "-"}₹${formatted}`;
+};
+
 type Entry = {
   id: string;
   title: string;
@@ -25,10 +36,8 @@ export default function EntriesPage() {
     const fetchTransactions = async () => {
       try {
         const res = await getTransactions();
-        console.log("API raw response:", res);
         const data = res.transactions ?? [];
         setTransactions(data);
-        console.log("Fetched transactions:", data);
       } catch (err) {
         console.error("Error fetching transactions:", err);
       } finally {
@@ -45,8 +54,7 @@ export default function EntriesPage() {
       description: t.note ?? undefined,
       date: t.occurred_at,
       category: t.category?.name ?? "Other",
-      amount:
-        t.type === "INCOME" ? `+$${Number(t.amount)}` : `-$${Number(t.amount)}`,
+      amount: formatSignedInrAmount(t.amount, t.type),
     }));
   }, [transactions]);
 
@@ -125,6 +133,9 @@ export default function EntriesPage() {
                   year: "numeric",
                 })}
                 amount={e.amount}
+                status=""
+                icon1={null}
+                icon2={null}
               />
             ))}
           </div>
