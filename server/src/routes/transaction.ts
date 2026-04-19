@@ -138,14 +138,14 @@ const transactions: FastifyPluginAsync = async (fastify) => {
           },
         });
 
+        if (!transaction) {
+          return reply.code(404).send({ error: "Transaction not found" });
+        }
+
         await prisma.transaction.update({
           where: { id },
           data: { is_deleted: true },
         });
-
-        if (!transaction) {
-          return reply.code(404).send({ error: "Transaction not found" });
-        }
 
         return reply.code(200).send({
           message: "Transaction deleted successfully",

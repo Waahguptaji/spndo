@@ -64,7 +64,7 @@ const auth: FastifyPluginAsync = async (fastify) => {
         user: userWithoutPassword,
       });
     } catch (err) {
-      console.error("Error during registration:", err);
+      fastify.log.error(err, "Error during registration");
       return reply.code(500).send({
         error: "Internal Server Error",
       });
@@ -127,7 +127,7 @@ const auth: FastifyPluginAsync = async (fastify) => {
         user: userWithoutPassword,
       });
     } catch (err) {
-      console.error("Error during login:", err);
+      fastify.log.error(err, "Error during login");
       return reply.code(500).send({
         error: "Internal Server Error",
       });
@@ -190,7 +190,7 @@ const auth: FastifyPluginAsync = async (fastify) => {
         accessToken: newAccessToken,
       });
     } catch (err) {
-      console.error("Error during token refresh:", err);
+      fastify.log.error(err, "Error during token refresh");
       return reply.code(401).send({
         error: "Invalid or expired refresh token",
       });
@@ -215,7 +215,7 @@ const auth: FastifyPluginAsync = async (fastify) => {
         message: "Logged out successfully",
       });
     } catch (err) {
-      console.error("Error during logout:", err);
+      fastify.log.error(err, "Error during logout");
       return reply.code(500).send({
         error: "Internal Server Error",
       });

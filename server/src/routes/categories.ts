@@ -12,6 +12,7 @@ export const categoryRoutes: FastifyPluginAsync = async (fastify, _options) => {
   fastify.post(
     "/categories",
     {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       preHandler: [(fastify as any).authenticate],
     },
     async (
@@ -25,7 +26,7 @@ export const categoryRoutes: FastifyPluginAsync = async (fastify, _options) => {
     ) => {
       try {
         const { name, type } = request.body;
-        const userid = (request.user as any).userId;
+        const userid = request.user.userId;
 
         // Validate request body before database operation
         const validation = createCategorySchema
@@ -55,17 +56,18 @@ export const categoryRoutes: FastifyPluginAsync = async (fastify, _options) => {
           category,
         });
       } catch (error) {
-        console.error("Error creating category:", error);
+        fastify.log.error(error, "Error creating category");
         return reply.code(500).send({ error: "Failed to create category" });
       }
     },
   );
   fastify.get(
     "/categories",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { preHandler: [(fastify as any).authenticate] },
     async (request: FastifyRequest, reply) => {
       try {
-        const userId = (request.user as any).userId;
+        const userId = request.user.userId;
         const category = await prisma.categories.findMany({
           where: {
             userId: userId,
@@ -87,7 +89,7 @@ export const categoryRoutes: FastifyPluginAsync = async (fastify, _options) => {
         }
         return reply.send({ categories: category });
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        fastify.log.error(error, "Error fetching categories");
         return reply.code(500).send({ error: "Failed to fetch categories" });
       }
     },
@@ -95,6 +97,7 @@ export const categoryRoutes: FastifyPluginAsync = async (fastify, _options) => {
 
   fastify.patch(
     "/categories/:id",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { preHandler: [(fastify as any).authenticate] },
     async (request, reply) => {
       try {
@@ -108,7 +111,7 @@ export const categoryRoutes: FastifyPluginAsync = async (fastify, _options) => {
 
         const { name, type } = validation.data;
         const { id } = request.params as { id: string };
-        const userId = (request.user as any).userId;
+        const userId = request.user.userId;
 
         const updated = await prisma.categories.updateMany({
           where: {
@@ -126,7 +129,7 @@ export const categoryRoutes: FastifyPluginAsync = async (fastify, _options) => {
 
         return reply.send({ message: "Category updated successfully" });
       } catch (error) {
-        console.error("Error updating category:", error);
+        fastify.log.error(error, "Error updating category");
         return reply.code(500).send({ error: "Failed to update category" });
       }
     },
@@ -134,11 +137,12 @@ export const categoryRoutes: FastifyPluginAsync = async (fastify, _options) => {
 
   fastify.delete(
     "/categories/:id",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { preHandler: [(fastify as any).authenticate] },
     async (request, reply) => {
       try {
         const { id } = request.params as { id: string };
-        const userId = (request.user as any).userId;
+        const userId = request.user.userId;
         const parsedParams = deleteCategorySchema.safeParse({ id });
         if (!parsedParams.success) {
           return reply.code(400).send({
@@ -162,7 +166,7 @@ export const categoryRoutes: FastifyPluginAsync = async (fastify, _options) => {
 
         return reply.send({ message: "Category deleted successfully" });
       } catch (error) {
-        console.error("Error deleting category:", error);
+        fastify.log.error(error, "Error deleting category");
         return reply.code(500).send({ error: "Failed to delete category" });
       }
     },
