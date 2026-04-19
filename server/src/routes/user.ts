@@ -1,7 +1,14 @@
 import { prisma } from "../lib/prisma";
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { userSchema, profileDataSchema } from "../schemas/user";
-import { Prisma } from "@prisma/client";
+
+type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: JsonValue }
+  | JsonValue[];
 
 export const userRoutes: FastifyPluginAsync = async (fastify, _options) => {
   fastify.get(
@@ -45,21 +52,29 @@ export const userRoute: FastifyPluginAsync = async (fastify, _options) => {
         Body: {
           email?: string;
           phone?: string;
-          profile_data?: Prisma.InputJsonValue;
+          profile_data?: JsonValue;
         };
       }>,
       reply,
     ) => {
       const { email, phone, profile_data } = request.body;
 
+      const data: {
+        email?: string;
+        phone?: string;
+        profile_data?: JsonValue | null;
+      } = {
+        email,
+        phone,
+      };
+
+      if (profile_data !== undefined) {
+        data.profile_data = profile_data;
+      }
+
       const user = await prisma.user.update({
         where: { id: request.user.userId.toString() },
-
-        data: {
-          email,
-          phone,
-          profile_data: profile_data ?? Prisma.DbNull,
-        },
+        data: data as never,
       });
 
       const validation = profileDataSchema.safeParse(request.body);

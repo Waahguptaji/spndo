@@ -6,7 +6,8 @@ import {
   patchGoatSchema,
   deleteGoalSchema,
 } from "../schemas/goal";
-import { GoalStatus } from "@prisma/client";
+
+type GoalStatus = "active" | "completed" | "cancelled" | "paused";
 
 export const goalRoutes: FastifyPluginAsync = async (fastify, _optional) => {
   fastify.post(
