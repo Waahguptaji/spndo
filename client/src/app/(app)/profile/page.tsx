@@ -1,16 +1,17 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
 import { CircleUserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { getMe, updateMe } from "@/lib/api/user";
 
 export default function ProfileInfo() {
-  const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const [profile, setProfile] = useState({
     name: "",
@@ -23,41 +24,32 @@ export default function ProfileInfo() {
     phone: "", // Added phone field
   });
 
-  // 🔹 Fetch user details on mount
   useEffect(() => {
     const fetchProfile = async () => {
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        console.warn("No userId in localStorage.");
-        setLoading(false);
-        return;
-      }
-
       try {
-        const res = await fetch(`/api/user?id=${userId}`);
-        const data = await res.json();
+        setError(null);
+        const data = await getMe();
 
-        if (res.ok && data.success) {
-          setProfile({
-            name: data.data.name || "",
-            address: data.data.address || "",
-            city: data.data.city || "",
-            state: data.data.state || "",
-            pinCode: data.data.pinCode || "",
-            image: data.data.image || session?.user?.image || "",
-            email: data.data.email,
-            phone: data.data.phone || "", // Added phone field
-          });
-        }
+        const profileData = data.profile_data ?? {};
+        setProfile({
+          name: profileData.name ?? "",
+          address: profileData.address ?? "",
+          city: profileData.city ?? "",
+          state: profileData.state ?? "",
+          pinCode: profileData.pinCode ?? "",
+          image: profileData.image ?? "",
+          email: data.email,
+          phone: data.phone ?? "",
+        });
       } catch (err) {
-        console.error("Error fetching profile:", err);
+        setError(err instanceof Error ? err.message : "Error fetching profile");
       } finally {
         setLoading(false);
       }
     };
 
     fetchProfile();
-  }, [session]);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -75,38 +67,25 @@ export default function ProfileInfo() {
   };
 
   const handleSave = async () => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      alert("User not found in localStorage. Please login again.");
-      return;
-    }
-
     try {
-      const res = await fetch("/api/user", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: userId,
+      setSaving(true);
+      setError(null);
+      await updateMe({
+        phone: profile.phone || "",
+        profile_data: {
           name: profile.name,
           address: profile.address,
           city: profile.city,
           state: profile.state,
           pinCode: profile.pinCode,
-          image: profile.image, // ✅ save image
-          phone: profile.phone || "", // Added phone field
-        }),
+          image: profile.image,
+        },
       });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        alert("Profile updated successfully!");
-      } else {
-        alert(data.message || "Error updating profile");
-      }
+      alert("Profile updated successfully!");
     } catch (err) {
-      console.error("Save failed:", err);
-      alert("Something went wrong.");
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -143,6 +122,8 @@ export default function ProfileInfo() {
           <h2 className="text-xl font-semibold text-foreground mb-4">
             Profile Details
           </h2>
+
+          {error ? <p className="text-system-red text-sm">{error}</p> : null}
 
           <FormInput
             label="Full Name"
@@ -189,9 +170,10 @@ export default function ProfileInfo() {
 
           <Button
             onClick={handleSave}
+            disabled={saving}
             className="mt-4 w-full md:w-auto shadow-md hover:shadow-lg"
           >
-            Save
+            {saving ? "Saving..." : "Save"}
           </Button>
           <Button
             onClick={() => router.push("/dashboard")}

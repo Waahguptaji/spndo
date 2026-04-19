@@ -13,6 +13,18 @@ function clearAuthStorage() {
   localStorage.removeItem("user");
 }
 
+function getStoredRefreshToken() {
+  const raw = localStorage.getItem("refreshToken");
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    return typeof parsed === "string" ? parsed : raw;
+  } catch {
+    return raw;
+  }
+}
+
 async function handleAuthFailure() {
   clearAuthStorage();
   window.location.href = "/login";
@@ -22,7 +34,7 @@ async function handleAuthFailure() {
 async function refreshAccessToken() {
   if (typeof window === "undefined") return null;
 
-  const refreshToken = localStorage.getItem("refreshToken");
+  const refreshToken = getStoredRefreshToken();
   if (!refreshToken) return null;
 
   const res = await fetch(`${API_URL}/auth/refresh`, {
@@ -56,8 +68,11 @@ export default async function apiFetch(
     return fetch(`${API_URL}${endpoint}`, {
       method,
       headers: {
-        ...(hasBody?{
-        "Content-Type": "application/json"}:{}),
+        ...(hasBody
+          ? {
+              "Content-Type": "application/json",
+            }
+          : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...headers,
       },
@@ -106,7 +121,7 @@ export default async function apiFetch(
 }
 
 export async function logout() {
-  const refreshToken = localStorage.getItem("refreshToken");
+  const refreshToken = getStoredRefreshToken();
 
   if (refreshToken) {
     await fetch(`${API_URL}/auth/logout`, {
