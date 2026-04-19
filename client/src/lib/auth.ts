@@ -1,5 +1,3 @@
-import { logoutUser } from "./api/auth";
-
 const isLoggedIn = (): boolean => {
   if (typeof window === "undefined") return false;
   return !!localStorage.getItem("accessToken");

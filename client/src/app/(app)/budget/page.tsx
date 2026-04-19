@@ -84,7 +84,14 @@ export default function BudgetPage() {
   };
 
   if (loading) {
-    return <div className="p-6">Loading budgets...</div>;
+    return (
+      <div className="p-6 space-y-4">
+        <div className="h-10 w-52 rounded-md bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-14 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-14 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-14 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+      </div>
+    );
   }
 
   return (

@@ -23,6 +23,7 @@ type Column = {
 
 type WebViewProps = {
   handleAdd: (type: "income" | "expense") => void;
+  onDeleteTransaction: (id: string) => Promise<void>;
   active: "income" | "expense" | null;
   query: string;
   setQuery: (query: string) => void;
@@ -51,6 +52,7 @@ type WebViewProps = {
 const WebView: React.FC<WebViewProps> = ({
   active,
   handleAdd,
+  onDeleteTransaction,
   query,
   setQuery,
   filterOpen,
@@ -261,6 +263,7 @@ const WebView: React.FC<WebViewProps> = ({
       {/* Transaction table */}
       <TransactionsTable
         data={filtered}
+        onDeleteTransaction={onDeleteTransaction}
         onLoadMore={loadMore}
         isLoadingMore={isLoadingMore}
         sentinelRef={sentinelRef}

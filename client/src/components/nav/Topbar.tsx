@@ -10,7 +10,6 @@ import {
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { logout } from "@/lib/auth";
-import { log } from "console";
 type TopAppBarProps = {
   variant?: "default" | "back" | "search";
   title: string;

@@ -55,7 +55,13 @@ export default function RemindersList() {
         </Button>
       </div>
 
-      {loading ? <p>Loading reminders...</p> : null}
+      {loading ? (
+        <div className="space-y-3 mb-4">
+          <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        </div>
+      ) : null}
       {error ? <p className="text-system-red mb-4">{error}</p> : null}
 
       <div className="space-y-4">

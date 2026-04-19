@@ -4,7 +4,7 @@ import TransactionForm from "@/components/transactions/TransactionForm";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-function page() {
+function AddIncomePage() {
   const router = useRouter();
 
   return (
@@ -19,4 +19,4 @@ function page() {
   );
 }
 
-export default page;
+export default AddIncomePage;

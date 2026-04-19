@@ -89,7 +89,24 @@ export default function ProfileInfo() {
     }
   };
 
-  if (loading) return <p className="text-center mt-10">Loading profile...</p>;
+  if (loading)
+    return (
+      <div className="min-h-screen md:p-8 p-4">
+        <div className="max-w-4xl mx-auto rounded-2xl bg-card p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="w-32 h-32 rounded-full bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+            <div className="h-4 w-28 rounded bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          </div>
+          <div className="md:col-span-2 space-y-3">
+            <div className="h-10 rounded-md bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+            <div className="h-10 rounded-md bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+            <div className="h-10 rounded-md bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+            <div className="h-10 rounded-md bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+            <div className="h-10 rounded-md bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          </div>
+        </div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-background md:p-8 p-4 mb-10 md:mb-0">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
@@ -14,11 +14,12 @@ import Toast from "@/components/ui/Toast";
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [toastOpen,setToastOpen] = useState(false);
-  const [toastMessage,setToastMessage] = useState("");
-  const[toastType,setToastType] = useState<"success" | "error" | "info">("error");
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error" | "info">(
+    "error",
+  );
   const router = useRouter();
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -27,29 +28,23 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-     try {
+    try {
       const res = await login(formData);
       console.log("response", res);
-      localStorage.setItem("accessToken",res.accessToken);
-      localStorage.setItem("refreshToken",res.refreshToken);
+      localStorage.setItem("accessToken", res.accessToken);
+      localStorage.setItem("refreshToken", res.refreshToken);
       localStorage.setItem("user", JSON.stringify(res.user));
       router.push("/dashboard");
-     }catch(error){
+    } catch (error) {
       const message = error instanceof Error ? error.message : "Login Failed";
       setToastType("error");
       setToastMessage(message);
       setToastOpen(true);
-
-     }finally{
+    } finally {
       setLoading(false);
-     }
-
-    
-
-    
-      
     }
-  
+  };
+
   return (
     <div className="flex min-h-screen md:flex-col justify-center">
       <div className="flex overflow-hidden">
@@ -203,7 +198,7 @@ export default function LoginPage() {
           />
         </div>
       </div>
-       <Toast
+      <Toast
         open={toastOpen}
         message={toastMessage}
         type={toastType}

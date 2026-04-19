@@ -12,9 +12,9 @@ interface ListItemProps {
   amount?: string;
   rightLabel?: string;
   progress?: { current: number; total: number };
-  status : string
-  icon1:React.ReactNode
-  icon2:React.ReactNode
+  status?: string;
+  icon1?: React.ReactNode;
+  icon2?: React.ReactNode;
 }
 
 // Base classes for the main container, applied to ALL variants for consistency.
@@ -25,9 +25,16 @@ const formatStatusLabel = (value: string) =>
   value
     .split(" ")
     .map((word) =>
-      word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : word
+      word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : word,
     )
     .join(" ");
+
+const formatInr = (value: number) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value);
 
 const ListItem: React.FC<ListItemProps> = ({
   variant,
@@ -39,14 +46,16 @@ const ListItem: React.FC<ListItemProps> = ({
   amount,
   rightLabel,
   progress,
-  status,
-  icon1,
-  icon2
+  status = "",
+  icon1 = null,
+  icon2 = null,
 }) => {
   // Notification Variant
   if (variant === "notification") {
     return (
-      <div className={`${baseContainerClasses} gap-2 shadow-md border border-neutral-softGrey1 p-2 rounded-lg dark:border-none`}>
+      <div
+        className={`${baseContainerClasses} gap-2 shadow-md border border-neutral-softGrey1 p-2 rounded-lg dark:border-none`}
+      >
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
             {" "}
@@ -55,12 +64,18 @@ const ListItem: React.FC<ListItemProps> = ({
             </div>
             <div className="min-w-0">
               {" "}
-              <div className="text-neutral-dark1 dark:text-neutral-white font-semibold truncate"  title={title} >
+              <div
+                className="text-neutral-dark1 dark:text-neutral-white font-semibold truncate"
+                title={title}
+              >
                 {" "}
                 {title}
               </div>
               {description && (
-                <div className="text-xs text-neutral-grey2 dark:text-neutral-grey3 truncate"title={description}>
+                <div
+                  className="text-xs text-neutral-grey2 dark:text-neutral-grey3 truncate"
+                  title={description}
+                >
                   {" "}
                   {description}
                 </div>
@@ -90,19 +105,21 @@ const ListItem: React.FC<ListItemProps> = ({
           </div>
           <div className="flex-grow min-w-0">
             {" "}
-
             <div className="flex justify-between text-neutral-dark1 dark:text-neutral-white font-semibold truncate">
               {" "}
               <span className="flex gap-2">
-               <span>{title}</span>{(icon1 || icon2) &&(
-                <span className="flex text-xs text-neutral-grey2 dark:text-neutral-grey3 gap-2">
-                  {icon1 && <span >{icon1}</span>}
-                  {icon2 && <span >{icon2}</span>}</span>
-                   
-               )}</span>
-              <span className="text-md text-neutral-grey2 dark:text-neutral-grey3">{formatStatusLabel(status)}</span>
+                <span>{title}</span>
+                {(icon1 || icon2) && (
+                  <span className="flex text-xs text-neutral-grey2 dark:text-neutral-grey3 gap-2">
+                    {icon1 && <span>{icon1}</span>}
+                    {icon2 && <span>{icon2}</span>}
+                  </span>
+                )}
+              </span>
+              <span className="text-md text-neutral-grey2 dark:text-neutral-grey3">
+                {formatStatusLabel(status)}
+              </span>
             </div>
-           
             {progress && (
               <div>
                 <div className="w-full bg-neutral-grey2 dark:bg-neutral-grey1 h-2 rounded-full mt-1 overflow-hidden">
@@ -114,8 +131,8 @@ const ListItem: React.FC<ListItemProps> = ({
                   />
                 </div>
                 <div className="flex justify-between text-xs text-neutral-grey2 dark:text-neutral-grey3 mt-1">
-                  <span>${progress.current.toLocaleString()}</span>
-                  <span>${progress.total.toLocaleString()}</span>
+                  <span>{formatInr(progress.current)}</span>
+                  <span>{formatInr(progress.total)}</span>
                 </div>
               </div>
             )}
@@ -175,8 +192,9 @@ const ListItem: React.FC<ListItemProps> = ({
   // Reminder Variant
   if (variant === "reminder") {
     return (
-      <div className={`${baseContainerClasses} gap-2 shadow-md border border-neutral-softGrey1 p-2 rounded-lg dark:border-none`}
->
+      <div
+        className={`${baseContainerClasses} gap-2 shadow-md border border-neutral-softGrey1 p-2 rounded-lg dark:border-none`}
+      >
         <div className="flex justify-between items-start gap-4">
           <div className="flex flex-col min-w-0">
             {" "}

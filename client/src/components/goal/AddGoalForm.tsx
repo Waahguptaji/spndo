@@ -1,19 +1,18 @@
 "use client";
-import React, { useState,useEffect } from "react";
-import { Calendar as CalendarIcon, Goal } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import FormInput from "../ui/FormInput";
 import Button from "../ui/Button";
 import Calendar from "../ui/calendar";
 import Modal from "../ui/Modal";
-import {addGoal,updateGoal} from "@/lib/api/goals"
+import { addGoal, updateGoal } from "@/lib/api/goals";
 import { GoalResponse } from "@/lib/api/goals";
 
-
 type Props = {
-  goal ?:GoalResponse;
-   onSuccess?: (updatedGoal?: GoalResponse) => void;
-}
+  goal?: GoalResponse;
+  onSuccess?: (updatedGoal?: GoalResponse) => void;
+};
 type GoalStatus = "active" | "completed" | "cancelled" | "paused";
 const contributionOptions = [
   { value: "daily", label: "Daily" },
@@ -21,12 +20,12 @@ const contributionOptions = [
   { value: "monthly", label: "Monthly" },
   { value: "yearly", label: "Yearly" },
 ];
-const goalEnum:{value:GoalStatus,label:string}[] = [
+const goalEnum: { value: GoalStatus; label: string }[] = [
   { value: "active", label: "Active" },
   { value: "completed", label: "Completed" },
   { value: "paused", label: "Paused" },
   { value: "cancelled", label: "Cancelled" },
-]
+];
 
 function formatAmountInput(v: string): number {
   const digits = v.replace(/[^\d.]/g, "");
@@ -34,13 +33,15 @@ function formatAmountInput(v: string): number {
   return Number(digits);
 }
 
-const AddGoalForm = ({goal,onSuccess}:Props) => {
+const AddGoalForm = ({ goal, onSuccess }: Props) => {
   const [title, setTitle] = useState(goal?.title || "");
-  const [amount, setAmount] = useState<number>(goal?.target_amount||0);
-  const [progressAmount, setProgressAmount] = useState<number>(goal?.progress_amount||0);
+  const [amount, setAmount] = useState<number>(goal?.target_amount || 0);
+  const [progressAmount, setProgressAmount] = useState<number>(
+    goal?.progress_amount || 0,
+  );
   const [contribution, setContribution] = useState("yearly");
-  const [status, setStatus] = useState<GoalStatus>(goal?.status||"active");
-  const [deadline, setDeadline] = useState<Date | null>(goal?.deadline||null);
+  const [status, setStatus] = useState<GoalStatus>(goal?.status || "active");
+  const [deadline, setDeadline] = useState<Date | null>(goal?.deadline || null);
   const [openCal, setOpenCal] = useState(false);
 
   useEffect(() => {
@@ -54,28 +55,25 @@ const AddGoalForm = ({goal,onSuccess}:Props) => {
   }, [goal]);
   const contributionLabel =
     contributionOptions.find((o) => o.value === contribution)?.label ?? "";
-    const statusEnum =
-    goalEnum.find((o) => o.value === status)?.label ?? "";
+  const statusEnum = goalEnum.find((o) => o.value === status)?.label ?? "";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!deadline) return;
     // submit values: { title, amount, contribution, deadline }
-    const payload ={
-      title:title,
+    const payload = {
+      title: title,
       target_amount: Number(amount),
       deadline: deadline.toISOString(),
-   status:status,
-   progress_amount:Number(progressAmount)
-    }
+      status: status,
+      progress_amount: Number(progressAmount),
+    };
     try {
       let updatedGoal;
 
       if (goal) {
-     
         updatedGoal = await updateGoal(goal.id, payload);
       } else {
-     
         updatedGoal = await addGoal(payload);
       }
 
@@ -83,8 +81,6 @@ const AddGoalForm = ({goal,onSuccess}:Props) => {
     } catch (err) {
       console.error("Error saving goal:", err);
     }
-   
-
   }
 
   return (
@@ -162,7 +158,7 @@ const AddGoalForm = ({goal,onSuccess}:Props) => {
       </div>
 
       <Button type="submit" className="w-full">
-        {goal?"Upadate goal" : "Add Goal"}
+        {goal ? "Upadate goal" : "Add Goal"}
       </Button>
     </form>
   );

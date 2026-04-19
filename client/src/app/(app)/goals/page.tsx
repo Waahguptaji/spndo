@@ -1,20 +1,22 @@
 "use client";
-import { Car, Film, ShoppingCart, Utensils,SquareMenu,Pen,Trash } from "lucide-react";
+import {
+  Car,
+  Film,
+  ShoppingCart,
+  Utensils,
+  SquareMenu,
+  Pen,
+  Trash,
+  Target,
+} from "lucide-react";
 import React from "react";
 import ListItem from "@/components/ui/ListItem";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import AddGoalButton from "@/components/goal/AddGoalButton";
-import {getgoal,GoalResponse,delGoal,updateGoal} from "@/lib/api/goals";
+import { getgoal, GoalResponse, delGoal } from "@/lib/api/goals";
 import { useState, useEffect } from "react";
-import AddGoalForm from "@/components/goal/AddGoalForm"
+import AddGoalForm from "@/components/goal/AddGoalForm";
 import Modal from "@/components/ui/Modal";
-type Goal = {
-  title: string;
-  amount: number;
-  current: number;
-  date: string;
-  description: string;
-};
 
 // const goalsData: Goal[] = [
 //   {
@@ -70,65 +72,91 @@ type Goal = {
 //   ),
 // };
 
-
-
 const iconMap: { [key: string]: React.ReactNode } = {
   "Emergency Funds": (
     <ShoppingCart className="text-green-600 dark:text-green-400" size={28} />
   ),
-  "Macbook": (
-    <Film className="text-purple-600 dark:text-purple-400" size={28} />
-  ),
-"Marriage": (
+  Macbook: <Film className="text-purple-600 dark:text-purple-400" size={28} />,
+  Marriage: (
     <SquareMenu className="text-purple-600 dark:text-purple-400" size={28} />
   ),
-  
-  "Parents-Future": <Car className="text-blue-600 dark:text-blue-400" size={28} />,
-  "CARRIER": (
+
+  "Parents-Future": (
+    <Car className="text-blue-600 dark:text-blue-400" size={28} />
+  ),
+  CARRIER: (
     <ShoppingCart className="text-pink-600 dark:text-pink-400" size={28} />
   ),
   "Education Loan": (
     <Utensils className="text-orange-600 dark:text-orange-400" size={28} />
-  ),"Bossie-Bee Marriage": (
+  ),
+  "Bossie-Bee Marriage": (
     <SquareMenu className="text-purple-600 dark:text-purple-400" size={28} />
   ),
-  
+};
+
+const getGoalIcon = (title: string) => {
+  const exact = iconMap[title];
+  if (exact) return exact;
+
+  const key = title.trim().toLowerCase();
+
+  if (key.includes("marriage") || key.includes("wedding")) {
+    return (
+      <SquareMenu className="text-purple-600 dark:text-purple-400" size={28} />
+    );
+  }
+  if (key.includes("loan") || key.includes("education")) {
+    return (
+      <Utensils className="text-orange-600 dark:text-orange-400" size={28} />
+    );
+  }
+  if (key.includes("car") || key.includes("travel") || key.includes("parent")) {
+    return <Car className="text-blue-600 dark:text-blue-400" size={28} />;
+  }
+  if (key.includes("mac") || key.includes("laptop") || key.includes("tech")) {
+    return <Film className="text-purple-600 dark:text-purple-400" size={28} />;
+  }
+  if (key.includes("shop") || key.includes("fund") || key.includes("career")) {
+    return (
+      <ShoppingCart className="text-green-600 dark:text-green-400" size={28} />
+    );
+  }
+
+  return (
+    <Target className="text-neutral-grey2 dark:text-neutral-grey3" size={28} />
+  );
 };
 
 const GoalsPage = () => {
-  const [goalsData,setGoalsData] = useState<GoalResponse[]>([]);
+  const [goalsData, setGoalsData] = useState<GoalResponse[]>([]);
   const [selectedGoal, setSelectedGoal] = useState<GoalResponse | null>(null);
-const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
-
-  const handleDelete = async(id:string)=>{
+  const handleDelete = async (id: string) => {
     try {
       await delGoal(id);
-      console.log("deleted id === " + id)
-      setGoalsData((prev)=>prev.filter((g)=>g.id!==id));
-    }catch(error){
+      console.log("deleted id === " + id);
+      setGoalsData((prev) => prev.filter((g) => g.id !== id));
+    } catch (error) {
       console.error("cannot delete : " + error);
     }
-  
-  }
+  };
   const handleEdit = (goal: GoalResponse) => {
-  setSelectedGoal(goal);
-  setIsEditOpen(true);
-};
-  useEffect(()=>{
-    const fetchGoals = async()=>{
-      try{
+    setSelectedGoal(goal);
+    setIsEditOpen(true);
+  };
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
         const data = await getgoal();
         setGoalsData(data);
-
+      } catch (error) {
+        console.error("Error fetching goals: ", error);
       }
-      catch(error){
-        console.error("Error fetching goals: ",error);
-      }
-    }
+    };
     fetchGoals();
-  },[])
-console.log(goalsData+ "this is goals data");
+  }, []);
   return (
     <WidgetCard title="All Goals" actionSlot={<AddGoalButton />}>
       {goalsData.map((goal) => (
@@ -136,27 +164,36 @@ console.log(goalsData+ "this is goals data");
           key={goal.id}
           variant="goal"
           title={goal.title}
-           icon={iconMap[goal.title]}
-          progress={{ current: goal.progress_amount, total: goal.target_amount }}
+          icon={getGoalIcon(goal.title)}
+          progress={{
+            current: goal.progress_amount,
+            total: goal.target_amount,
+          }}
           status={goal.status}
-          icon1={<Pen className="w-[15px]" onClick={()=>handleEdit(goal)}/>}
-            icon2={<Trash className="w-[15px]" onClick={()=>handleDelete(goal.id)}/>}
+          icon1={<Pen className="w-[15px]" onClick={() => handleEdit(goal)} />}
+          icon2={
+            <Trash className="w-[15px]" onClick={() => handleDelete(goal.id)} />
+          }
         />
-      ))}{isEditOpen && selectedGoal && (
-  <Modal open={isEditOpen} onClose={() => setIsEditOpen(false)} title="Update Goal" className="p-8">
-    <AddGoalForm
-      goal={selectedGoal}
-      onSuccess={() => {
-        setIsEditOpen(false);
-        setGoalsData((prev) =>
-          prev.map((g) =>
-            g.id === selectedGoal.id ? selectedGoal : g
-          )
-        );
-      }}
-    />
-  </Modal>
-)}
+      ))}
+      {isEditOpen && selectedGoal && (
+        <Modal
+          open={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          title="Update Goal"
+          className="p-8"
+        >
+          <AddGoalForm
+            goal={selectedGoal}
+            onSuccess={() => {
+              setIsEditOpen(false);
+              setGoalsData((prev) =>
+                prev.map((g) => (g.id === selectedGoal.id ? selectedGoal : g)),
+              );
+            }}
+          />
+        </Modal>
+      )}
     </WidgetCard>
   );
 };

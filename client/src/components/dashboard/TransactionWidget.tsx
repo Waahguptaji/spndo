@@ -1,4 +1,4 @@
-import { Car, Film, ShoppingCart, Utensils } from "lucide-react";
+import { Car, Film, ShoppingCart, Utensils, Wallet2 } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import WidgetCard from "./WidgetCard";
 import ListItem from "../ui/ListItem";
@@ -22,6 +22,55 @@ const iconMap: { [key: string]: React.ReactNode } = {
   ),
 };
 
+const getTransactionIcon = (categoryName?: string | null) => {
+  if (!categoryName) {
+    return (
+      <Wallet2
+        className="text-neutral-grey2 dark:text-neutral-grey3"
+        size={28}
+      />
+    );
+  }
+
+  const exact = iconMap[categoryName];
+  if (exact) return exact;
+
+  const key = categoryName.trim().toLowerCase();
+
+  if (
+    key.includes("food") ||
+    key.includes("grocery") ||
+    key.includes("dining")
+  ) {
+    return (
+      <Utensils className="text-orange-600 dark:text-orange-400" size={28} />
+    );
+  }
+  if (
+    key.includes("transport") ||
+    key.includes("travel") ||
+    key.includes("fuel")
+  ) {
+    return <Car className="text-blue-600 dark:text-blue-400" size={28} />;
+  }
+  if (
+    key.includes("movie") ||
+    key.includes("entertain") ||
+    key.includes("ott")
+  ) {
+    return <Film className="text-purple-600 dark:text-purple-400" size={28} />;
+  }
+  if (key.includes("shop")) {
+    return (
+      <ShoppingCart className="text-pink-600 dark:text-pink-400" size={28} />
+    );
+  }
+
+  return (
+    <Wallet2 className="text-neutral-grey2 dark:text-neutral-grey3" size={28} />
+  );
+};
+
 const formatSignedInr = (amount: string, type: "INCOME" | "EXPENSE") => {
   const value = Number(amount || 0);
   const formatted = new Intl.NumberFormat("en-IN", {
@@ -30,12 +79,26 @@ const formatSignedInr = (amount: string, type: "INCOME" | "EXPENSE") => {
   return `${type === "INCOME" ? "+" : "-"}₹${formatted}`;
 };
 
-const TransactionWidget = () => {
+type TransactionWidgetProps = {
+  transactionsData?: Transaction[];
+  loading?: boolean;
+  error?: string | null;
+};
+
+const TransactionWidget = ({
+  transactionsData,
+  loading: externalLoading,
+  error: externalError,
+}: TransactionWidgetProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const useExternalData = Array.isArray(transactionsData);
+
   useEffect(() => {
+    if (useExternalData) return;
+
     const fetchTransactions = async () => {
       try {
         setError(null);
@@ -51,26 +114,39 @@ const TransactionWidget = () => {
     };
 
     fetchTransactions();
-  }, []);
+  }, [useExternalData]);
+
+  const widgetTransactions = useExternalData ? transactionsData : transactions;
+  const widgetLoading = useExternalData ? Boolean(externalLoading) : loading;
+  const widgetError = useExternalData ? (externalError ?? null) : error;
 
   const latest = useMemo(
     () =>
-      [...transactions]
+      [...widgetTransactions]
         .sort(
           (a, b) =>
             new Date(b.occurred_at).getTime() -
             new Date(a.occurred_at).getTime(),
         )
         .slice(0, 5),
-    [transactions],
+    [widgetTransactions],
   );
 
   return (
-    <WidgetCard title="Transaction">
+    <WidgetCard title="Transaction" href="/transactions">
       <div className="space-y-2">
-        {loading ? <p className="text-sm">Loading transactions...</p> : null}
-        {error ? <p className="text-sm text-system-red">{error}</p> : null}
-        {!loading && !error && latest.length === 0 ? (
+        {widgetLoading
+          ? Array.from({ length: 4 }).map((_, idx) => (
+              <div
+                key={`txn-skeleton-${idx}`}
+                className="h-20 rounded-xl border border-neutral-softGrey1 dark:border-neutral-grey1 bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse"
+              />
+            ))
+          : null}
+        {widgetError ? (
+          <p className="text-sm text-system-red">{widgetError}</p>
+        ) : null}
+        {!widgetLoading && !widgetError && latest.length === 0 ? (
           <p className="text-sm text-neutral-grey2 dark:text-neutral-grey3">
             No transactions yet.
           </p>
@@ -80,7 +156,7 @@ const TransactionWidget = () => {
             key={transaction.id}
             variant="transaction"
             title={transaction.title}
-            icon={iconMap[transaction.category?.name ?? ""]}
+            icon={getTransactionIcon(transaction.category?.name)}
             amount={formatSignedInr(transaction.amount, transaction.type)}
             date={new Date(transaction.occurred_at).toLocaleDateString(
               "en-IN",

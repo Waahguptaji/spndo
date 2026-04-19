@@ -1,18 +1,18 @@
-"use client"
-import { Car, Film, ShoppingCart, Utensils,SquareMenu } from "lucide-react";
+"use client";
+import {
+  Car,
+  Film,
+  ShoppingCart,
+  Utensils,
+  SquareMenu,
+  Target,
+} from "lucide-react";
 
 import React from "react";
 import WidgetCard from "./WidgetCard";
 import ListItem from "../ui/ListItem";
-import {getgoal,GoalResponse} from "@/lib/api/goals";
+import { getgoal, GoalResponse } from "@/lib/api/goals";
 import { useState, useEffect } from "react";
-type Goal = {
-  title: string;
-  amount: number; // target amount
-  current: number; // amount saved so far
-  date: string;
-  description: string;
-};
 
 // const goalsData: Goal[] = [
 //   {
@@ -56,52 +56,127 @@ const iconMap: { [key: string]: React.ReactNode } = {
   "Emergency Funds": (
     <ShoppingCart className="text-green-600 dark:text-green-400" size={28} />
   ),
-  "Macbook": (
-    <Film className="text-purple-600 dark:text-purple-400" size={28} />
-  ),
-"Marriage": (
+  Macbook: <Film className="text-purple-600 dark:text-purple-400" size={28} />,
+  Marriage: (
     <SquareMenu className="text-purple-600 dark:text-purple-400" size={28} />
   ),
-  
-  "Parents-Future": <Car className="text-blue-600 dark:text-blue-400" size={28} />,
-  "CARRIER": (
+
+  "Parents-Future": (
+    <Car className="text-blue-600 dark:text-blue-400" size={28} />
+  ),
+  CARRIER: (
     <ShoppingCart className="text-pink-600 dark:text-pink-400" size={28} />
   ),
   "Education Loan": (
     <Utensils className="text-orange-600 dark:text-orange-400" size={28} />
-  ),"Bossie-Bee Marriage": (
+  ),
+  "Bossie-Bee Marriage": (
     <SquareMenu className="text-purple-600 dark:text-purple-400" size={28} />
   ),
-  
 };
 
-const GoalsWidget = () => {
-  const [goalsData,setGoalsData] = useState<GoalResponse[]>([]);
+const getGoalIcon = (title: string) => {
+  const exact = iconMap[title];
+  if (exact) return exact;
 
-  useEffect(()=>{
-    const fetchGoals= async() =>{
-      try{
-      const data = await getgoal();
-      setGoalsData(data);
+  const key = title.trim().toLowerCase();
 
-      }catch(error){
-       console.log("error while fetching the goal data === " + error);
+  if (key.includes("marriage") || key.includes("wedding")) {
+    return (
+      <SquareMenu className="text-purple-600 dark:text-purple-400" size={28} />
+    );
+  }
+  if (key.includes("loan") || key.includes("education")) {
+    return (
+      <Utensils className="text-orange-600 dark:text-orange-400" size={28} />
+    );
+  }
+  if (key.includes("car") || key.includes("travel") || key.includes("parent")) {
+    return <Car className="text-blue-600 dark:text-blue-400" size={28} />;
+  }
+  if (key.includes("mac") || key.includes("laptop") || key.includes("tech")) {
+    return <Film className="text-purple-600 dark:text-purple-400" size={28} />;
+  }
+  if (key.includes("shop") || key.includes("fund") || key.includes("career")) {
+    return (
+      <ShoppingCart className="text-green-600 dark:text-green-400" size={28} />
+    );
+  }
+
+  return (
+    <Target className="text-neutral-grey2 dark:text-neutral-grey3" size={28} />
+  );
+};
+
+type GoalsWidgetProps = {
+  goalsDataProp?: GoalResponse[];
+  loading?: boolean;
+  error?: string | null;
+};
+
+const GoalsWidget = ({
+  goalsDataProp,
+  loading: externalLoading,
+  error: externalError,
+}: GoalsWidgetProps) => {
+  const [goalsData, setGoalsData] = useState<GoalResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const useExternalData = Array.isArray(goalsDataProp);
+
+  useEffect(() => {
+    if (useExternalData) return;
+
+    const fetchGoals = async () => {
+      try {
+        setError(null);
+        const data = await getgoal();
+        setGoalsData(data);
+      } catch (error) {
+        setError(
+          error instanceof Error ? error.message : "Failed to fetch goals",
+        );
+      } finally {
+        setLoading(false);
       }
-
-
-    }
+    };
     fetchGoals();
-  },[])
+  }, [useExternalData]);
+
+  const widgetGoals = useExternalData ? goalsDataProp : goalsData;
+  const widgetLoading = useExternalData ? Boolean(externalLoading) : loading;
+  const widgetError = useExternalData ? (externalError ?? null) : error;
+
   return (
     <WidgetCard title="Goals" href="/goals">
       <div className="space-y-2">
-        {goalsData.map((goal) => (
+        {widgetLoading
+          ? Array.from({ length: 4 }).map((_, idx) => (
+              <div
+                key={`goal-skeleton-${idx}`}
+                className="h-20 rounded-xl border border-neutral-softGrey1 dark:border-neutral-grey1 bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse"
+              />
+            ))
+          : null}
+        {widgetError ? (
+          <p className="text-sm text-system-red">{widgetError}</p>
+        ) : null}
+        {!widgetLoading && !widgetError && widgetGoals.length === 0 ? (
+          <p className="text-sm text-neutral-grey2 dark:text-neutral-grey3">
+            No goals yet.
+          </p>
+        ) : null}
+        {widgetGoals.map((goal) => (
           <ListItem
             key={goal.title}
             variant="goal"
             title={goal.title}
-            icon={iconMap[goal.title]}
-            progress={{ current: goal.progress_amount, total: goal.target_amount }}
+            icon={getGoalIcon(goal.title)}
+            progress={{
+              current: goal.progress_amount,
+              total: goal.target_amount,
+            }}
             status={goal.status}
             icon1=""
             icon2=""

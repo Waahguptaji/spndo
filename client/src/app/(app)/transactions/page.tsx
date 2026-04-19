@@ -12,7 +12,11 @@ import TransactionForm from "@/components/transactions/TransactionForm";
 import Modal from "@/components/ui/Modal";
 import MobileView from "@/components/transactions/MobileView";
 import WebView from "@/components/transactions/WebView";
-import { getTransactions, Transaction } from "@/lib/api/transactions";
+import {
+  deleteTransaction,
+  getTransactions,
+  Transaction,
+} from "@/lib/api/transactions";
 import { getCategories } from "@/lib/api/categories";
 
 type Entry = {
@@ -160,6 +164,15 @@ const Transactions = () => {
   };
 
   const resetColumns = () => setColumns(defaultColumns);
+
+  const handleDeleteTransaction = useCallback(async (id: string) => {
+    try {
+      await deleteTransaction(id);
+      setTransactions((prev) => prev.filter((tx) => tx.id !== id));
+    } catch (err) {
+      console.error("Error deleting transaction:", err);
+    }
+  }, []);
 
   const isIncomeTransaction = (amount: string) => amount.startsWith("+");
 
@@ -317,7 +330,14 @@ const Transactions = () => {
   }, [transactions]);
 
   if (loading) {
-    return <div className="p-6 text-center">Loading transactions...</div>;
+    return (
+      <div className="p-6 space-y-4">
+        <div className="h-24 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+      </div>
+    );
   }
 
   return (
@@ -360,6 +380,7 @@ const Transactions = () => {
         <WebView
           active={active}
           handleAdd={handleAdd}
+          onDeleteTransaction={handleDeleteTransaction}
           query={query}
           setQuery={setQuery}
           filterOpen={filterOpen}

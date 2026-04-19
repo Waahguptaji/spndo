@@ -48,6 +48,7 @@ const PreferenceItem = ({
 
 const PreferencesPage = () => {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
     id: string;
     email: string;
@@ -88,6 +89,8 @@ const PreferencesPage = () => {
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch user");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -137,6 +140,25 @@ const PreferencesPage = () => {
 
   const handleLogout = () => signOut({ callbackUrl: "/login" });
 
+  if (loading) {
+    return (
+      <div className="p-4 md:p-6 lg:p-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 md:mb-0">
+        <div className="md:col-span-1">
+          <div className="bg-neutral-white dark:bg-neutral-dark2 p-6 rounded-xl shadow-md flex flex-col items-center text-center gap-4">
+            <div className="w-24 h-24 rounded-full bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+            <div className="h-4 w-40 rounded bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+            <div className="h-4 w-32 rounded bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          </div>
+        </div>
+        <div className="md:col-span-2 space-y-4">
+          <div className="h-24 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          <div className="h-24 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          <div className="h-16 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-6 lg:p-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 md:mb-0">
       {/* Profile Card */}
@@ -154,7 +176,7 @@ const PreferencesPage = () => {
             <CircleUserRound className="w-24 h-24 mb-4 text-neutral-grey2 dark:text-neutral-grey3 border-2 border-primary-brand rounded-full" />
           )}
           <h2 className="text-xl font-bold text-neutral-dark1 dark:text-neutral-white">
-            {user?.name || user?.email?.split("@")[0] || "Loading..."}
+            {user?.name || user?.email?.split("@")[0] || "User"}
           </h2>
           <p className="text-sm text-neutral-grey2 dark:text-neutral-grey3 mt-1">
             {user?.email ?? ""}
