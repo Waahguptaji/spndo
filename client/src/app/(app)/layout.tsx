@@ -1,16 +1,14 @@
 "use client";
 
-import { SessionProvider } from "next-auth/react";
 import Navigation from "@/components/nav/Navigation";
+import AuthGuard from "@/components/Authguard";
 
 export default function AppLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <SessionProvider>
+    <AuthGuard>
       <Navigation>{children}</Navigation>
-    </SessionProvider>
+    </AuthGuard>
   );
 }
-
-

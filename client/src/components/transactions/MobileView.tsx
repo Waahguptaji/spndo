@@ -10,26 +10,54 @@ import CircularPulseStat from "@/components/ui/CircularPulseStat";
 type MobileViewProps = {
   active: "income" | "expense" | null;
   handleAdd: (type: "income" | "expense") => void;
+  summary: {
+    totalSpent: number;
+    totalIncome: number;
+    budgetUsed: number;
+    safeToSpendPerDay: number;
+    spentPercentage: number;
+  };
+  recentTransactions: Array<{
+    id: string;
+    title: string;
+    amount: string;
+    description?: string;
+  }>;
 };
 
-const MobileView: React.FC<MobileViewProps> = ({ active, handleAdd }) => {
+const MobileView: React.FC<MobileViewProps> = ({
+  active,
+  handleAdd,
+  summary,
+  recentTransactions,
+}) => {
   const router = useRouter();
+
+  const formatCompact = (value: number) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(value);
+
+  const pulseSize = summary.totalSpent >= 10000000 ? "lg" : "md";
+  const pulseVariant = summary.spentPercentage > 100 ? "expense" : "savings";
 
   return (
     <div className="px-4 pt-4 pb-24 space-y-8">
       <CircularPulseStat
-        amount={1600}
-        percentage={60}
+        amount={summary.totalSpent}
+        percentage={summary.spentPercentage}
         label="You have spent total"
-        variant="savings"
-        size="md"
+        variant={pulseVariant}
+        size={pulseSize}
       />
 
       <div className="flex items-center justify-around gap-4 text-sm">
         <span className="flex items-center">
           <div className="flex flex-col">
             <div className="text-muted-foreground">Income</div>
-            <div>23666</div>
+            <div>{formatCompact(summary.totalIncome)}</div>
           </div>
         </span>
 
@@ -42,7 +70,7 @@ const MobileView: React.FC<MobileViewProps> = ({ active, handleAdd }) => {
         <span className="flex items-center">
           <div className="flex flex-col">
             <div className="text-muted-foreground">Budget</div>
-            <div>5000</div>
+            <div>{formatCompact(summary.budgetUsed)}</div>
           </div>
         </span>
 
@@ -55,7 +83,7 @@ const MobileView: React.FC<MobileViewProps> = ({ active, handleAdd }) => {
         <span className="flex items-center">
           <div className="flex flex-col">
             <div>Safe to Spend</div>
-            <div>196/day</div>
+            <div>{formatCompact(summary.safeToSpendPerDay)}/day</div>
           </div>
         </span>
       </div>
@@ -78,27 +106,25 @@ const MobileView: React.FC<MobileViewProps> = ({ active, handleAdd }) => {
       </div>
 
       <WidgetCard title="Recent Transactions">
-        <ListItem
-          variant="transaction"
-          title="Salary"
-          amount="+$5000"
-          icon={<Wallet2 />}
-          description="Monthly Salary"
-        />
-        <ListItem
-          variant="transaction"
-          title="Cashback"
-          amount="+$500"
-          icon={<Wallet2 />}
-          description="Cash"
-        />
-        <ListItem
-          variant="transaction"
-          title="Coffee"
-          amount="-$500"
-          icon={<Wallet2 />}
-          description="Coffee"
-        />
+        {recentTransactions.length === 0 ? (
+          <div className="text-sm text-muted-foreground p-2">
+            No transactions yet.
+          </div>
+        ) : (
+          recentTransactions.map((transaction) => (
+            <ListItem
+              key={transaction.id}
+              variant="transaction"
+              title={transaction.title}
+              amount={transaction.amount}
+              icon={<Wallet2 />}
+              description={transaction.description}
+              status=""
+              icon1={null}
+              icon2={null}
+            />
+          ))
+        )}
         <div
           className="w-fit ml-auto flex items-center gap-2 text-sm text-muted-foreground mt-4 cursor-pointer hover:underline transition-transform duration-450 hover:scale-105"
           onClick={() => router.push("/transactions/entries")}

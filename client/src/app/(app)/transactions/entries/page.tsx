@@ -1,8 +1,21 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect } from "react";
 import ListItem from "@/components/ui/ListItem";
-import { Wallet2 } from "lucide-react";
+import { Trash2, Wallet2 } from "lucide-react";
+import { Transaction } from "@/lib/api/transactions";
+import { deleteTransaction, getTransactions } from "@/lib/api/transactions";
+
+const formatSignedInrAmount = (
+  amount: string | number,
+  type: "INCOME" | "EXPENSE",
+) => {
+  const value = Number(amount || 0);
+  const formatted = new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 0,
+  }).format(value);
+  return `${type === "INCOME" ? "+" : "-"}₹${formatted}`;
+};
 
 type Entry = {
   id: string;
@@ -13,106 +26,51 @@ type Entry = {
   category: string;
 };
 
-// Simulate a larger dataset (replace with API call)
-const baseEntries: Entry[] = [
-  {
-    id: "1",
-    title: "Coffee",
-    description: "Starbucks",
-    date: "2025-08-27",
-    amount: "-$5.40",
-    category: "Food",
-  },
-  {
-    id: "2",
-    title: "Salary",
-    description: "August Payroll",
-    date: "2025-08-27",
-    amount: "+$3,200.00",
-    category: "Income",
-  },
-  {
-    id: "3",
-    title: "Groceries",
-    description: "Whole Foods",
-    date: "2025-08-26",
-    amount: "-$86.22",
-    category: "Food",
-  },
-  {
-    id: "4",
-    title: "Gym Membership",
-    description: "Monthly",
-    date: "2025-08-26",
-    amount: "-$40.00",
-    category: "Health",
-  },
-  {
-    id: "5",
-    title: "Stocks Dividend",
-    description: "ETF payout",
-    date: "2025-08-25",
-    amount: "+$18.70",
-    category: "Income",
-  },
-];
-
-// Generate more (mock)
-function generateMock(size = 150): Entry[] {
-  const cats = ["Food", "Income", "Health", "Transport", "Bills"];
-  const out: Entry[] = [];
-  for (let i = 0; i < size; i++) {
-    const base = baseEntries[i % baseEntries.length];
-    const d = new Date(base.date);
-    d.setDate(d.getDate() - Math.floor(i / 5));
-    out.push({
-      ...base,
-      id: `${i + 1}`,
-      title: `${base.title} ${i + 1}`,
-      date: d.toISOString().slice(0, 10),
-      category: cats[i % cats.length],
-      amount:
-        i % 7 === 0
-          ? `+$${(50 + (i % 9) * 13).toFixed(2)}`
-          : `-$${(5 + (i % 17) * 3.2).toFixed(2)}`,
-    });
-  }
-  return out;
-}
-
-const allEntries = generateMock();
-
 export default function EntriesPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"all" | string>("all");
-  const [visibleCount, setVisibleCount] = useState(30); // first batch
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const pageSize = 30;
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const res = await getTransactions();
+        const data = res.transactions ?? [];
+        setTransactions(data);
+      } catch (err) {
+        console.error("Error fetching transactions:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, []);
+
+  const entries = useMemo(() => {
+    return transactions.map((t) => ({
+      id: t.id,
+      title: t.title,
+      description: t.note ?? undefined,
+      date: t.occurred_at,
+      category: t.category?.name ?? "Other",
+      amount: formatSignedInrAmount(t.amount, t.type),
+    }));
+  }, [transactions]);
 
   // Filter
   const filtered = useMemo(() => {
     const q = query.toLowerCase();
-    return allEntries.filter(
+    return entries.filter(
       (e) =>
         e.title.toLowerCase().includes(q) &&
-        (category === "all" || e.category === category)
+        (category === "all" || e.category === category),
     );
-  }, [query, category]);
+  }, [entries, query, category]);
 
   // Slice according to visibleCount
-  const visible = useMemo(
-    () => filtered.slice(0, visibleCount),
-    [filtered, visibleCount]
-  );
-
-  useEffect(() => {
-    setVisibleCount(30);
-    setHasMore(true);
-  }, [filtered.length, query, category]);
+  const visible = filtered;
 
   const grouped = useMemo(() => {
     const map: Record<string, Entry[]> = {};
@@ -128,37 +86,39 @@ export default function EntriesPage() {
       }));
   }, [visible]);
 
-  const loadMore = useCallback(() => {
-    if (isLoadingMore || !hasMore) return;
-    setIsLoadingMore(true);
-    setTimeout(() => {
-      setVisibleCount((prev) => Math.min(prev + pageSize, filtered.length));
-      setIsLoadingMore(false);
-      setHasMore(visibleCount + pageSize < filtered.length);
-    }, 500); // Simulate loading delay
-  }, [filtered.length, hasMore, isLoadingMore, visibleCount, pageSize]);
-
-  useEffect(() => {
-    if (!sentinelRef.current) return;
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMore();
-        }
-      },
-      { threshold: 1.0 }
-    );
-    observerRef.current.observe(sentinelRef.current);
-    return () => {
-      if (observerRef.current) observerRef.current.disconnect();
-    };
-  }, [loadMore, hasMore, grouped]);
-
   const categories = useMemo(
-    () => ["all", ...Array.from(new Set(allEntries.map((e) => e.category)))],
-    []
+    () => ["all", ...Array.from(new Set(entries.map((e) => e.category)))],
+    [entries],
   );
 
+  const handleDelete = async (id: string) => {
+    const confirmed = window.confirm(
+      "Delete this transaction? This action cannot be undone.",
+    );
+    if (!confirmed) return;
+
+    try {
+      setDeletingId(id);
+      await deleteTransaction(id);
+      setTransactions((prev) => prev.filter((tx) => tx.id !== id));
+    } catch (err) {
+      console.error("Error deleting transaction:", err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-4 py-4">
+        <div className="h-10 rounded-md bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-10 rounded-md bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+      </div>
+    );
+  }
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
@@ -187,26 +147,39 @@ export default function EntriesPage() {
         <section key={group.date} className="space-y-3">
           <div className="space-y-3">
             {group.items.map((e) => (
-              <ListItem
-                key={e.id}
-                variant="transaction"
-                icon={<Wallet2 className="h-5 w-5" />}
-                title={e.title}
-                description={e.description}
-                date={new Date(e.date).toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-                amount={e.amount}
-              />
+              <div key={e.id} className="flex items-center gap-2">
+                <div className="flex-1">
+                  <ListItem
+                    variant="transaction"
+                    icon={<Wallet2 className="h-5 w-5" />}
+                    title={e.title}
+                    description={e.description}
+                    date={new Date(e.date).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                    amount={e.amount}
+                    status=""
+                    icon1={null}
+                    icon2={null}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(e.id)}
+                  aria-label="Delete transaction"
+                  disabled={deletingId === e.id}
+                  className="h-10 w-10 rounded-lg border border-neutral-softGrey2 dark:border-neutral-grey1 text-neutral-grey2 dark:text-neutral-grey3 hover:text-system-red hover:border-system-red disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
             ))}
           </div>
         </section>
       ))}
 
-      {isLoadingMore && <div className="text-center">Loading more...</div>}
-      <div ref={sentinelRef} className="h-10"></div>
       {/* </WidgetCard> */}
     </div>
   );

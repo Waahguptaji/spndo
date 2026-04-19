@@ -1,12 +1,20 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
-import { User, Shield, Bell, LogOut, ChevronRight, CircleUserRound } from "lucide-react";
+import {
+  User,
+  Shield,
+  Bell,
+  LogOut,
+  ChevronRight,
+  CircleUserRound,
+} from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import Modal from "@/components/ui/Modal"; // ✅ make sure your Modal file is here
+import { getMe, updateMe } from "@/lib/api/user";
 
 const PreferenceItem = ({
   icon,
@@ -40,6 +48,7 @@ const PreferenceItem = ({
 
 const PreferencesPage = () => {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
     id: string;
     email: string;
@@ -52,6 +61,8 @@ const PreferencesPage = () => {
   const [form, setForm] = useState({ name: "", phone: "", image: "" });
 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -59,19 +70,27 @@ const PreferencesPage = () => {
   });
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) return;
-
     const fetchUser = async () => {
-      const res = await fetch(`/api/user?id=${userId}`);
-      const data = await res.json();
-      if (data.success) {
-        setUser(data.data);
-        setForm({
-          name: data.data.name || "",
-          phone: data.data.phone || "",
-          image: data.data.image || ""
+      try {
+        setError(null);
+        const data = await getMe();
+        const profileData = data.profile_data ?? {};
+        setUser({
+          id: data.id,
+          email: data.email,
+          name: profileData.name ?? "",
+          phone: data.phone ?? "",
+          image: profileData.image ?? "",
         });
+        setForm({
+          name: profileData.name ?? "",
+          phone: data.phone ?? "",
+          image: profileData.image ?? "",
+        });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch user");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -80,52 +99,65 @@ const PreferencesPage = () => {
 
   const handleUpdate = async () => {
     if (!user) return;
-    const res = await fetch("/api/user", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: user.id, ...form }),
-    });
+    try {
+      setIsUpdating(true);
+      setError(null);
+      await updateMe({
+        phone: form.phone,
+        profile_data: {
+          name: form.name,
+          image: form.image,
+        },
+      });
 
-    const data = await res.json();
-    if (data.success) {
-      setUser(data.data);
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              name: form.name,
+              phone: form.phone,
+              image: form.image,
+            }
+          : prev,
+      );
       setShowModal(false);
-    } else {
-      alert(data.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update profile");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const handlePasswordUpdate = async () => {
-  if (!user) return;
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      alert("New password and confirmation do not match!");
+      return;
+    }
 
-  if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-    alert("New password and confirmation do not match!");
-    return;
-  }
-
-  const res = await fetch("/api/user/password", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      id: user.id,
-      currentPassword: passwordForm.currentPassword,
-      newPassword: passwordForm.newPassword,
-    }),
-  });
-
-  const data = await res.json();
-  if (data.success) {
-    alert("Password updated successfully! Please login again.");
+    alert("Password update API is not available yet on backend.");
     setShowPasswordModal(false);
-    setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    signOut({ callbackUrl: "/login" }); // ✅ log out immediately
-  } else {
-    alert(data.message);
-  }
-};
-
+  };
 
   const handleLogout = () => signOut({ callbackUrl: "/login" });
+
+  if (loading) {
+    return (
+      <div className="p-4 md:p-6 lg:p-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 md:mb-0">
+        <div className="md:col-span-1">
+          <div className="bg-neutral-white dark:bg-neutral-dark2 p-6 rounded-xl shadow-md flex flex-col items-center text-center gap-4">
+            <div className="w-24 h-24 rounded-full bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+            <div className="h-4 w-40 rounded bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+            <div className="h-4 w-32 rounded bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          </div>
+        </div>
+        <div className="md:col-span-2 space-y-4">
+          <div className="h-24 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          <div className="h-24 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          <div className="h-16 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6 lg:p-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 md:mb-0">
@@ -144,7 +176,7 @@ const PreferencesPage = () => {
             <CircleUserRound className="w-24 h-24 mb-4 text-neutral-grey2 dark:text-neutral-grey3 border-2 border-primary-brand rounded-full" />
           )}
           <h2 className="text-xl font-bold text-neutral-dark1 dark:text-neutral-white">
-            {user?.name || user?.email?.split("@")[0] || "Loading..."}
+            {user?.name || user?.email?.split("@")[0] || "User"}
           </h2>
           <p className="text-sm text-neutral-grey2 dark:text-neutral-grey3 mt-1">
             {user?.email ?? ""}
@@ -163,6 +195,8 @@ const PreferencesPage = () => {
 
       {/* Right column */}
       <div className="md:col-span-2 space-y-8">
+        {error ? <p className="text-system-red text-sm px-2">{error}</p> : null}
+
         <div className="bg-neutral-white dark:bg-neutral-dark2 p-4 rounded-xl shadow-md">
           <h3 className="font-bold text-lg text-neutral-dark1 dark:text-neutral-white px-4 pb-2">
             My Account
@@ -231,9 +265,10 @@ const PreferencesPage = () => {
               </button>
               <button
                 onClick={handleUpdate}
+                disabled={isUpdating}
                 className="px-4 py-2 rounded bg-primary-brand text-white hover:bg-primary-brand/80"
               >
-                Save
+                {isUpdating ? "Saving..." : "Save"}
               </button>
             </div>
           </div>
@@ -242,7 +277,7 @@ const PreferencesPage = () => {
 
       {/* ✅ Change Password Modal using reusable Modal */}
       <Modal
-      className="p-6"
+        className="p-6"
         open={showPasswordModal}
         onClose={() => setShowPasswordModal(false)}
         title="Change Password"
@@ -269,7 +304,10 @@ const PreferencesPage = () => {
             placeholder="Current Password"
             value={passwordForm.currentPassword}
             onChange={(e) =>
-              setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
+              setPasswordForm({
+                ...passwordForm,
+                currentPassword: e.target.value,
+              })
             }
             className="w-full p-2 border rounded"
           />
@@ -287,7 +325,10 @@ const PreferencesPage = () => {
             placeholder="Retype New Password"
             value={passwordForm.confirmPassword}
             onChange={(e) =>
-              setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
+              setPasswordForm({
+                ...passwordForm,
+                confirmPassword: e.target.value,
+              })
             }
             className="w-full p-2 border rounded"
           />

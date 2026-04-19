@@ -58,7 +58,11 @@ const variantMap: Record<
 
 function formatCurrency(n: number) {
   try {
-    return n.toLocaleString("en-IN", { style: "currency", currency: "INR" });
+    return n.toLocaleString("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    });
   } catch {
     return `₹${n.toLocaleString("en-IN")}`;
   }
@@ -86,13 +90,26 @@ const CircularPulseStat: React.FC<Props> = ({
     return () => controls.stop();
   }, [amount]);
 
-  const { r, circumference, dashOffset } = useMemo(() => {
-    const r = ps.core / 2 - ps.ringStroke / 2; // radius inside the core circle
-    const circumference = 2 * Math.PI * r;
-    const clamped = Math.max(0, Math.min(percentage, 100));
-    const dashOffset = circumference * (1 - clamped / 100);
-    return { r, circumference, dashOffset };
-  }, [ps.core, ps.ringStroke, percentage]);
+  const { r, circumference, dashOffset, ringPercentage, labelPercentage } =
+    useMemo(() => {
+      const r = ps.core / 2 - ps.ringStroke / 2; // radius inside the core circle
+      const circumference = 2 * Math.PI * r;
+      const safe = Number.isFinite(percentage) ? Math.max(0, percentage) : 0;
+      const ringPercentage = Math.min(safe, 100);
+      const dashOffset = circumference * (1 - ringPercentage / 100);
+      return {
+        r,
+        circumference,
+        dashOffset,
+        ringPercentage,
+        labelPercentage: safe,
+      };
+    }, [ps.core, ps.ringStroke, percentage]);
+
+  const amountText = formatCurrency(Math.round(displayAmount));
+  const amountLen = amountText.length;
+  const amountSizeClass =
+    amountLen > 14 ? "text-xs" : amountLen > 11 ? "text-sm" : cs.amount;
 
   return (
     <div className={clsx("flex flex-col items-center gap-3", className)}>
@@ -104,7 +121,7 @@ const CircularPulseStat: React.FC<Props> = ({
             key={i}
             className={clsx(
               "absolute inset-0 rounded-full border-4",
-              v.waveBorder
+              v.waveBorder,
             )}
             // Start invisible; fade in a bit, then fade out
             initial={{ scale: 0.8, opacity: 0 }}
@@ -126,7 +143,7 @@ const CircularPulseStat: React.FC<Props> = ({
             "absolute inset-1 m-auto rounded-full flex items-center justify-center shadow-lg",
             "text-center select-none",
             cs.core,
-            v.coreBg
+            v.coreBg,
           )}
           animate={{ scale: [1, 1.03, 1] }}
           transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
@@ -163,9 +180,16 @@ const CircularPulseStat: React.FC<Props> = ({
             />
           </svg>
 
-          <div className="flex flex-col items-center leading-none">
-            <div className={clsx("font-bold", cs.amount, v.amountText)}>
-              {formatCurrency(Math.round(displayAmount))}
+          <div className="flex flex-col items-center leading-none max-w-[88%]">
+            <div
+              className={clsx(
+                "font-bold whitespace-nowrap overflow-hidden text-ellipsis",
+                amountSizeClass,
+                v.amountText,
+              )}
+              title={amountText}
+            >
+              {amountText}
             </div>
           </div>
         </motion.div>
@@ -180,7 +204,11 @@ const CircularPulseStat: React.FC<Props> = ({
         ) : null}
         {typeof percentage === "number" ? (
           <p className="text-xs text-neutral-grey2 dark:text-neutral-grey3 mt-1">
-            {Math.max(0, Math.min(percentage, 100))}% of your budget
+            {labelPercentage.toFixed(labelPercentage >= 100 ? 0 : 1)}% of your
+            budget
+            {labelPercentage > 100
+              ? ` (${(labelPercentage - ringPercentage).toFixed(0)}% over)`
+              : ""}
           </p>
         ) : null}
       </div>

@@ -1,38 +1,86 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import FormInput from "../ui/FormInput";
 import Button from "../ui/Button";
 import Calendar from "../ui/calendar";
 import Modal from "../ui/Modal";
+import { addGoal, updateGoal } from "@/lib/api/goals";
+import { GoalResponse } from "@/lib/api/goals";
 
+type Props = {
+  goal?: GoalResponse;
+  onSuccess?: (updatedGoal?: GoalResponse) => void;
+};
+type GoalStatus = "active" | "completed" | "cancelled" | "paused";
 const contributionOptions = [
   { value: "daily", label: "Daily" },
   { value: "weekly", label: "Weekly" },
   { value: "monthly", label: "Monthly" },
   { value: "yearly", label: "Yearly" },
 ];
+const goalEnum: { value: GoalStatus; label: string }[] = [
+  { value: "active", label: "Active" },
+  { value: "completed", label: "Completed" },
+  { value: "paused", label: "Paused" },
+  { value: "cancelled", label: "Cancelled" },
+];
 
-function formatAmountInput(v: string) {
-  const digits = v.replace(/[^\d]/g, "");
-  if (!digits) return "";
-  return Number(digits).toLocaleString("en-IN");
+function formatAmountInput(v: string): number {
+  const digits = v.replace(/[^\d.]/g, "");
+  if (!digits) return 0;
+  return Number(digits);
 }
 
-const AddGoalForm = () => {
-  const [title, setTitle] = useState("");
-  const [amount, setAmount] = useState("");
-  const [contribution, setContribution] = useState<string | null>("yearly");
-  const [deadline, setDeadline] = useState<Date | null>(null);
+const AddGoalForm = ({ goal, onSuccess }: Props) => {
+  const [title, setTitle] = useState(goal?.title || "");
+  const [amount, setAmount] = useState<number>(goal?.target_amount || 0);
+  const [progressAmount, setProgressAmount] = useState<number>(
+    goal?.progress_amount || 0,
+  );
+  const [contribution, setContribution] = useState("yearly");
+  const [status, setStatus] = useState<GoalStatus>(goal?.status || "active");
+  const [deadline, setDeadline] = useState<Date | null>(goal?.deadline || null);
   const [openCal, setOpenCal] = useState(false);
 
+  useEffect(() => {
+    if (goal) {
+      setTitle(goal.title);
+      setAmount(goal.target_amount);
+      setProgressAmount(goal.progress_amount);
+      setStatus(goal.status as GoalStatus);
+      setDeadline(goal.deadline ? new Date(goal.deadline) : null);
+    }
+  }, [goal]);
   const contributionLabel =
     contributionOptions.find((o) => o.value === contribution)?.label ?? "";
+  const statusEnum = goalEnum.find((o) => o.value === status)?.label ?? "";
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!deadline) return;
     // submit values: { title, amount, contribution, deadline }
+    const payload = {
+      title: title,
+      target_amount: Number(amount),
+      deadline: deadline.toISOString(),
+      status: status,
+      progress_amount: Number(progressAmount),
+    };
+    try {
+      let updatedGoal;
+
+      if (goal) {
+        updatedGoal = await updateGoal(goal.id, payload);
+      } else {
+        updatedGoal = await addGoal(payload);
+      }
+
+      onSuccess?.(updatedGoal);
+    } catch (err) {
+      console.error("Error saving goal:", err);
+    }
   }
 
   return (
@@ -53,6 +101,14 @@ const AddGoalForm = () => {
           inputMode="numeric"
           suffixText="$"
         />
+        <FormInput
+          label="Progress Amount"
+          placeholder="0"
+          value={progressAmount}
+          onChange={(e) => setProgressAmount(formatAmountInput(e.target.value))}
+          inputMode="numeric"
+          suffixText="$"
+        />
 
         <FormInput
           label="Contribution Type"
@@ -62,6 +118,15 @@ const AddGoalForm = () => {
           hasDropdown
           dropdownOptions={contributionOptions}
           onDropdownSelect={(val) => setContribution(val)}
+        />
+        <FormInput
+          label="Status"
+          placeholder="Select"
+          value={statusEnum}
+          readOnly
+          hasDropdown
+          dropdownOptions={goalEnum}
+          onDropdownSelect={(val) => setStatus(val as GoalStatus)}
         />
 
         {/* Deadline with Calendar in Modal */}
@@ -93,7 +158,7 @@ const AddGoalForm = () => {
       </div>
 
       <Button type="submit" className="w-full">
-        ADD GOAL
+        {goal ? "Upadate goal" : "Add Goal"}
       </Button>
     </form>
   );

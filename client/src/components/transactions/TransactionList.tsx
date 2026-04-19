@@ -75,7 +75,12 @@ const TransactionList: React.FC<TransactionListProps> = ({
         </section>
       ))}
 
-      {isLoadingMore && <div className="text-center p-4">Loading more...</div>}
+      {isLoadingMore ? (
+        <div className="space-y-2 p-2">
+          <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        </div>
+      ) : null}
       <div ref={sentinelRef} className="h-10"></div>
     </>
   );

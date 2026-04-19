@@ -3,14 +3,22 @@
 import { useState } from "react";
 import { Pie, PieChart, ResponsiveContainer, Sector, Cell } from "recharts";
 import WidgetCard from "./WidgetCard";
+import { MonthlySummary } from "@/lib/api/aggregate";
 
 const COLORS = ["#C2FF00", "#A6DB00", "#374151", "#9CA3AF"];
 
-const data = [
-  { name: "Income", value: 1452 },
-  { name: "Expenses", value: 573 },
-  { name: "Savings", value: 878 },
-];
+type Props = {
+  summary: MonthlySummary | null;
+  loading?: boolean;
+  error?: string | null;
+};
+
+const formatInr = (value: number) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value);
 
 const renderActiveShape = (props: any) => {
   const {
@@ -44,7 +52,7 @@ const renderActiveShape = (props: any) => {
         textAnchor="middle"
         className="fill-neutral-grey2 dark:fill-neutral-grey3 text-sm"
       >
-        {`$${value.toLocaleString()}`}
+        {formatInr(Number(value || 0))}
       </text>
 
       <Sector
@@ -69,15 +77,38 @@ const renderActiveShape = (props: any) => {
   );
 };
 
-export default function MonthlyOverviewBudget() {
+export default function MonthlyOverviewBudget({
+  summary,
+  loading = false,
+  error = null,
+}: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const chartData = summary?.byCategory?.length
+    ? summary.byCategory.map((entry) => ({
+        name: entry.category,
+        value: Number(entry.amount || 0),
+      }))
+    : [
+        { name: "Income", value: Number(summary?.income ?? 0) },
+        { name: "Expenses", value: Number(summary?.expense ?? 0) },
+        { name: "Balance", value: Math.max(0, Number(summary?.net ?? 0)) },
+      ];
 
   const onPieEnter = (_: any, index: number) => {
     setActiveIndex(index);
   };
 
   return (
-    <WidgetCard title="Monthly Overview Budget">
+    <WidgetCard title="Monthly Overview">
+      {loading ? (
+        <div className="space-y-3">
+          <div className="h-64 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          <div className="h-4 w-3/4 mx-auto rounded bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        </div>
+      ) : null}
+      {error ? <p className="text-sm text-system-red">{error}</p> : null}
+
       <div className="w-full h-64">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -85,7 +116,7 @@ export default function MonthlyOverviewBudget() {
               {...{
                 activeIndex,
                 activeShape: renderActiveShape,
-                data,
+                data: chartData,
                 cx: "50%",
                 cy: "50%",
                 innerRadius: 60,
@@ -94,7 +125,7 @@ export default function MonthlyOverviewBudget() {
                 onMouseEnter: onPieEnter,
               }}
             >
-              {data.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={COLORS[index % COLORS.length]}
@@ -105,7 +136,7 @@ export default function MonthlyOverviewBudget() {
         </ResponsiveContainer>
       </div>
       <div className="mt-4 flex justify-center gap-4 text-xs">
-        {data.map((entry, index) => (
+        {chartData.map((entry, index) => (
           <div key={`legend-${index}`} className="flex items-center gap-2">
             <div
               className="w-3 h-3 rounded-full"

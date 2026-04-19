@@ -2,13 +2,22 @@ import { prisma } from "../lib/prisma";
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { userSchema, profileDataSchema } from "../schemas/user";
 
+type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: JsonValue }
+  | JsonValue[];
+
 export const userRoutes: FastifyPluginAsync = async (fastify, _options) => {
   fastify.get(
     "/me",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { preHandler: [(fastify as any).authenticate] },
     async (request: FastifyRequest, reply) => {
       const user = await prisma.user.findUnique({
-        where: { id: (request as any).user.userId },
+        where: { id: request.user.userId },
         select: {
           id: true,
           email: true,
@@ -30,30 +39,42 @@ export const userRoutes: FastifyPluginAsync = async (fastify, _options) => {
       }
 
       reply.send(user);
-    }
+    },
   );
 };
 export const userRoute: FastifyPluginAsync = async (fastify, _options) => {
   fastify.patch(
     "/me",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { preHandler: [(fastify as any).authenticate] },
     async (
       request: FastifyRequest<{
-        Body: { email?: string; phone?: string; profile_data?: JSON };
+        Body: {
+          email?: string;
+          phone?: string;
+          profile_data?: JsonValue;
+        };
       }>,
-      reply
+      reply,
     ) => {
-      console.log("request.user.userId:", (request as any).user.userId);
       const { email, phone, profile_data } = request.body;
 
-      const user = await prisma.user.update({
-        where: { id: (request as any).user.userId.toString() },
+      const data: {
+        email?: string;
+        phone?: string;
+        profile_data?: JsonValue | null;
+      } = {
+        email,
+        phone,
+      };
 
-        data: {
-          email,
-          phone,
-          profile_data: profile_data ? (profile_data as any) : null,
-        },
+      if (profile_data !== undefined) {
+        data.profile_data = profile_data;
+      }
+
+      const user = await prisma.user.update({
+        where: { id: request.user.userId.toString() },
+        data: data as never,
       });
 
       const validation = profileDataSchema.safeParse(request.body);
@@ -65,6 +86,6 @@ export const userRoute: FastifyPluginAsync = async (fastify, _options) => {
       } else {
         reply.send("db updated successfully!" + JSON.stringify(user));
       }
-    }
+    },
   );
 };
