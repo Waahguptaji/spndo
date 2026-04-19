@@ -136,7 +136,6 @@ const GoalsPage = () => {
   const handleDelete = async (id: string) => {
     try {
       await delGoal(id);
-      console.log("deleted id === " + id);
       setGoalsData((prev) => prev.filter((g) => g.id !== id));
     } catch (error) {
       console.error("cannot delete : " + error);

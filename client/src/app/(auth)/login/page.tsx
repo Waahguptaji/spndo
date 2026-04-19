@@ -30,7 +30,6 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const res = await login(formData);
-      console.log("response", res);
       localStorage.setItem("accessToken", res.accessToken);
       localStorage.setItem("refreshToken", res.refreshToken);
       localStorage.setItem("user", JSON.stringify(res.user));

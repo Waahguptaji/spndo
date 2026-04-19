@@ -126,7 +126,6 @@ function TransactionForm({
 
     try {
       setIsSubmitting(true);
-      console.log({ kind, title, amount, categoryId: selectedId });
       await createTransaction({
         title,
         amount: parseFloat(amount),

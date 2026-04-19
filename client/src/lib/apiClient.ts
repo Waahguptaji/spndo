@@ -109,7 +109,6 @@ export default async function apiFetch(
       } else if (data?.message) {
         errorMsg = data.message;
       }
-      console.log(data);
       throw new Error(errorMsg);
     }
 
