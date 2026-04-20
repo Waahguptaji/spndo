@@ -1,6 +1,6 @@
 import "dotenv/config";
-import { buildApp } from "./app";
-import { env } from "./config/env";
+import { buildApp } from "./app.js";
+import { env } from "./config/env.js";
 
 async function main() {
   const app = buildApp();
