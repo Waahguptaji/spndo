@@ -12,6 +12,12 @@ import TransactionForm from "@/components/transactions/TransactionForm";
 import Modal from "@/components/ui/Modal";
 import MobileView from "@/components/transactions/MobileView";
 import WebView from "@/components/transactions/WebView";
+import {
+  deleteTransaction,
+  getTransactions,
+  Transaction,
+} from "@/lib/api/transactions";
+import { getCategories } from "@/lib/api/categories";
 
 type Entry = {
   id: string;
@@ -22,74 +28,10 @@ type Entry = {
   category: string;
 };
 
-// Sample data (replace with API call)
-const baseEntries: Entry[] = [
-  {
-    id: "1",
-    title: "Coffee",
-    description: "Starbucks",
-    date: "2025-08-27",
-    amount: "-$5.40",
-    category: "Food",
-  },
-  {
-    id: "2",
-    title: "Salary",
-    description: "August Payroll",
-    date: "2025-08-27",
-    amount: "+$3,200.00",
-    category: "Income",
-  },
-  {
-    id: "3",
-    title: "Groceries",
-    description: "Whole Foods",
-    date: "2025-08-26",
-    amount: "-$86.22",
-    category: "Food",
-  },
-  {
-    id: "4",
-    title: "Gym Membership",
-    description: "Monthly",
-    date: "2025-08-26",
-    amount: "-$40.00",
-    category: "Health",
-  },
-  {
-    id: "5",
-    title: "Stocks Dividend",
-    description: "ETF payout",
-    date: "2025-08-25",
-    amount: "+$18.70",
-    category: "Income",
-  },
-];
-
-// Generate more mock data
-function generateMock(size = 150): Entry[] {
-  const cats = ["Food", "Income", "Health", "Transport", "Bills"];
-  const out: Entry[] = [];
-  for (let i = 0; i < size; i++) {
-    const base = baseEntries[i % baseEntries.length];
-    const d = new Date(base.date);
-    d.setDate(d.getDate() - Math.floor(i / 5));
-    out.push({
-      ...base,
-      id: `${i + 1}`,
-      title: `${base.title} ${i + 1}`,
-      date: d.toISOString().slice(0, 10),
-      category: cats[i % cats.length],
-      amount:
-        i % 7 === 0
-          ? `+$${(50 + (i % 9) * 13).toFixed(2)}`
-          : `-$${(5 + (i % 17) * 3.2).toFixed(2)}`,
-    });
-  }
-  return out;
-}
-
-const allEntries = generateMock();
+type FormCategory = {
+  id: string;
+  label: string;
+};
 
 export type Column = {
   id: string;
@@ -105,6 +47,17 @@ const defaultColumns: Column[] = [
   { id: "category", label: "Category", visible: true },
 ];
 
+const formatSignedInrAmount = (
+  amount: string | number,
+  type: "INCOME" | "EXPENSE",
+) => {
+  const value = Number(amount || 0);
+  const formatted = new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 0,
+  }).format(value);
+  return `${type === "INCOME" ? "+" : "-"}₹${formatted}`;
+};
+
 const Transactions = () => {
   const router = useRouter();
 
@@ -117,7 +70,7 @@ const Transactions = () => {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"all" | string>("all");
   const [typeFilter, setTypeFilter] = useState<"all" | "income" | "expense">(
-    "all"
+    "all",
   );
   const [columns, setColumns] = useState<Column[]>(defaultColumns);
   const [sortBy, setSortBy] = useState<"date" | "amount" | "title">("date");
@@ -131,12 +84,65 @@ const Transactions = () => {
   const sentinelRef = useRef<HTMLDivElement>(null!);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [expenseCats, setExpenseCats] = useState<FormCategory[]>([]);
+  const [incomeCats, setIncomeCats] = useState<FormCategory[]>([]);
+
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const res = await getTransactions();
+        const tx = res?.transactions ?? [];
+        setTransactions(tx);
+      } catch (err) {
+        console.error("Error fetching transactions:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, []);
+
+  useEffect(() => {
+    const preFetchCategories = async () => {
+      try {
+        const res = await getCategories();
+        setExpenseCats(
+          res.categories
+            .filter((category) => category.type === "EXPENSE")
+            .map((category) => ({ id: category.id, label: category.name })),
+        );
+        setIncomeCats(
+          res.categories
+            .filter((category) => category.type === "INCOME")
+            .map((category) => ({ id: category.id, label: category.name })),
+        );
+      } catch (err) {
+        console.error("Error pre-fetching categories:", err);
+      }
+    };
+    preFetchCategories();
+  }, []);
+
+  const allEntries = useMemo(() => {
+    return transactions.map((t) => ({
+      id: t.id,
+      title: t.title,
+      description: t.note ?? undefined,
+      date: t.occurred_at,
+      category: t.category?.name || "Other",
+      amount: formatSignedInrAmount(t.amount, t.type),
+    }));
+  }, [transactions]);
 
   const handleAdd = (type: "income" | "expense") => {
     if (isMobile) {
@@ -152,12 +158,21 @@ const Transactions = () => {
   const toggleColumn = (id: string) => {
     setColumns((prev) =>
       prev.map((col) =>
-        col.id === id ? { ...col, visible: !col.visible } : col
-      )
+        col.id === id ? { ...col, visible: !col.visible } : col,
+      ),
     );
   };
 
   const resetColumns = () => setColumns(defaultColumns);
+
+  const handleDeleteTransaction = useCallback(async (id: string) => {
+    try {
+      await deleteTransaction(id);
+      setTransactions((prev) => prev.filter((tx) => tx.id !== id));
+    } catch (err) {
+      console.error("Error deleting transaction:", err);
+    }
+  }, []);
 
   const isIncomeTransaction = (amount: string) => amount.startsWith("+");
 
@@ -192,11 +207,11 @@ const Transactions = () => {
             : b.title.localeCompare(a.title);
         }
       });
-  }, [query, category, typeFilter, sortBy, sortOrder]);
+  }, [allEntries, query, category, typeFilter, sortBy, sortOrder]);
 
   const visible = useMemo(
     () => filtered.slice(0, visibleCount),
-    [filtered, visibleCount]
+    [filtered, visibleCount],
   );
 
   useEffect(() => {
@@ -214,7 +229,7 @@ const Transactions = () => {
       .sort((a, b) =>
         sortBy === "date" && sortOrder === "asc"
           ? a[0].localeCompare(b[0])
-          : b[0].localeCompare(a[0])
+          : b[0].localeCompare(a[0]),
       )
       .map(([d, items]) => ({
         date: d,
@@ -240,7 +255,7 @@ const Transactions = () => {
           loadMore();
         }
       },
-      { threshold: 1.0 }
+      { threshold: 1.0 },
     );
     observerRef.current.observe(sentinelRef.current);
     return () => {
@@ -250,8 +265,80 @@ const Transactions = () => {
 
   const categories = useMemo(
     () => ["all", ...Array.from(new Set(allEntries.map((e) => e.category)))],
-    []
+    [allEntries],
   );
+
+  const recentTransactions = useMemo(
+    () =>
+      [...allEntries]
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 5)
+        .map((entry) => ({
+          id: entry.id,
+          title: entry.title,
+          amount: entry.amount,
+          description: entry.description,
+        })),
+    [allEntries],
+  );
+
+  const mobileSummary = useMemo(() => {
+    const now = new Date();
+
+    const monthTransactions = transactions.filter((tx) => {
+      if (tx.is_deleted) return false;
+      const txDate = new Date(tx.occurred_at);
+      return (
+        txDate.getFullYear() === now.getFullYear() &&
+        txDate.getMonth() === now.getMonth()
+      );
+    });
+
+    const monthIncome = monthTransactions
+      .filter((tx) => tx.type === "INCOME")
+      .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+    const monthSpent = monthTransactions
+      .filter((tx) => tx.type === "EXPENSE")
+      .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+    const monthlyBudget = monthIncome;
+    const remaining = Math.max(0, monthlyBudget - monthSpent);
+
+    const lastDayOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+    ).getDate();
+    const daysLeft = Math.max(1, lastDayOfMonth - now.getDate() + 1);
+
+    const safeToSpendPerDay = remaining / daysLeft;
+    const spentPercentage =
+      monthlyBudget > 0
+        ? (monthSpent / monthlyBudget) * 100
+        : monthSpent > 0
+          ? 100
+          : 0;
+
+    return {
+      totalSpent: monthSpent,
+      totalIncome: monthIncome,
+      budgetUsed: monthlyBudget,
+      safeToSpendPerDay,
+      spentPercentage,
+    };
+  }, [transactions]);
+
+  if (loading) {
+    return (
+      <div className="p-6 space-y-4">
+        <div className="h-24 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -263,15 +350,37 @@ const Transactions = () => {
           active ? (active === "income" ? "Add Income" : "Add Expense") : ""
         }
       >
-        {active && <TransactionForm kind={active} />}
+        {active && (
+          <TransactionForm
+            kind={active}
+            initialExpenseCats={expenseCats}
+            initialIncomeCats={incomeCats}
+            onSuccess={async () => {
+              try {
+                const res = await getTransactions();
+                setTransactions(res?.transactions ?? []);
+              } catch (err) {
+                console.error("Error refreshing transactions:", err);
+              } finally {
+                handleClose();
+              }
+            }}
+          />
+        )}
       </Modal>
 
       {isMobile ? (
-        <MobileView active={active} handleAdd={handleAdd} />
+        <MobileView
+          active={active}
+          handleAdd={handleAdd}
+          summary={mobileSummary}
+          recentTransactions={recentTransactions}
+        />
       ) : (
         <WebView
           active={active}
           handleAdd={handleAdd}
+          onDeleteTransaction={handleDeleteTransaction}
           query={query}
           setQuery={setQuery}
           filterOpen={filterOpen}
@@ -290,10 +399,10 @@ const Transactions = () => {
           columns={columns}
           toggleColumn={toggleColumn}
           resetColumns={resetColumns}
-          filtered={filtered} // This should be the filtered array of transactions
           isLoadingMore={isLoadingMore}
           sentinelRef={sentinelRef}
           loadMore={loadMore}
+          filtered={filtered}
         />
       )}
     </>

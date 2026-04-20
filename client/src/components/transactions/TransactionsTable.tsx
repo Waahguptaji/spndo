@@ -1,6 +1,7 @@
 import React from "react";
 import ListItem from "@/components/ui/ListItem";
 import { Wallet2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 
 // We're not actually using TanStack Table rendering here, so we can simplify
@@ -15,12 +16,32 @@ type Entry = {
 
 type TransactionsTableProps = {
   data: Entry[];
+  onDeleteTransaction: (id: string) => Promise<void>;
   onLoadMore: () => void;
   isLoadingMore: boolean;
   sentinelRef: React.RefObject<HTMLDivElement>;
 };
 
-export default function TransactionsTable({ data }: TransactionsTableProps) {
+export default function TransactionsTable({
+  data,
+  onDeleteTransaction,
+}: TransactionsTableProps) {
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
+
+  const handleDelete = async (id: string) => {
+    const confirmed = window.confirm(
+      "Delete this transaction? This action cannot be undone.",
+    );
+    if (!confirmed) return;
+
+    try {
+      setDeletingId(id);
+      await onDeleteTransaction(id);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   // Group entries by date
   const groupedByDate = React.useMemo(() => {
     const map: Record<string, Entry[]> = {};
@@ -59,20 +80,32 @@ export default function TransactionsTable({ data }: TransactionsTableProps) {
     <WidgetCard title="Transaction History">
       {groupedByDate.map(({ date, entries }) => (
         // <section key={date} className="mb-4 last:mb-0">
-        <>
+        <React.Fragment key={date}>
           <h2 className="text-sm font-medium text-neutral-grey2 dark:text-neutral-grey3 tracking-wide p-4 pb-2">
             {formatDate(date)}
           </h2>
 
           {entries.map((entry) => (
-            <ListItem
-              key={entry.id}
-              variant="transaction"
-              icon={<Wallet2 className="h-5 w-5" />}
-              title={entry.title}
-              description={entry.description}
-              amount={entry.amount}
-            />
+            <div key={entry.id} className="flex items-center gap-2">
+              <div className="flex-1">
+                <ListItem
+                  variant="transaction"
+                  icon={<Wallet2 className="h-5 w-5" />}
+                  title={entry.title}
+                  description={entry.description}
+                  amount={entry.amount}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => handleDelete(entry.id)}
+                aria-label="Delete transaction"
+                disabled={deletingId === entry.id}
+                className="h-10 w-10 rounded-lg border border-neutral-softGrey2 dark:border-neutral-grey1 text-neutral-grey2 dark:text-neutral-grey3 hover:text-system-red hover:border-system-red disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
           ))}
 
           {/* Add subtle divider after each section except last */}
@@ -80,7 +113,7 @@ export default function TransactionsTable({ data }: TransactionsTableProps) {
             <hr className="border-neutral-100 dark:border-neutral-800 my-2" />
           )}
           {/* </section> */}
-        </>
+        </React.Fragment>
       ))}
 
       {/* {isLoadingMore && <div className="text-center p-4">Loading more...</div>}

@@ -7,9 +7,9 @@ import {
   X,
   CircleUser,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { logout } from "@/lib/auth";
 type TopAppBarProps = {
   variant?: "default" | "back" | "search";
   title: string;
@@ -25,9 +25,13 @@ export const TopAppBar = ({
 }: TopAppBarProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+
   const router = useRouter();
-  const { data: session } = useSession();
-  const handleLogout = () => signOut({ callbackUrl: "/login" });
+  const handleLogout = () => {
+    logout();
+    router.replace("/login");
+  };
   const handleHelp = () => console.warn("Navigating to Help & Support...");
   const handleBack = () => window.history.back();
   const handleSearch = () => console.warn("Opening search...");
@@ -37,8 +41,15 @@ export const TopAppBar = ({
     pathname === "/notifications"
       ? "Notifications"
       : pathname === "/profile"
-      ? "Profile"
-      : title;
+        ? "Profile"
+        : title;
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setUserEmail(JSON.parse(user).email);
+    }
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between px-4 sm:px-6 bg-neutral-white dark:bg-secondary-darkBrand text-gray-800 dark:text-white border-b border-gray-200 dark:border-gray-700 shadow-sm">
@@ -89,7 +100,7 @@ export const TopAppBar = ({
             {profileOpen && (
               <div className="p-1 absolute right-0 mt-20 w-fit bg-white dark:bg-gray-700 shadow-xl rounded-lg z-30 ring-1 ring-black ring-opacity-5">
                 {" "}
-                {session?.user?.email}
+                {userEmail || "User"}{" "}
               </div>
             )}
             <button
@@ -117,14 +128,6 @@ export const TopAppBar = ({
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-t-lg"
                       >
                         Help & Support
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() => router.push("/login")}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-b-lg"
-                      >
-                        Sign In
                       </button>
                     </li>
                     <li>

@@ -1,28 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, signIn } from "next-auth/react";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
 import { MdOutlineEmail } from "react-icons/md";
 import { TbLockPassword } from "react-icons/tb";
 import Image from "next/image";
 import Link from "next/link";
+import { login } from "@/lib/api/auth";
+import Toast from "@/components/ui/Toast";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error" | "info">(
+    "error",
+  );
   const router = useRouter();
-
-  const { status } = useSession();
-
-  // 🚨 Redirect if already logged in
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.replace("/dashboard"); // replace avoids back/forward issue
-    }
-  }, [status, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -31,46 +28,21 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-
-    const result = await signIn("credentials", {
-      redirect: false, // Prevents NextAuth auto-redirect
-      email: formData.email,
-      password: formData.password,
-    });
-
-    setLoading(false);
-
-    if (result?.error) {
-      alert("Invalid credentials. Please try again.");
-    } else {
-      // ✅ Login success → fetch user by email
-      const res = await fetch("/api/user?email=" + formData.email);
-      const user = await res.json();
-
-      if (user.success) {
-        localStorage.setItem("userId", user.data.id); // ✅ save userId
-        console.warn("Logged in user:", user);
-      }
-      console.warn("Logged in user:", user);
-
-      // localStorage.setItem("userId", user.id); // ✅ save userId
+    try {
+      const res = await login(formData);
+      localStorage.setItem("accessToken", res.accessToken);
+      localStorage.setItem("refreshToken", res.refreshToken);
+      localStorage.setItem("user", JSON.stringify(res.user));
       router.push("/dashboard");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Login Failed";
+      setToastType("error");
+      setToastMessage(message);
+      setToastOpen(true);
+    } finally {
+      setLoading(false);
     }
   };
-
-  // Show loader while NextAuth checks session
-  if (status === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-lg">Loading...</p>
-      </div>
-    );
-  }
-
-  // Only render login form if user is not authenticated
-  if (status === "authenticated") {
-    return null;
-  }
 
   return (
     <div className="flex min-h-screen md:flex-col justify-center">
@@ -225,6 +197,13 @@ export default function LoginPage() {
           />
         </div>
       </div>
+      <Toast
+        open={toastOpen}
+        message={toastMessage}
+        type={toastType}
+        duration={3000}
+        onClose={() => setToastOpen(false)}
+      />
     </div>
   );
 }

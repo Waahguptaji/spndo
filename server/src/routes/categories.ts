@@ -1,0 +1,174 @@
+import { prisma } from "../lib/prisma";
+
+import { FastifyPluginAsync, FastifyRequest } from "fastify";
+import {
+  createCategorySchema,
+  getCategorySchema,
+  patchCategorySchema,
+  deleteCategorySchema,
+} from "../schemas/categories";
+
+export const categoryRoutes: FastifyPluginAsync = async (fastify, _options) => {
+  fastify.post(
+    "/categories",
+    {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      preHandler: [(fastify as any).authenticate],
+    },
+    async (
+      request: FastifyRequest<{
+        Body: {
+          name: string;
+          type: "INCOME" | "EXPENSE";
+        };
+      }>,
+      reply,
+    ) => {
+      try {
+        const { name, type } = request.body;
+        const userid = request.user.userId;
+
+        // Validate request body before database operation
+        const validation = createCategorySchema
+          .partial({ userId: true })
+          .safeParse({
+            name,
+            type,
+            userId: userid,
+          });
+
+        if (!validation.success) {
+          return reply.code(400).send({
+            error: validation.error.format(),
+          });
+        }
+
+        const category = await prisma.categories.create({
+          data: {
+            name,
+            type,
+            userId: userid,
+          },
+        });
+
+        return reply.code(201).send({
+          message: "Category created successfully",
+          category,
+        });
+      } catch (error) {
+        fastify.log.error(error, "Error creating category");
+        return reply.code(500).send({ error: "Failed to create category" });
+      }
+    },
+  );
+  fastify.get(
+    "/categories",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    { preHandler: [(fastify as any).authenticate] },
+    async (request: FastifyRequest, reply) => {
+      try {
+        const userId = request.user.userId;
+        const category = await prisma.categories.findMany({
+          where: {
+            userId: userId,
+          },
+          select: {
+            userId: true,
+            name: true,
+            type: true,
+            id: true,
+            created_at: true,
+          },
+        });
+        const validation = getCategorySchema.array().safeParse(category);
+        if (!validation.success) {
+          return reply.code(400).send({
+            error: "Category data is invalid",
+            details: validation.error.format(),
+          });
+        }
+        return reply.send({ categories: category });
+      } catch (error) {
+        fastify.log.error(error, "Error fetching categories");
+        return reply.code(500).send({ error: "Failed to fetch categories" });
+      }
+    },
+  );
+
+  fastify.patch(
+    "/categories/:id",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    { preHandler: [(fastify as any).authenticate] },
+    async (request, reply) => {
+      try {
+        const validation = patchCategorySchema.safeParse(request.body);
+        if (!validation.success) {
+          return reply.code(400).send({
+            error: "Invalid data",
+            details: validation.error.format(),
+          });
+        }
+
+        const { name, type } = validation.data;
+        const { id } = request.params as { id: string };
+        const userId = request.user.userId;
+
+        const updated = await prisma.categories.updateMany({
+          where: {
+            id,
+            userId,
+          },
+          data: { name, type },
+        });
+
+        if (updated.count === 0) {
+          return reply.code(404).send({
+            error: "Category not found or not authorized",
+          });
+        }
+
+        return reply.send({ message: "Category updated successfully" });
+      } catch (error) {
+        fastify.log.error(error, "Error updating category");
+        return reply.code(500).send({ error: "Failed to update category" });
+      }
+    },
+  );
+
+  fastify.delete(
+    "/categories/:id",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    { preHandler: [(fastify as any).authenticate] },
+    async (request, reply) => {
+      try {
+        const { id } = request.params as { id: string };
+        const userId = request.user.userId;
+        const parsedParams = deleteCategorySchema.safeParse({ id });
+        if (!parsedParams.success) {
+          return reply.code(400).send({
+            error: "Invalid category id",
+            details: parsedParams.error.format(),
+          });
+        }
+
+        const result = await prisma.categories.deleteMany({
+          where: {
+            id,
+            userId,
+          },
+        });
+
+        if (result.count === 0) {
+          return reply.code(404).send({
+            error: "Category not found or not authorized",
+          });
+        }
+
+        return reply.send({ message: "Category deleted successfully" });
+      } catch (error) {
+        fastify.log.error(error, "Error deleting category");
+        return reply.code(500).send({ error: "Failed to delete category" });
+      }
+    },
+  );
+};

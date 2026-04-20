@@ -1,29 +1,43 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ListItem from "@/components/ui/ListItem";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import SetReminder from "@/components/reminder/setReminder";
 import MobileView from "@/hooks/mobileView"; // custom hook from step 1
+import {
+  deleteReminder,
+  getReminders,
+  Reminder,
+  toggleReminder,
+} from "@/lib/api/reminders";
 
 export default function RemindersList() {
   const router = useRouter();
   const isMobile = MobileView();
   const [openModal, setOpenModal] = useState(false);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const reminders = [
-    {
-      topic: "Pay Electricity Bill",
-      description: "Due soon",
-      rightLabel: "Aug 20, 2025",
-    },
-    {
-      topic: "Doctor Appointment",
-      description: "Health Checkup",
-      rightLabel: "Aug 22, 2025",
-    },
-  ];
+  const fetchAllReminders = async () => {
+    try {
+      setError(null);
+      const res = await getReminders();
+      setReminders(res.reminders ?? []);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch reminders",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllReminders();
+  }, []);
 
   const handleAddClick = () => {
     if (isMobile) {
@@ -41,16 +55,62 @@ export default function RemindersList() {
         </Button>
       </div>
 
+      {loading ? (
+        <div className="space-y-3 mb-4">
+          <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+          <div className="h-20 rounded-xl bg-neutral-softGrey2/70 dark:bg-neutral-grey1/50 animate-pulse" />
+        </div>
+      ) : null}
+      {error ? <p className="text-system-red mb-4">{error}</p> : null}
+
       <div className="space-y-4">
-        {reminders.map((reminder, index) => (
-          <ListItem
-            key={index}
-            variant="reminder"
-            title={reminder.topic}
-            description={reminder.description}
-            rightLabel={reminder.rightLabel}
-          />
-        ))}
+        {!loading && reminders.length === 0 ? (
+          <p className="text-neutral-grey2 dark:text-neutral-grey3">
+            No reminders yet.
+          </p>
+        ) : (
+          reminders.map((reminder) => (
+            <div key={reminder.id} className="space-y-2">
+              <ListItem
+                variant="reminder"
+                title={reminder.title}
+                description={reminder.note ?? "No note"}
+                rightLabel={new Date(reminder.due_at).toLocaleDateString(
+                  "en-IN",
+                  {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  },
+                )}
+                status=""
+                icon1={null}
+                icon2={null}
+              />
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    await toggleReminder(reminder.id);
+                    await fetchAllReminders();
+                  }}
+                >
+                  {reminder.is_done ? "Mark Pending" : "Mark Done"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    await deleteReminder(reminder.id);
+                    await fetchAllReminders();
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Modal only for desktop */}
@@ -61,7 +121,12 @@ export default function RemindersList() {
           title="Add Reminder"
           className="p-7"
         >
-          <SetReminder />
+          <SetReminder
+            onSuccess={async () => {
+              setOpenModal(false);
+              await fetchAllReminders();
+            }}
+          />
         </Modal>
       )}
     </div>

@@ -7,6 +7,8 @@ import CategoryChip from "../ui/CategoryChip";
 import Modal from "../ui/Modal";
 import { Plus } from "lucide-react";
 import Button from "../ui/Button";
+import { createTransaction } from "@/lib/api/transactions";
+import { createCategory, getCategories } from "@/lib/api/categories";
 
 type FormKind = "expense" | "income";
 
@@ -16,37 +18,60 @@ type Category = {
   icon?: React.ReactNode;
 };
 
-const expenseCategories: Category[] = [
-  { id: "food", label: "Food" },
-  { id: "shopping", label: "Shopping" },
-  { id: "transport", label: "Transport" },
-  { id: "rent", label: "Rent" },
-];
-
-const incomeCategories: Category[] = [
-  { id: "salary", label: "Salary" },
-  { id: "freelance", label: "Freelance" },
-  { id: "interest", label: "Interest" },
-  { id: "bonus", label: "Bonus" },
-];
-
 type TransactionFormProps = {
-  kind: FormKind; // required: "expense" | "income"
+  kind: FormKind;
+  initialExpenseCats?: Category[];
+  initialIncomeCats?: Category[];
+  onSuccess?: () => void | Promise<void>;
 };
 
-function TransactionForm({ kind }: TransactionFormProps) {
+function TransactionForm({
+  kind,
+  initialExpenseCats = [],
+  initialIncomeCats = [],
+  onSuccess,
+}: TransactionFormProps) {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const [expenseCats, setExpenseCats] = useState<Category[]>(expenseCategories);
-  const [incomeCats, setIncomeCats] = useState<Category[]>(incomeCategories);
+  const [expenseCats, setExpenseCats] =
+    useState<Category[]>(initialExpenseCats);
+  const [incomeCats, setIncomeCats] = useState<Category[]>(initialIncomeCats);
 
   // NEW: add-category modal state
   const [openAddCat, setOpenAddCat] = useState(false);
   const [newCatName, setNewCatName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
 
   useEffect(() => setSelectedId(null), [kind]);
+
+  useEffect(() => {
+    if (initialExpenseCats.length > 0 || initialIncomeCats.length > 0) {
+      return;
+    }
+
+    const loadCategories = async () => {
+      try {
+        const res = await getCategories();
+        setExpenseCats(
+          res.categories
+            .filter((category) => category.type === "EXPENSE")
+            .map((category) => ({ id: category.id, label: category.name })),
+        );
+        setIncomeCats(
+          res.categories
+            .filter((category) => category.type === "INCOME")
+            .map((category) => ({ id: category.id, label: category.name })),
+        );
+      } catch (error) {
+        console.error("Failed to load categories", error);
+      }
+    };
+
+    loadCategories();
+  }, [initialExpenseCats.length, initialIncomeCats.length]);
 
   const categories = kind === "expense" ? expenseCats : incomeCats;
 
@@ -55,43 +80,69 @@ function TransactionForm({ kind }: TransactionFormProps) {
     setOpenAddCat(true);
   };
 
-  function addCategory() {
+  async function addCategory() {
     const label = newCatName.trim();
     if (!label) {
       return;
     }
 
-    const slugify = (s: string) => {
-      return s
-        .toLowerCase()
-        .trim()
-        .replace(/[^\w]+/g, "-")
-        .replace(/(^-|-$)/g, "");
-    };
+    try {
+      setIsCreatingCategory(true);
+      const res = await createCategory({
+        name: label,
+        type: kind === "expense" ? "EXPENSE" : "INCOME",
+      });
 
-    const base = slugify(label) || `cat-${Date.now()}`;
-    let id = base;
-    let i = 2;
-    const exists = (x: string) => categories.some((c) => c.id === x);
-    while (exists(id)) {
-      id = `${base}-${i++}`;
+      const newCat: Category = {
+        id: res.category.id,
+        label: res.category.name,
+      };
+
+      if (kind === "expense") {
+        setExpenseCats((prev) => [...prev, newCat]);
+      } else {
+        setIncomeCats((prev) => [...prev, newCat]);
+      }
+
+      setSelectedId(newCat.id);
+      setOpenAddCat(false);
+      setNewCatName("");
+    } catch (error) {
+      console.error("Failed to create category", error);
+    } finally {
+      setIsCreatingCategory(false);
     }
-
-    const newCat: Category = { id, label };
-    if (kind === "expense") {
-      setExpenseCats((prev) => [...prev, newCat]);
-    } else {
-      setIncomeCats((prev) => [...prev, newCat]);
-    }
-
-    setSelectedId(id);
-    setOpenAddCat(false);
-    setNewCatName("");
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // submit { kind, title, amount, categoryId: selectedId, date: ... }
+    if (!selectedId) {
+      return;
+    }
+
+    if (!amount || Number.isNaN(parseFloat(amount))) {
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await createTransaction({
+        title,
+        amount: parseFloat(amount),
+        category_id: selectedId,
+        occurred_at: new Date().toISOString(),
+        type: kind === "expense" ? "EXPENSE" : "INCOME",
+      });
+
+      setTitle("");
+      setAmount("");
+      setSelectedId(null);
+      await onSuccess?.();
+    } catch (error) {
+      console.error("Failed to create transaction", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -173,18 +224,29 @@ function TransactionForm({ kind }: TransactionFormProps) {
             <button
               type="button"
               onClick={addCategory}
-              disabled={!newCatName.trim()}
+              disabled={!newCatName.trim() || isCreatingCategory}
               className="px-4 py-2 rounded-lg bg-primary-brand text-white disabled:opacity-50"
             >
-              Add
+              {isCreatingCategory ? "Adding..." : "Add"}
             </button>
           </div>
         </div>
       </Modal>
 
       <div className="pt-2">
-        <Button type="submit" variant="primary" fullWidth>
-          {kind === "expense" ? "Add Expense" : "Add Income"}
+        <Button
+          type="submit"
+          variant="primary"
+          fullWidth
+          disabled={isSubmitting || !selectedId}
+        >
+          {isSubmitting
+            ? kind === "expense"
+              ? "Adding Expense..."
+              : "Adding Income..."
+            : kind === "expense"
+              ? "Add Expense"
+              : "Add Income"}
         </Button>
       </div>
     </form>
