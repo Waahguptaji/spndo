@@ -1,11 +1,11 @@
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
 import {
   postGoalSchema,
   getGoalSchema,
   patchGoatSchema,
   deleteGoalSchema,
-} from "../schemas/goal";
+} from "../schemas/goal.js";
 
 type GoalStatus = "active" | "completed" | "cancelled" | "paused";
 
