@@ -1,5 +1,5 @@
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
 
 type Category = {
   id: string;

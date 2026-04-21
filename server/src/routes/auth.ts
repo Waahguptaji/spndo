@@ -1,8 +1,8 @@
-import prisma from "../lib/prisma";
+import prisma from "../lib/prisma.js";
 import { FastifyPluginAsync } from "fastify";
-import { registerSchema, loginSchema } from "../schemas/auth";
+import { registerSchema, loginSchema } from "../schemas/auth.js";
 import bcrypt from "bcrypt";
-import createRefreshToken from "../lib/token";
+import createRefreshToken from "../lib/token.js";
 
 const auth: FastifyPluginAsync = async (fastify) => {
   fastify.post("/register", async (request, reply) => {

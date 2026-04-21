@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import prisma from "./prisma";
+import prisma from "./prisma.js";
 
 const createRefreshToken = async (fastify: FastifyInstance, userId: string) => {
   // Create refresh token with DIFFERENT secret
