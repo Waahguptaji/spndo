@@ -32,11 +32,16 @@ export function buildApp() {
   });
 
   app.register(helmet);
+  app.register(cors, {
+    origin: ["https://spndo.app"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+  });
 
   app.register(jwtPlugin);
   app.register(health, { prefix: "/" });
   app.register(auth, { prefix: "/auth" });
-  app.register(userRoutes, { prefix: "/user" });
   app.register(userRoute, { prefix: "/user" });
   app.register(categoryRoutes);
   app.register(budgetRoutes);
@@ -44,10 +49,5 @@ export function buildApp() {
   app.register(reminderRoutes);
   app.register(goalRoutes);
   app.register(aggregateRoutes, { prefix: "/summary" });
-  app.register(cors, {
-    origin: ["https://spndo.app"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-  });
   return app;
 }
