@@ -32,13 +32,11 @@ export function buildApp() {
   });
 
   app.register(helmet);
-  // app.register(cors, {
-  //   origin: (origin, cb) => {
-  //     // Accept all in dev; set a proper allowlist for prod
-  //     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  //     cb(null, true);
-  //   },
-  // });
+  app.register(cors, {
+    origin: ["https://spndo.app"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  });
 
   app.register(jwtPlugin);
   app.register(health, { prefix: "/" });
