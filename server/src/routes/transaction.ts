@@ -1,6 +1,6 @@
-import prisma from "../lib/prisma";
+import prisma from "../lib/prisma.js";
 import { FastifyPluginAsync } from "fastify";
-import { createTransactionSchema } from "../schemas/transaction";
+import { createTransactionSchema } from "../schemas/transaction.js";
 
 const transactions: FastifyPluginAsync = async (fastify) => {
   fastify.post(

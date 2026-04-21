@@ -2,17 +2,17 @@ import "dotenv/config";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
-import jwtPlugin from "./plugins/jwt";
-import health from "./routes/health";
-import auth from "./routes/auth";
-import { userRoutes } from "./routes/user";
-import { userRoute } from "./routes/user";
-import { categoryRoutes } from "./routes/categories";
-import { budgetRoutes } from "./routes/budgets";
-import transactionRoutes from "./routes/transaction";
-import reminderRoutes from "./routes/reminder";
-import { goalRoutes } from "./routes/goal";
-import { aggregateRoutes } from "./routes/aggregate";
+import jwtPlugin from "./plugins/jwt.js";
+import health from "./routes/health.js";
+import auth from "./routes/auth.js";
+import { userRoutes } from "./routes/user.js";
+import { userRoute } from "./routes/user.js";
+import { categoryRoutes } from "./routes/categories.js";
+import { budgetRoutes } from "./routes/budgets.js";
+import transactionRoutes from "./routes/transaction.js";
+import reminderRoutes from "./routes/reminder.js";
+import { goalRoutes } from "./routes/goal.js";
+import { aggregateRoutes } from "./routes/aggregate.js";
 export function buildApp() {
   const app = Fastify({
     logger: {
@@ -50,10 +50,10 @@ export function buildApp() {
   app.register(transactionRoutes);
   app.register(reminderRoutes);
   app.register(goalRoutes);
-  app.register(aggregateRoutes,{prefix: "/summary"});
+  app.register(aggregateRoutes, { prefix: "/summary" });
   app.register(cors, {
-  origin: "http://localhost:3000",
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-});
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  });
   return app;
 }

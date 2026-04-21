@@ -1,12 +1,12 @@
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
-import { getBudgetSchema, putBudgetSchema } from "../schemas/budgets";
-import { prisma } from "../lib/prisma";
+import { getBudgetSchema, putBudgetSchema } from "../schemas/budgets.js";
+import { prisma } from "../lib/prisma.js";
 
 export const budgetRoutes: FastifyPluginAsync = async (fastify, _options) => {
   fastify.get(
     "/budgets/:month",
     {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       preHandler: [(fastify as any).authenticate],
     },
     async (
@@ -51,7 +51,7 @@ export const budgetRoutes: FastifyPluginAsync = async (fastify, _options) => {
   fastify.put(
     "/budgets/:month",
     {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       preHandler: [(fastify as any).authenticate],
     },
     async (

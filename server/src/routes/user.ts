@@ -1,6 +1,6 @@
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
-import { userSchema, profileDataSchema } from "../schemas/user";
+import { userSchema, profileDataSchema } from "../schemas/user.js";
 
 type JsonValue =
   | string

@@ -1,6 +1,6 @@
-import prisma from "../lib/prisma";
+import prisma from "../lib/prisma.js";
 import { FastifyPluginAsync } from "fastify";
-import { createReminderSchema } from "../schemas/reminder";
+import { createReminderSchema } from "../schemas/reminder.js";
 
 const reminder: FastifyPluginAsync = async (fastify) => {
   fastify.post(
