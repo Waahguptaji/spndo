@@ -5,7 +5,6 @@ import helmet from "@fastify/helmet";
 import jwtPlugin from "./plugins/jwt.js";
 import health from "./routes/health.js";
 import auth from "./routes/auth.js";
-import { userRoutes } from "./routes/user.js";
 import { userRoute } from "./routes/user.js";
 import { categoryRoutes } from "./routes/categories.js";
 import { budgetRoutes } from "./routes/budgets.js";
@@ -38,7 +37,7 @@ export function buildApp() {
   app.register(helmet);
   app.register(cors, {
     origin: allowedOrigins,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   });
