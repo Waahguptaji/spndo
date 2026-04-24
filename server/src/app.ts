@@ -14,6 +14,10 @@ import reminderRoutes from "./routes/reminder.js";
 import { goalRoutes } from "./routes/goal.js";
 import { aggregateRoutes } from "./routes/aggregate.js";
 export function buildApp() {
+  const allowedOrigins =
+    process.env.NODE_ENV === "production"
+      ? ["https://spndo.app"]
+      : ["https://spndo.app", "http://localhost:3000", "http://127.0.0.1:3000"];
   const app = Fastify({
     logger: {
       level: process.env.LOG_LEVEL || "info",
@@ -33,7 +37,7 @@ export function buildApp() {
 
   app.register(helmet);
   app.register(cors, {
-    origin: ["https://spndo.app"],
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
