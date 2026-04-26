@@ -133,6 +133,15 @@ const GoalsPage = () => {
   const [selectedGoal, setSelectedGoal] = useState<GoalResponse | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
+  const fetchGoals = async () => {
+    try {
+      const data = await getgoal();
+      setGoalsData(data);
+    } catch (error) {
+      console.error("Error fetching goals: ", error);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     try {
       await delGoal(id);
@@ -145,19 +154,22 @@ const GoalsPage = () => {
     setSelectedGoal(goal);
     setIsEditOpen(true);
   };
+
   useEffect(() => {
-    const fetchGoals = async () => {
-      try {
-        const data = await getgoal();
-        setGoalsData(data);
-      } catch (error) {
-        console.error("Error fetching goals: ", error);
-      }
-    };
     fetchGoals();
   }, []);
+
   return (
-    <WidgetCard title="All Goals" actionSlot={<AddGoalButton />}>
+    <WidgetCard
+      title="All Goals"
+      actionSlot={
+        <AddGoalButton
+          onGoalAdded={(newGoal) => {
+            setGoalsData((prev) => [newGoal, ...prev]);
+          }}
+        />
+      }
+    >
       {goalsData.map((goal) => (
         <ListItem
           key={goal.id}
@@ -184,10 +196,11 @@ const GoalsPage = () => {
         >
           <AddGoalForm
             goal={selectedGoal}
-            onSuccess={() => {
+            onSuccess={(updatedGoal) => {
               setIsEditOpen(false);
+              if (!updatedGoal) return;
               setGoalsData((prev) =>
-                prev.map((g) => (g.id === selectedGoal.id ? selectedGoal : g)),
+                prev.map((g) => (g.id === updatedGoal.id ? updatedGoal : g)),
               );
             }}
           />
