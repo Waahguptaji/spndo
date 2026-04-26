@@ -143,7 +143,7 @@ export const goalRoutes: FastifyPluginAsync = async (fastify, _optional) => {
         if (!existingGoal) {
           return reply.code(404).send({ error: "Goal not found !!!!!" });
         }
-        const updateGoal = await prisma.goal.update({
+        const updatedGoal = await prisma.goal.update({
           where: {
             id: goalId,
           },
@@ -161,7 +161,7 @@ export const goalRoutes: FastifyPluginAsync = async (fastify, _optional) => {
                 : existingGoal.progress_amount,
           },
         });
-        reply.code(200).send("goal updated " + updateGoal);
+        reply.code(200).send(updatedGoal);
       } catch (error) {
         reply.code(500).send({ error: "Internal Server Error" });
       }

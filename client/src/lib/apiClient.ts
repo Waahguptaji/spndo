@@ -7,6 +7,30 @@ type ApiOptions = {
   retry?: boolean;
 };
 
+function extractValidationMessage(details: unknown): string | null {
+  if (!details) return null;
+
+  if (Array.isArray(details)) {
+    const first = details[0] as { message?: unknown } | undefined;
+    if (typeof first?.message === "string") return first.message;
+  }
+
+  if (typeof details === "object" && details !== null) {
+    const record = details as Record<string, unknown>;
+
+    if (Array.isArray(record._errors) && typeof record._errors[0] === "string") {
+      return record._errors[0];
+    }
+
+    for (const value of Object.values(record)) {
+      const nestedMessage = extractValidationMessage(value);
+      if (nestedMessage) return nestedMessage;
+    }
+  }
+
+  return null;
+}
+
 function clearAuthStorage() {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
@@ -98,12 +122,10 @@ export default async function apiFetch(
     if (!res.ok) {
       let errorMsg = "Something went wrong";
 
-      if (
-        data?.details &&
-        Array.isArray(data.details) &&
-        data.details.length > 0
-      ) {
-        errorMsg = data.details[0].message;
+      const validationMessage = extractValidationMessage(data?.details);
+
+      if (validationMessage) {
+        errorMsg = validationMessage;
       } else if (data?.error) {
         errorMsg = data.error;
       } else if (data?.message) {

@@ -5,7 +5,6 @@ import helmet from "@fastify/helmet";
 import jwtPlugin from "./plugins/jwt.js";
 import health from "./routes/health.js";
 import auth from "./routes/auth.js";
-import { userRoutes } from "./routes/user.js";
 import { userRoute } from "./routes/user.js";
 import { categoryRoutes } from "./routes/categories.js";
 import { budgetRoutes } from "./routes/budgets.js";
@@ -14,6 +13,10 @@ import reminderRoutes from "./routes/reminder.js";
 import { goalRoutes } from "./routes/goal.js";
 import { aggregateRoutes } from "./routes/aggregate.js";
 export function buildApp() {
+  const allowedOrigins =
+    process.env.NODE_ENV === "production"
+      ? ["https://spndo.app"]
+      : ["https://spndo.app", "http://localhost:3000", "http://127.0.0.1:3000"];
   const app = Fastify({
     logger: {
       level: process.env.LOG_LEVEL || "info",
@@ -33,8 +36,8 @@ export function buildApp() {
 
   app.register(helmet);
   app.register(cors, {
-    origin: ["https://spndo.app"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   });

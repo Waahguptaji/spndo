@@ -6,6 +6,7 @@ import FormInput from "../ui/FormInput";
 import Button from "../ui/Button";
 import Calendar from "../ui/calendar";
 import Modal from "../ui/Modal";
+import Toast from "../ui/Toast";
 import { addGoal, updateGoal } from "@/lib/api/goals";
 import { GoalResponse } from "@/lib/api/goals";
 
@@ -43,6 +44,8 @@ const AddGoalForm = ({ goal, onSuccess }: Props) => {
   const [status, setStatus] = useState<GoalStatus>(goal?.status || "active");
   const [deadline, setDeadline] = useState<Date | null>(goal?.deadline || null);
   const [openCal, setOpenCal] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   useEffect(() => {
     if (goal) {
@@ -59,7 +62,14 @@ const AddGoalForm = ({ goal, onSuccess }: Props) => {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!deadline) return;
+    setToastOpen(false);
+    setToastMessage("");
+
+    if (!deadline) {
+      setToastMessage("Deadline is required.");
+      setToastOpen(true);
+      return;
+    }
     // submit values: { title, amount, contribution, deadline }
     const payload = {
       title: title,
@@ -79,7 +89,10 @@ const AddGoalForm = ({ goal, onSuccess }: Props) => {
 
       onSuccess?.(updatedGoal);
     } catch (err) {
-      console.error("Error saving goal:", err);
+      const message =
+        err instanceof Error ? err.message : "Unable to save goal right now.";
+      setToastMessage(message);
+      setToastOpen(true);
     }
   }
 
@@ -160,6 +173,14 @@ const AddGoalForm = ({ goal, onSuccess }: Props) => {
       <Button type="submit" className="w-full">
         {goal ? "Upadate goal" : "Add Goal"}
       </Button>
+
+      <Toast
+        open={toastOpen}
+        message={toastMessage}
+        type="error"
+        duration={3000}
+        onClose={() => setToastOpen(false)}
+      />
     </form>
   );
 };
