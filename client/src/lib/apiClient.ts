@@ -7,6 +7,10 @@ type ApiOptions = {
   retry?: boolean;
 };
 
+function isAuthEndpoint(endpoint: string) {
+  return endpoint.startsWith("/auth/");
+}
+
 function extractValidationMessage(details: unknown): string | null {
   if (!details) return null;
 
@@ -107,7 +111,7 @@ export default async function apiFetch(
   try {
     let res = await sendRequest(accessToken);
 
-    if (res.status === 401 && retry) {
+    if (res.status === 401 && retry && !isAuthEndpoint(endpoint)) {
       const newAccessToken = await refreshAccessToken();
 
       if (newAccessToken) {
