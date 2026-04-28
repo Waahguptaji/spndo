@@ -16,7 +16,7 @@ const nextConfig = {
         pathname: "/uploads/**",
       },
       {
-        protocol: "http",
+        protocol: "https",
         hostname: "api.spndo.app",
         pathname: "/uploads/**",
       },
