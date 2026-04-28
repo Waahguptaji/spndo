@@ -8,6 +8,13 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getMe, updateMe } from "@/lib/api/user";
 
+const toAbsoluteImageUrl = (value?: string) => {
+  if (!value) return "";
+  if (/^https?:\/\//i.test(value)) return value;
+  const base = process.env.NEXT_PUBLIC_API_URL || "";
+  return `${base}${value.startsWith("/") ? value : `/${value}`}`;
+};
+
 export default function ProfileInfo() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -37,7 +44,7 @@ export default function ProfileInfo() {
           city: profileData.city ?? "",
           state: profileData.state ?? "",
           pinCode: profileData.pinCode ?? "",
-          image: profileData.image ?? "",
+          image: toAbsoluteImageUrl(profileData.image),
           email: data.email,
           phone: data.phone ?? "",
         });
@@ -55,14 +62,45 @@ export default function ProfileInfo() {
     setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfile({ ...profile, image: reader.result as string }); // base64 string
-      };
-      reader.readAsDataURL(file);
+      try {
+        setSaving(true);
+        setError(null);
+        const image = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            if (typeof reader.result === "string") {
+              resolve(reader.result);
+            } else {
+              reject(new Error("Failed to read image file"));
+            }
+          };
+          reader.onerror = () => reject(new Error("Failed to read image file"));
+          reader.readAsDataURL(file);
+        });
+
+        const updated = await updateMe({
+          profile_data: {
+            name: profile.name,
+            address: profile.address,
+            city: profile.city,
+            state: profile.state,
+            pinCode: profile.pinCode,
+            image,
+          },
+        });
+
+        setProfile((prev) => ({
+          ...prev,
+          image: toAbsoluteImageUrl(updated.profile_data?.image),
+        }));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Image upload failed");
+      } finally {
+        setSaving(false);
+      }
     }
   };
 
@@ -71,7 +109,7 @@ export default function ProfileInfo() {
       setSaving(true);
       setError(null);
       await updateMe({
-        phone: profile.phone || "",
+        phone: profile.phone.trim() || undefined,
         profile_data: {
           name: profile.name,
           address: profile.address,
@@ -117,6 +155,8 @@ export default function ProfileInfo() {
             <Image
               src={profile.image}
               alt="Profile"
+              width={128}
+              height={128}
               className="w-32 h-32 rounded-full object-cover shadow-md"
             />
           ) : (

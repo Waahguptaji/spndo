@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
-import { userSchema, profileDataSchema } from "../schemas/user.js";
+import fs from "node:fs";
+import path from "node:path";
 
 type JsonValue =
   | string
@@ -9,6 +10,35 @@ type JsonValue =
   | null
   | { [key: string]: JsonValue }
   | JsonValue[];
+
+type ProfileDataObject = {
+  name?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pinCode?: string;
+  image?: string;
+  [key: string]: JsonValue | undefined;
+};
+
+function saveDataUrlImage(dataUrl: string) {
+  const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+  if (!match) return null;
+
+  const [, mimeType, base64] = match;
+  const extension = mimeType.split("/")[1]?.split("+")[0] || "png";
+  const buffer = Buffer.from(base64, "base64");
+  const fileName = `${Date.now()}.${extension}`;
+  const uploadsDir = path.join(process.cwd(), "uploads");
+  const filePath = path.join(uploadsDir, fileName);
+
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
+  fs.writeFileSync(filePath, buffer);
+  return `/uploads/${fileName}`;
+}
 
 export const userRoutes: FastifyPluginAsync = async (fastify, _options) => {
   fastify.get(
@@ -30,19 +60,14 @@ export const userRoutes: FastifyPluginAsync = async (fastify, _options) => {
         return reply.code(404).send({ error: "User not found" });
       }
 
-      const validation = userSchema.safeParse(user);
-      if (!validation.success) {
-        return reply.code(400).send({
-          error: "User data is invalid ",
-          details: validation.error.format(),
-        });
-      }
-
-      reply.send(user);
+      reply.send({
+        ...user,
+        phone: user.phone ?? null,
+        profile_data: user.profile_data ?? null,
+      });
     },
   );
-};
-export const userRoute: FastifyPluginAsync = async (fastify, _options) => {
+
   fastify.patch(
     "/me",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -57,7 +82,25 @@ export const userRoute: FastifyPluginAsync = async (fastify, _options) => {
       }>,
       reply,
     ) => {
-      const { email, phone, profile_data } = request.body;
+      let email = request.body?.email;
+      let phone = request.body?.phone;
+      let profile_data = request.body?.profile_data as
+        | ProfileDataObject
+        | undefined;
+
+      if (typeof phone === "string") {
+        phone = phone.trim() || undefined;
+      }
+
+      if (profile_data?.image && profile_data.image.startsWith("data:image/")) {
+        const imageUrl = saveDataUrlImage(profile_data.image);
+        if (imageUrl) {
+          profile_data = {
+            ...profile_data,
+            image: imageUrl,
+          };
+        }
+      }
 
       const data: {
         email?: string;
@@ -69,7 +112,7 @@ export const userRoute: FastifyPluginAsync = async (fastify, _options) => {
       };
 
       if (profile_data !== undefined) {
-        data.profile_data = profile_data;
+        data.profile_data = profile_data as unknown as JsonValue;
       }
 
       const user = await prisma.user.update({
@@ -77,15 +120,11 @@ export const userRoute: FastifyPluginAsync = async (fastify, _options) => {
         data: data as never,
       });
 
-      const validation = profileDataSchema.safeParse(request.body);
-      if (!validation.success) {
-        return reply.send({
-          error: "Invalid data",
-          details: validation.error.format(),
-        });
-      } else {
-        reply.send("db updated successfully!" + JSON.stringify(user));
-      }
+      reply.send({
+        ...user,
+        phone: user.phone ?? null,
+        profile_data: user.profile_data ?? null,
+      });
     },
   );
 };
