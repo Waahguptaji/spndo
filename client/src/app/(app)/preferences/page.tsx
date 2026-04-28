@@ -14,6 +14,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import Modal from "@/components/ui/Modal"; // ✅ make sure your Modal file is here
+import Toast from "@/components/ui/Toast";
 import { getMe, updateMe } from "@/lib/api/user";
 
 const PreferenceItem = ({
@@ -63,6 +64,11 @@ const PreferencesPage = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error" | "info">(
+    "success",
+  );
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -102,6 +108,8 @@ const PreferencesPage = () => {
     try {
       setIsUpdating(true);
       setError(null);
+      setToastOpen(false);
+      setToastMessage("");
       await updateMe({
         phone: form.phone,
         profile_data: {
@@ -121,6 +129,9 @@ const PreferencesPage = () => {
           : prev,
       );
       setShowModal(false);
+        setToastType("success");
+        setToastMessage("Profile saved successfully");
+        setToastOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update profile");
     } finally {
@@ -130,11 +141,15 @@ const PreferencesPage = () => {
 
   const handlePasswordUpdate = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      alert("New password and confirmation do not match!");
+        setToastType("error");
+        setToastMessage("New password and confirmation do not match!");
+        setToastOpen(true);
       return;
     }
 
-    alert("Password update API is not available yet on backend.");
+      setToastType("info");
+      setToastMessage("Password update API is not available yet on backend.");
+      setToastOpen(true);
     setShowPasswordModal(false);
   };
 
@@ -334,6 +349,14 @@ const PreferencesPage = () => {
           />
         </div>
       </Modal>
+
+      <Toast
+        open={toastOpen}
+        message={toastMessage}
+        type={toastType}
+        duration={3000}
+        onClose={() => setToastOpen(false)}
+      />
     </div>
   );
 };

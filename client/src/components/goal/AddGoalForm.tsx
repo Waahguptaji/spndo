@@ -46,6 +46,7 @@ const AddGoalForm = ({ goal, onSuccess }: Props) => {
   const [openCal, setOpenCal] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error">("error");
 
   useEffect(() => {
     if (goal) {
@@ -66,6 +67,7 @@ const AddGoalForm = ({ goal, onSuccess }: Props) => {
     setToastMessage("");
 
     if (!deadline) {
+      setToastType("error");
       setToastMessage("Deadline is required.");
       setToastOpen(true);
       return;
@@ -87,10 +89,14 @@ const AddGoalForm = ({ goal, onSuccess }: Props) => {
         updatedGoal = await addGoal(payload);
       }
 
-      onSuccess?.(updatedGoal);
+      setToastType("success");
+      setToastMessage(goal ? "Goal updated successfully" : "Goal added successfully");
+      setToastOpen(true);
+      window.setTimeout(() => onSuccess?.(updatedGoal), 600);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Unable to save goal right now.";
+      setToastType("error");
       setToastMessage(message);
       setToastOpen(true);
     }
@@ -177,7 +183,7 @@ const AddGoalForm = ({ goal, onSuccess }: Props) => {
       <Toast
         open={toastOpen}
         message={toastMessage}
-        type="error"
+        type={toastType}
         duration={3000}
         onClose={() => setToastOpen(false)}
       />
