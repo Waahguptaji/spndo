@@ -5,10 +5,14 @@ import { useRouter } from "next/navigation";
 import Button from "../ui/Button";
 import Modal from "../ui/Modal";
 import AddGoalForm from "./AddGoalForm";
+import { GoalResponse } from "@/lib/api/goals";
 
-type Props = { label?: string };
+type Props = {
+  label?: string;
+  onGoalAdded?: (goal: GoalResponse) => void;
+};
 
-const AddGoalButton: React.FC<Props> = ({ label = "+ Add Goal" }) => {
+const AddGoalButton: React.FC<Props> = ({ label = "+ Add Goal", onGoalAdded }) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
@@ -27,7 +31,12 @@ const AddGoalButton: React.FC<Props> = ({ label = "+ Add Goal" }) => {
         onClose={() => setOpen(false)}
         title="Add Goal"
       >
-        <AddGoalForm />
+        <AddGoalForm
+          onSuccess={(createdGoal) => {
+            setOpen(false);
+            if (createdGoal) onGoalAdded?.(createdGoal);
+          }}
+        />
       </Modal>
     </>
   );
