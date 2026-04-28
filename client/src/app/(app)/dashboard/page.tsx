@@ -143,6 +143,7 @@ function Dashboard() {
           ) : (
             <BudgetsWidget
               budgetDataProp={dashboardBudgets}
+              summaryProp={summary}
               loading={false}
               error={overviewError}
             />
