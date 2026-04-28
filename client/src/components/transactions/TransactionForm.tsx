@@ -5,6 +5,7 @@ import Calendar from "../ui/calendar";
 import FormInput from "../ui/FormInput";
 import CategoryChip from "../ui/CategoryChip";
 import Modal from "../ui/Modal";
+import Toast from "../ui/Toast";
 import { Plus } from "lucide-react";
 import Button from "../ui/Button";
 import { createTransaction } from "@/lib/api/transactions";
@@ -44,6 +45,9 @@ function TransactionForm({
   const [newCatName, setNewCatName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error">("error");
 
   useEffect(() => setSelectedId(null), [kind]);
 
@@ -137,8 +141,22 @@ function TransactionForm({
       setTitle("");
       setAmount("");
       setSelectedId(null);
-      await onSuccess?.();
+      setToastType("success");
+      setToastMessage(
+        kind === "expense"
+          ? "Expense added successfully"
+          : "Income added successfully",
+      );
+      setToastOpen(true);
+      window.setTimeout(() => {
+        void onSuccess?.();
+      }, 600);
     } catch (error) {
+      setToastType("error");
+      setToastMessage(
+        error instanceof Error ? error.message : "Failed to create transaction",
+      );
+      setToastOpen(true);
       console.error("Failed to create transaction", error);
     } finally {
       setIsSubmitting(false);
@@ -249,6 +267,14 @@ function TransactionForm({
               : "Add Income"}
         </Button>
       </div>
+
+      <Toast
+        open={toastOpen}
+        message={toastMessage}
+        type={toastType}
+        duration={3000}
+        onClose={() => setToastOpen(false)}
+      />
     </form>
   );
 }
