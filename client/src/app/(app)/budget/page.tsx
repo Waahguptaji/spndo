@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Button from "@/components/ui/Button";
+import Toast from "@/components/ui/Toast";
 import { getCategories } from "@/lib/api/categories";
 import { getBudgets, updateBudgets } from "@/lib/api/budgets";
 
 type BudgetDraft = {
   categoryId: string;
   categoryName: string;
-  amount: number;
+  amount: string;
 };
 
 const currentMonthValue = () => {
@@ -22,6 +23,8 @@ export default function BudgetPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,7 +49,8 @@ export default function BudgetPage() {
           expenseCategories.map((category) => ({
             categoryId: category.id,
             categoryName: category.name,
-            amount: budgetByCategory.get(category.id) ?? 0,
+            amount:
+              budgetByCategory.get(category.id)?.toString() ?? "",
           })),
         );
       } catch (err) {
@@ -68,6 +72,8 @@ export default function BudgetPage() {
     try {
       setSaving(true);
       setError(null);
+      setToastOpen(false);
+      setToastMessage("");
 
       await updateBudgets(
         rows.map((row) => ({
@@ -76,6 +82,9 @@ export default function BudgetPage() {
         })),
         month,
       );
+
+      setToastMessage("Budget saved successfully");
+      setToastOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save budgets");
     } finally {
@@ -125,7 +134,7 @@ export default function BudgetPage() {
                 min={0}
                 value={row.amount}
                 onChange={(e) => {
-                  const value = Number(e.target.value || 0);
+                  const value = e.target.value;
                   setRows((prev) =>
                     prev.map((item) =>
                       item.categoryId === row.categoryId
@@ -134,7 +143,7 @@ export default function BudgetPage() {
                     ),
                   );
                 }}
-                className="w-40 rounded-md border px-3 py-2 bg-transparent"
+                className="w-40 rounded-md border px-3 py-2 bg-transparent [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
           ))
@@ -154,6 +163,14 @@ export default function BudgetPage() {
           {saving ? "Saving..." : "Save Budgets"}
         </Button>
       </div>
+
+      <Toast
+        open={toastOpen}
+        message={toastMessage}
+        type="success"
+        duration={3000}
+        onClose={() => setToastOpen(false)}
+      />
     </div>
   );
 }

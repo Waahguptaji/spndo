@@ -6,6 +6,7 @@ import FormInput from "../ui/FormInput";
 import Button from "../ui/Button";
 import Calendar from "../ui/calendar";
 import Modal from "../ui/Modal";
+import Toast from "../ui/Toast";
 import { createReminder, ReminderRepeat } from "@/lib/api/reminders";
 
 const contributionOptions = [
@@ -33,6 +34,9 @@ const SetReminder = ({ onSuccess }: SetReminderProps) => {
   const [openCal, setOpenCal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error">("error");
 
   const contributionLabel =
     contributionOptions.find((o) => o.value === contribution)?.label ?? "";
@@ -66,11 +70,21 @@ const SetReminder = ({ onSuccess }: SetReminderProps) => {
       setAmount("");
       setContribution("none");
       setDeadline(null);
-      await onSuccess?.();
+      setToastType("success");
+      setToastMessage("Reminder added successfully");
+      setToastOpen(true);
+      window.setTimeout(() => {
+        void onSuccess?.();
+      }, 600);
     } catch (error) {
+      setToastType("error");
       setErrorMessage(
         error instanceof Error ? error.message : "Failed to create reminder.",
       );
+      setToastMessage(
+        error instanceof Error ? error.message : "Failed to create reminder.",
+      );
+      setToastOpen(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -140,6 +154,14 @@ const SetReminder = ({ onSuccess }: SetReminderProps) => {
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? "ADDING REMINDER..." : "ADD REMINDER"}
       </Button>
+
+      <Toast
+        open={toastOpen}
+        message={toastMessage}
+        type={toastType}
+        duration={3000}
+        onClose={() => setToastOpen(false)}
+      />
     </form>
   );
 };

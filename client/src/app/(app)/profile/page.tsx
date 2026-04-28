@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import FormInput from "@/components/ui/FormInput";
 import Button from "@/components/ui/Button";
+import Toast from "@/components/ui/Toast";
 import { CircleUserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -19,6 +20,8 @@ export default function ProfileInfo() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const router = useRouter();
   const [profile, setProfile] = useState({
     name: "",
@@ -108,6 +111,8 @@ export default function ProfileInfo() {
     try {
       setSaving(true);
       setError(null);
+      setToastOpen(false);
+      setToastMessage("");
       await updateMe({
         phone: profile.phone.trim() || undefined,
         profile_data: {
@@ -119,7 +124,8 @@ export default function ProfileInfo() {
           image: profile.image,
         },
       });
-      alert("Profile updated successfully!");
+      setToastMessage("Profile saved successfully");
+      setToastOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -240,6 +246,13 @@ export default function ProfileInfo() {
           </Button>
         </div>
       </div>
+      <Toast
+        open={toastOpen}
+        message={toastMessage}
+        type="success"
+        duration={3000}
+        onClose={() => setToastOpen(false)}
+      />
     </div>
   );
 }
