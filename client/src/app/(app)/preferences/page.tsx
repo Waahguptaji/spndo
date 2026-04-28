@@ -17,6 +17,13 @@ import Modal from "@/components/ui/Modal"; // ✅ make sure your Modal file is h
 import Toast from "@/components/ui/Toast";
 import { getMe, updateMe } from "@/lib/api/user";
 
+const toAbsoluteImageUrl = (value?: string) => {
+  if (!value) return "";
+  if (/^https?:\/\//i.test(value)) return value;
+  const base = process.env.NEXT_PUBLIC_API_URL || "";
+  return `${base}${value.startsWith("/") ? value : `/${value}`}`;
+};
+
 const PreferenceItem = ({
   icon,
   label,
@@ -81,12 +88,13 @@ const PreferencesPage = () => {
         setError(null);
         const data = await getMe();
         const profileData = data.profile_data ?? {};
+        const image = toAbsoluteImageUrl(profileData.image);
         setUser({
           id: data.id,
           email: data.email,
           name: profileData.name ?? "",
           phone: data.phone ?? "",
-          image: profileData.image ?? "",
+          image,
         });
         setForm({
           name: profileData.name ?? "",
@@ -124,7 +132,7 @@ const PreferencesPage = () => {
               ...prev,
               name: form.name,
               phone: form.phone,
-              image: form.image,
+              image: toAbsoluteImageUrl(form.image),
             }
           : prev,
       );
