@@ -12,6 +12,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { Budget, getBudgets } from "@/lib/api/budgets";
+import { MonthlySummary, getMonthlySummary } from "@/lib/api/aggregate";
 import { getCategories } from "@/lib/api/categories";
 import { useState, useEffect } from "react";
 
@@ -112,20 +113,24 @@ type BudgetRow = {
 
 type BudgetsWidgetProps = {
   budgetDataProp?: BudgetRow[];
+  summaryProp?: MonthlySummary | null;
   loading?: boolean;
   error?: string | null;
 };
 
 const BudgetsWidget = ({
   budgetDataProp,
+  summaryProp,
   loading: externalLoading,
   error: externalError,
 }: BudgetsWidgetProps) => {
   const [budgetData, setBudgetData] = useState<BudgetRow[]>([]);
+  const [summaryData, setSummaryData] = useState<MonthlySummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const useExternalData = Array.isArray(budgetDataProp);
+  const useExternalSummary = summaryProp !== undefined;
 
   useEffect(() => {
     if (useExternalData) return;
@@ -164,9 +169,32 @@ const BudgetsWidget = ({
     fetchBudgetData();
   }, [useExternalData]);
 
+  useEffect(() => {
+    if (useExternalSummary) return;
+
+    const fetchSummaryData = async () => {
+      try {
+        setError(null);
+        const summary = await getMonthlySummary();
+        setSummaryData(summary);
+      } catch (error) {
+        setError(
+          error instanceof Error ? error.message : "Failed to fetch summary",
+        );
+      }
+    };
+
+    fetchSummaryData();
+  }, [useExternalSummary]);
+
   const widgetBudgets = useExternalData ? budgetDataProp : budgetData;
+  const widgetSummary = useExternalSummary ? summaryProp : summaryData;
   const widgetLoading = useExternalData ? Boolean(externalLoading) : loading;
   const widgetError = useExternalData ? (externalError ?? null) : error;
+
+  const summaryByCategory = new Map(
+    widgetSummary?.byCategory?.map((entry) => [entry.category, Number(entry.amount || 0)]) ?? [],
+  );
 
   return (
     <WidgetCard title="Budgets" href="/budget">
@@ -193,7 +221,10 @@ const BudgetsWidget = ({
             variant="goal"
             title={budget.title}
             icon={getBudgetIcon(budget.title)}
-            progress={{ current: budget.amount, total: budget.amount || 1 }}
+            progress={{
+              current: summaryByCategory.get(budget.title) ?? 0,
+              total: budget.amount || 1,
+            }}
             status="active"
             icon1=""
             icon2=""

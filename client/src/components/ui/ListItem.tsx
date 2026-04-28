@@ -126,7 +126,10 @@ const ListItem: React.FC<ListItemProps> = ({
                   <div
                     className="bg-primary-brand h-2 rounded-full"
                     style={{
-                      width: `${(progress.current / progress.total) * 100}%`,
+                      width: `${Math.min(
+                        100,
+                        (progress.current / progress.total) * 100,
+                      )}%`,
                     }}
                   />
                 </div>
