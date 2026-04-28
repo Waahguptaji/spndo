@@ -202,7 +202,7 @@ const CircularPulseStat: React.FC<Props> = ({
             {label}
           </p>
         ) : null}
-        {typeof percentage === "number" ? (
+        {typeof percentage === "number" && variant !== "savings" ? (
           <p className="text-xs text-neutral-grey2 dark:text-neutral-grey3 mt-1">
             {labelPercentage.toFixed(labelPercentage >= 100 ? 0 : 1)}% of your
             budget
