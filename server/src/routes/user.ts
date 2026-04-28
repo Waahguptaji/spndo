@@ -82,7 +82,7 @@ export const userRoutes: FastifyPluginAsync = async (fastify, _options) => {
       }>,
       reply,
     ) => {
-      let email = request.body?.email;
+      const email = request.body?.email;
       let phone = request.body?.phone;
       let profile_data = request.body?.profile_data as
         | ProfileDataObject
